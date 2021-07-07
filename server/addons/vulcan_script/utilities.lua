@@ -61,20 +61,14 @@ function table.pack(...)
 end
 
 local function Log(message, ...)
-    local stringArgs = ''
-    local args = table.pack(...)
-
-    for i = 1, args.n do
-        stringArgs = stringArgs .. tostring(args[i])
-    end
-
-    print('['..GetDateTime()..'] ' .. string.format(message, stringArgs))
+    print('['..GetDateTime()..'] ' .. string.format(message, ...))
 end
 
 local function LogDebug(debug, ...) Log('[DEBUG]: ' .. debug, ...) end
 local function LogInfo(info, ...) Log('[INFO]: ' .. info, ...) end
 local function LogError(error, ...) Log('[ERRO]: ' .. error, ...) end
 local function LogWarning(warning, ...) Log('[WARN]: ' .. warning, ...) end
+local function LogFatal(fatal, ...) Log('[FATAL]: ' .. fatal, ...) os.execute('pause') os.exit(1) end
 
 -- local function Log(named, ...)
 --     --[[ Check if arg level is > the set Level in initialize(). If not then don't send unless it's important like Error or Fatal ]]--
@@ -278,6 +272,7 @@ M.LogError = LogError
 M.LogInfo = LogInfo
 M.LogWarning = LogWarning
 M.LogDebug = LogDebug
+M.LogFatal = LogFatal
 
 M.ParseCommand = ParseCommand
 M.GetKey = GetKey

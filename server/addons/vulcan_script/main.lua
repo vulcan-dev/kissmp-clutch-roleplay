@@ -146,7 +146,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     local mute_time = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'mute_time')
     if mute_time ~= nil and mute_time > 0 then
         if mute_time <= os.time() then
-            modules.utilities.LogDebug('You have been unmuted')
+            --modules.utilities.LogDebug('You have been unmuted')
             modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'mute_time', 0)
         else
             modules.server.SendChatMessage(executor.user:getID(), 'You are muted', modules.server.ColourError)
@@ -210,13 +210,11 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
                 package.loaded[v] = nil
                 return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
             end, function()
-                --modules.utilities.Log({level=G_LevelFatal}, '[Extension] Failed Loading Extension: '..v) TODO fix
+                modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
             end)
 
-            modules.utilities.LogDebug('[Extension] Reloaded Extension: '..v)
+            modules.utilities.LogDebug('[Extension] Reloaded Extension: %s', v)
         end
-
-        if G_Level < G_LevelDebug then modules.utilities.LogInfo('Successfully reloaded all extensions and modules') end
 
     end
 
@@ -266,7 +264,7 @@ local function Initialize()
         extensions[v] = G_Try(function()
             return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
         end, function()
-            --modules.utilities.Log({level=G_LevelFatal}, '[Extension] Failed Loading Extension: '..v) TODO fix
+            modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
         end)
 
         modules.utilities.LogDebug('[Extension] Loaded Extension: '..v)
@@ -299,11 +297,9 @@ local function Initialize()
     --[[ Create Console ]]--
     G_Clients[1337] = modules.server.consolePlayer
 
+    modules.vulcan_debug = require('addons.vulcan_script.extensions.vulcan_debug.vulcan_debug')
     modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
     modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
-    modules.debug = require('addons.vulcan_script.extensions.vulcan_debug.vulcan_debug')
-
-    modules.utilities.LogError('Test %s', 'Ok')
 end
 
 Initialize()

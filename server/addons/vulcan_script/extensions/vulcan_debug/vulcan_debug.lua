@@ -28,7 +28,7 @@ local function GetMemoryUsage()
 end
 
 local function ReloadModules()
-    modules = G_ReloadModules(modules, 'vulcan_debug.lua')
+    modules = G_ReloadModules(modules, 'debug.lua')
 end
 
 --[[ Return ]]

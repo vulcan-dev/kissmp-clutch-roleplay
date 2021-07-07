@@ -3,7 +3,8 @@
 ]]
 
 package.path = ';?.lua;./addons/vulcan_script/?.lua;./addons/vulcan_script/extensions/vulcan_moderation/?.lua;./addons/vulcan_script/extensions/vulcan_moderation/commands/?.lua;' .. package.path
-package.path = './addons/vulcan_script/?.lua;./addons/vulcan_script/extensions/vulcan_rp/?.lua;./addons/vulcan_script/extensions/vulcan_rp/commands/?.lua;' .. package.path
+package.path = './addons/vulcan_script/extensions/vulcan_rp/?.lua;./addons/vulcan_script/extensions/vulcan_rp/commands/?.lua;' .. package.path
+package.path = './addons/vulcan_script/extensions/vulcan_debug/?.lua;' .. package.path
 
 --[[ Clients and Player Count ]]--
 G_Clients = {}
@@ -53,22 +54,32 @@ function G_ReloadModules(modules, filename)
     filename = filename or ''
 
     for module_name, _ in pairs(modules) do
-        package.loaded[module_name] = nil
-
-        modules[module_name] = require(module_name)
-        utilities.LogDebug('[%s] [Module] Reloaded %s', filename, module_name)
+        if package.loaded[module_name] then
+            package.loaded[module_name] = nil
+            utilities.LogDebug('[Module] [%s] Reloaded %s', filename, module_name)
+            modules[module_name] = require(module_name)
+        else
+            modules[module_name] = require(module_name)
+            utilities.LogDebug('[Module] [%s] Loaded %s', filename, module_name)
+        end
     end
 
     return modules
 end
 
 function G_ReloadExtensions(extensions, filename)
+    local utilities = require('addons.vulcan_script.utilities')
     filename = filename or ''
 
     for ext, _ in pairs(extensions) do
-        package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] = nil
-
-        extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
+        if package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] then
+            package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] = nil
+            extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
+            utilities.LogDebug('[Extension] [%s] Reloaded %s', filename, ext)
+        else
+            extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
+            utilities.LogDebug('[Extension] [%s] Loaded %s', filename, ext)
+        end
     end
 
     return extensions

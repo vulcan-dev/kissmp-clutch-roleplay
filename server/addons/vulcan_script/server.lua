@@ -345,7 +345,7 @@ end
 local function SendChatMessage(client_id, message, colour)
     --if G_CurrentPlayers == 1 then return end --[[ Don't Send Anything to Prevent Spam ]]--
 
-    modules.utilities.LogDebug('Sending Message (client_id, msg, colour): %s %s %s', client_id or nil, message or nil, colour or nil)
+    --modules.utilities.LogDebug('Sending Message (client_id, msg, colour): %s %s %s', client_id or nil, message or nil, colour or nil)
     --[[ Check if Client is Valid ]]--
     if not G_Clients[client_id] then
         colour = message
