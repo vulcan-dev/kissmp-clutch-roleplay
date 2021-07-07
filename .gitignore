@@ -1,0 +1,7 @@
+.dccache
+.vscode
+
+monitor
+
+*.log
+*.exe

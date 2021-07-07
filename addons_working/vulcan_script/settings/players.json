@@ -1,0 +1,23 @@
+{
+  "9e3eb32acf5b682453fd99655962a5fdc2460866": {
+    "alias": [
+      "Daniel W",
+      "Unknown"
+    ],
+    "bans": [],
+    "money": 11349.0,
+    "mute_time": 0.0,
+    "onduty": false,
+    "playtime": 62710.0,
+    "rank": 6.0,
+    "roles": [
+      "Police"
+    ],
+    "vehicleLimit": 11.0,
+    "warns": []
+  },
+  "secret_console": {
+    "playtime": 2.0,
+    "rank": 6.0
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "6376d4494bd9bcc21a7793c205fe3937e850eca9": {
+    "alias": [
+      "Daniel W"
+    ],
+    "bans": [],
+    "mute_time": 0.0,
+    "playtime": 35.0,
+    "rank": 0.0,
+    "vehicleLimit": 2.0,
+    "warns": []
+  },
+  "706b9ba03282e8a5d64531e1f34964c7a11004ea": {
+    "alias": [
+      "Daniel W"
+    ],
+    "bans": [],
+    "mute_time": 0.0,
+    "playtime": 1115.0,
+    "rank": 0.0,
+    "vehicleLimit": 2.0,
+    "warns": []
+  },
+  "secret_console": {
+    "playtime": 2.0,
+    "rank": 6.0
+  }
+}

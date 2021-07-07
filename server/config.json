@@ -1,0 +1,13 @@
+{
+  "server_name": "Clutch Roleplay (Development)",
+  "description": "This server will contain varius new features and bug fixes but it will have a higher chance of restarting if I change major code",
+  "map": "/levels/east_coast_usa/info.json",
+  "max_players": 12,
+  "tickrate": 60,
+  "port": 2121,
+  "max_vehicles_per_client": 24,
+  "show_in_server_list": false,
+  "p2p_enabled": false,
+  "server_identifier": "d=\\fe|hm$D",
+  "mods": null
+}
