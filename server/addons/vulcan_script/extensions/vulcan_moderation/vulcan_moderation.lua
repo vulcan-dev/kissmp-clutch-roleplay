@@ -43,11 +43,11 @@ M.callbacks = {
         local ban = modules.moderation.IsBanned(client.user:getSecret())
         if ban.time ~= nil and ban.time > 0 then -- User is banned
             if ban.time <= os.time() then -- Unban the mf
-                modules.utilities.Log({level=G_LevelDebug}, 'You have been unbanned')
+                modules.utilities.LogDebug('You have been unbanned')
                 modules.moderation.removeBan(client.user:getSecret(), ban.name)
             else
                 client.user:kick(string.format('You are banned from this server. Unban date: %s', os.date('%Y-%m-%d %H:%M:%S', ban.time)))
-                modules.utilities.Log({level=G_LevelDebug}, string.format('You are banned from this server. Unban date: %s', os.date('%Y-%m-%d %H:%M:%S', ban.time)))
+                modules.utilities.LogDebug('You are banned from this server. Unban date: %s', os.date('%Y-%m-%d %H:%M:%S', ban.time))
             end
         end
 
@@ -58,7 +58,7 @@ M.callbacks = {
     end,
 
     VK_PlayerDisconnect = function(client)
-        modules.utilities.Log({level=G_LevelInfo}, string.format('[Player] %s has Disconnected', client.user:getName()))
+        modules.utilities.LogInfo('[Player] %s has Disconnected', client.user:getName())
     end,
 
     VK_VehicleSpawn = function(vehicle_id, client_id)

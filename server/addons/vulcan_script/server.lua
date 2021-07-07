@@ -85,7 +85,7 @@ local function AddClient(client_id)
         connected = false
     }
 
-    modules.utilities.Log({level=G_LevelDebug}, 'Client added: ' .. G_Clients[client_id].user:getName())
+    modules.utilities.LogDebug('Client added: %s', G_Clients[client_id].user:getName())
 end
 
 local function RemoveClient(client_id)
@@ -100,22 +100,22 @@ local function GetUser(user) -- ID, Name, Secret
     for _, client in pairs(G_Clients) do
         if user == client.user:getName() then
             --[[ (In-Game) Client Name was Found ]]--
-            modules.utilities.Log({level=G_LevelDebug}, 'modules.server.GetUser() Returning Name: ' .. user)
+            modules.utilities.LogDebug('modules.server.GetUser() Returning Name: %s', user)
             return {data=client, success=true}
         else
             if tonumber(user) == client.mid then
                 --[[ (In-Game) Client MID was Found ]]--
-                modules.utilities.Log({level=G_LevelDebug}, 'modules.server.GetUser() Returning MID: ' .. tostring(user))
+                modules.utilities.LogDebug('modules.server.GetUser() Returning MID: %d', user)
                 return {data=client, success=true}
             else
                 if tonumber(user) == client.user:getID() then
                     --[[ (In-Game) Client ID was Found ]]--
-                    modules.utilities.Log({level=G_LevelDebug}, 'modules.server.GetUser() Returning ClientID: ' .. tostring(user))
+                    modules.utilities.LogDebug('modules.server.GetUser() Returning ClientID: %s', user)
                     return {data=client, success=true}
                 else
                     if user == client.user:getSecret() then
                         --[[ (In-Game) Client Secret was Found ]]--
-                        modules.utilities.Log({level=G_LevelDebug}, 'modules.server.GetUser() Returning Secret: ' .. tostring(user))
+                        modules.utilities.LogDebug('modules.server.GetUser() Returning Secret: %s', user)
                         return {data=client, success=true}
                     end
                 end
@@ -221,36 +221,6 @@ local function GetUserKey(user, key)
     end
 end
 
-
-local function LuaStrEscape(str, q)
-    local escapeMap = {
-        ["\n"] = [[\n]],
-        ["\\"] = [[\]]
-    }
-
-    local qOther = nil
-    if not q then
-        q = "'"
-    end
-    if q == "'" then
-        qOther = '"'
-    end
-
-    local serializedStr = q
-    for i = 1, str:len(), 1 do
-        local c = str:sub(i, i)
-        if c == q then
-            serializedStr = serializedStr .. q .. " .. " .. qOther .. c .. qOther .. " .. " .. q
-        elseif escapeMap[c] then
-            serializedStr = serializedStr .. escapeMap[c]
-        else
-            serializedStr = serializedStr .. c
-        end
-    end
-    serializedStr = serializedStr .. q
-    return serializedStr
-end
-
 local vch = {}
 
 local function IsConnected(client, name, exec)
@@ -282,13 +252,13 @@ local function IsInRadius(location, radius, x, y)
     for _, v in pairs(data) do
         if type(v.x) == 'number' and type(v.y) == 'number' and type(v.z) == 'number' then
             if (x > v.x - radius and x < v.x + radius) and (y > v.y - radius and y < v.y + radius) then
-                modules.utilities.Log({level=G_LevelDebug}, string.format('[Number] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, v.x, v.y))
+                modules.utilities.LogDebug('[Number] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, v.x, v.y)
                 return {true, _}
             end
         else
             for k, j in pairs(v) do
                 if (x > j.x - radius and x < j.x + radius) and (y > j.y - radius and y < j.y + radius) then
-                    modules.utilities.Log({level=G_LevelDebug}, string.format('[Table] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, j.x, j.y))
+                    modules.utilities.LogDebug('[Table] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, j.x, j.y)
                     return {true, k}
                 end
             end
@@ -375,7 +345,7 @@ end
 local function SendChatMessage(client_id, message, colour)
     --if G_CurrentPlayers == 1 then return end --[[ Don't Send Anything to Prevent Spam ]]--
 
-    modules.utilities.Log({level=G_LevelDebug}, string.format('Sending Message (client_id, msg, colour): %s %s %s', client_id or nil, message or nil, colour or nil))
+    modules.utilities.LogDebug('Sending Message (client_id, msg, colour): %s %s %s', client_id or nil, message or nil, colour or nil)
     --[[ Check if Client is Valid ]]--
     if not G_Clients[client_id] then
         colour = message
@@ -409,7 +379,7 @@ local function SendChatMessage(client_id, message, colour)
 
             --[[ Send Message to All Clients ]]--
             if canSend then
-                client.user:sendLua('extensions.kissui.add_message(' .. LuaStrEscape(message) .. ', {r=' ..
+                client.user:sendLua('extensions.kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
                 tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
                 tostring(colour.b) .. ",a=1})")
             end
@@ -430,7 +400,7 @@ local function SendChatMessage(client_id, message, colour)
 
         --[[ Send Message to Client ]]--
         if canSend then
-            G_Clients[client_id].user:sendLua('extensions.kissui.add_message(' .. LuaStrEscape(message) .. ', {r=' ..
+            G_Clients[client_id].user:sendLua('extensions.kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
                 tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
                 tostring(colour.b) .. ",a=1})")
 

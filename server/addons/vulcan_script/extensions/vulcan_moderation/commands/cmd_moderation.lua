@@ -281,7 +281,7 @@ M.commands = {
             -- Check if the executor is able to run the command against the client
             if executor.GetRank() <= client.GetRank() then
                 modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
-                modules.utilities.Log({level=G_LevelInfo}, string.format('[Moderation] %s tried to kick %s. Reason: %s', executor.user:getName(), client.user:getName(), reason))
+                modules.utilities.LogInfo('[Moderation] %s tried to kick %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
 
                 return
             end
@@ -344,7 +344,7 @@ M.commands = {
             -- Check if the executor is able to run the command against the client
             if executor.GetRank() <= client.GetRank() then
                 modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
-                modules.utilities.Log({level=G_LevelInfo}, string.format('[Moderation] %s tried to mute %s. Reason: %s'), executor.user:getName(), client.user:getName(), reason)
+                modules.utilities.LogInfo('[Moderation] %s tried to mute %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
 
                 return
             end
@@ -495,7 +495,7 @@ M.commands = {
         description = 'Votemute a user (WIP)',
         usage = '/votemute <user>',
         exec = function(executor, args)
-            modules.utilities.Log({level=G_LevelInfo}, 'Nah u can\'t do that')
+            modules.utilities.LogInfo('Nah u can\'t do that')
         end
     },
 

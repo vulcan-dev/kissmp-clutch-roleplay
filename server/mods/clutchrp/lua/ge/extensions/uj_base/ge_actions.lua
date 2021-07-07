@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 --[[
 Created by vJoeyz#5115 (Uncle Joey)
 Installed on 2Fast Racing Servers

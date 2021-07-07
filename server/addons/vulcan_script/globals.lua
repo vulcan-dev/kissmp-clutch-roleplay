@@ -56,7 +56,7 @@ function G_ReloadModules(modules, filename)
         package.loaded[module_name] = nil
 
         modules[module_name] = require(module_name)
-        utilities.Log({level=G_LevelDebug}, string.format('[%s] [Module] Reloaded %s', filename, module_name))
+        utilities.LogDebug('[%s] [Module] Reloaded %s', filename, module_name)
     end
 
     return modules

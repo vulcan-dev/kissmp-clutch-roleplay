@@ -573,10 +573,10 @@ Categories:
             local position = vehicles[ply:getCurrentVehicle()]:getTransform():getPosition()
             local rotation = vehicles[ply:getCurrentVehicle()]:getTransform():getRotation()
 
-            modules.utilities.Log({level=G_LevelInfo}, string.format('\n%s, %s, %s\n%s, %s, %s, %s',
+            modules.utilities.LogInfo('\n%s, %s, %s\n%s, %s, %s, %s',
                 position[1], position[2], position[3],
                 rotation[1], rotation[2], rotation[3], rotation[4]
-            ))
+            )
         end
     }
 }

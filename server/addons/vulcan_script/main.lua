@@ -17,14 +17,6 @@ require('addons.vulcan_script.globals')
     kissui.force_disable_nametags = true
 ]]
 
---[[ Notes:
-    You can't reload globals.lua so if you make any changes you do need to restart
-    If you've modified the vulcan_moderation extension, run !rl in console for it to take effect
-    If you use this on your server and or modify it then please give credits, I spent quite a while debugging this. At least I learned how easy it is to get headaches in Lua
-    If I've deleted something from the repo, I removed it for a reason so don't use it
-    If you run into any errors then please make a new issue and I'll fix it. It will probably take 3 seconds for it to be fixed
-]]
-
 local modules = {
     utilities = require('addons.vulcan_script.utilities'),
     timed_events = require('addons.vulcan_script.timed_events'),
@@ -42,7 +34,7 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
     modules.server.AddClient(client_id)
     local client = G_Clients[client_id]
 
-    modules.utilities.Log({level=G_LevelInfo}, string.format("%s is connecting [ %s ]", client.user:getName(), client.user:getSecret()))
+    modules.utilities.LogInfo('%s is connecting [ %s ]', client.user:getName(), client.user:getSecret())
 
     --[[ Create new User Object if it doesn't exist ]]--
     if not modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'rank', G_LevelError, true, true) then
@@ -54,18 +46,16 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'mute_time', 0)
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'playtime', 0)
 
-        if extensions['vulcan_rp'] then
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'roles', {})
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', 240)
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'onduty', false)
-        end
+        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'roles', {})
+        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', 240)
+        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'onduty', false)
 
-        modules.utilities.Log({level=G_LevelInfo}, string.format('Creating new user object for %s', client.user:getName()))
+        modules.utilities.LogInfo('Creating new user object for %s', client.user:getName())
     end
 
     modules.server.IsConnected(client, client.user:getName(), function()
         --[[ Connected ]]--
-        modules.utilities.Log({level=G_LevelInfo}, string.format("%s has connected", client.user:getName()))
+        modules.utilities.LogInfo("%s has connected", client.user:getName())
         modules.server.DisplayDialog(client, string.format('%s has joined!', client.user:getName()), 3)
 
         --[[ Kick if Unknown (Specified in server.json) ]]
@@ -84,17 +74,15 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
         ))
 
         --[[ Create Waypoints ]]--
-        if extensions['vulcan_rp'] then
-            modules.server.InitializeMarkers(client)
-            client.user:sendLua('kissui.force_disable_nametags = true')
-        end
+        modules.server.InitializeMarkers(client)
+        client.user:sendLua('kissui.force_disable_nametags = true')
 
         --[[ User Help ]]--
         modules.server.SendChatMessage(client.user:getID(), 'Use /help for a list of commands (only show for your rank)', modules.server.ColourSuccess)
 
         --[[ Load Extension Hook VK_PlayerConnect ]]--
         for _, extension in pairs(extensions) do
-            if extension.callbacks.VK_PlayerConnect then
+            if extension.callbacks and extension.callbacks.VK_PlayerConnect then
                 extension.callbacks.VK_PlayerConnect(client_id)
             end
         end
@@ -106,11 +94,11 @@ hooks.register('OnPlayerDisconnected', 'VK_PLAYER_DISCONNECT', function(client_i
     G_Clients[client_id].connected = false
     modules.server.RemoveClient(client_id)
 
-    modules.utilities.Log({level=G_LevelInfo}, string.format("%s has Disconnected [ %s ]", oldClient.user:getName(), oldClient.user:getSecret()))
+    modules.utilities.LogInfo("%s has Disconnected [ %s ]", oldClient.user:getName(), oldClient.user:getSecret())
 
     --[[ Load Extension Hook VK_PlayerDisconnect ]]--
     for _, extension in pairs(extensions) do
-        if extension.callbacks.VK_PlayerDisconnect then
+        if extension.callbacks and extension.callbacks.VK_PlayerDisconnect then
             extension.callbacks.VK_PlayerDisconnect(oldClient)
         end
     end
@@ -121,12 +109,12 @@ end)
 hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_id, client_id)
     --[[ Load Extension Hook VK_VehicleSpawn ]]--
     for _, extension in pairs(extensions) do
-        if extension.callbacks.VK_VehicleSpawn then
+        if extension.callbacks and extension.callbacks.VK_VehicleSpawn then
             extension.callbacks.VK_VehicleSpawn(vehicle_id, client_id)
         end
     end
 
-    modules.utilities.Log({level=G_LevelDebug}, string.format('%s vehicle count: %d', G_Clients[client_id].user:getName(), G_Clients[client_id].vehicleCount))
+    modules.utilities.LogDebug('%s vehicle count: %d', G_Clients[client_id].user:getName(), G_Clients[client_id].vehicleCount)
 end) -- Vehicle Spawned
 
 hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle_id, client_id)
@@ -136,7 +124,7 @@ hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle
 
     --[[ Load Extension Hook VK_VehicleRemoved ]]--
     for _, extension in pairs(extensions) do
-        if extension.callbacks.VK_VehicleRemoved then
+        if extension.callbacks and extension.callbacks.VK_VehicleRemoved then
             extension.callbacks.VK_VehicleRemoved(vehicle_id, client_id)
         end
     end
@@ -145,7 +133,7 @@ end)
 hooks.register('OnVehicleResetted', 'VK_PLAYER_VEHICLE_RESET', function(vehicle_id, client_id)
     --[[ Load Extension Hook VK_VehicleReset ]]--
     for _, extension in pairs(extensions) do
-        if extension.callbacks.VK_VehicleReset then
+        if extension.callbacks and extension.callbacks.VK_VehicleReset then
             extension.callbacks.VK_VehicleReset(vehicle_id, client_id)
         end
     end
@@ -158,7 +146,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     local mute_time = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'mute_time')
     if mute_time ~= nil and mute_time > 0 then
         if mute_time <= os.time() then
-            modules.utilities.Log({level=G_LevelDebug}, 'You have been unmuted')
+            modules.utilities.LogDebug('You have been unmuted')
             modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'mute_time', 0)
         else
             modules.server.SendChatMessage(executor.user:getID(), 'You are muted', modules.server.ColourError)
@@ -167,7 +155,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     end
 
     --[[ Check if Command ]]
-    modules.utilities.Log({level=G_LevelInfo}, string.format('%s said: %s', G_Clients[client_id].user:getName(), message))
+    modules.utilities.LogInfo('%s said: %s', G_Clients[client_id].user:getName(), message)
     if string.sub(message, 1, 1) == prefix then
         local args = modules.utilities.ParseCommand(message, ' ')
         args[1] = args[1]:sub(2)
@@ -181,7 +169,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
                     command.exec(executor, args)
                 end, function(err)
                     modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please post it in bug-reports in /discord ]\nMessage: %s', message, err), modules.server.ColourError)
-                    modules.utilities.Log({level=G_LevelError}, string.format('Command failed! User: %s\n  Message: %s', executor.user:getName(), err))
+                    modules.utilities.LogError('Command failed! User: %s\n  Message: %s', executor.user:getName(), err)
                     return ""
                 end)
             end
@@ -189,16 +177,12 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
             modules.server.SendChatMessage(executor.user:getID(), 'Invalid Command, please use /help', modules.server.ColourWarning)
         end
     else
-        if modules['vulcan_rp'] then
-            modules.moderation.SendUserMessage(executor, 'OOC', message)
-        else
-            modules.moderation.SendUserMessage(executor, nil, message)
-        end
+        modules.moderation.SendUserMessage(executor, 'OOC', message)
     end
 
     --[[ Load Extension Hook VK_OnMessageReceive ]]--
     for _, extension in pairs(extensions) do
-        if extension.callbacks.VK_OnMessageReceive then
+        if extension.callbacks and extension.callbacks.VK_OnMessageReceive then
             extension.callbacks.VK_OnMessageReceive(client_id, message)
         end
     end
@@ -226,18 +210,18 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
                 package.loaded[v] = nil
                 return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
             end, function()
-                modules.utilities.Log({level=G_LevelFatal}, '[Extension] Failed Loading Extension: '..v)
+                --modules.utilities.Log({level=G_LevelFatal}, '[Extension] Failed Loading Extension: '..v) TODO fix
             end)
 
-            modules.utilities.Log({level=G_LevelDebug}, '[Extension] Reloaded Extension: '..v)
+            modules.utilities.LogDebug('[Extension] Reloaded Extension: '..v)
         end
 
-        if G_Level < G_LevelDebug then modules.utilities.Log({level=G_LevelInfo}, 'Successfully reloaded all extensions and modules') end
+        if G_Level < G_LevelDebug then modules.utilities.LogInfo('Successfully reloaded all extensions and modules') end
 
     end
 
     for _, extension in pairs(extensions) do
-        if extension.callbacks.VK_OnStdIn then
+        if extension.callbacks and extension.callbacks.VK_OnStdIn then
             extension.callbacks.VK_OnStdIn(input)
         end
     end
@@ -249,8 +233,7 @@ hooks.register("Tick", "VK_TICK", function()
     --[[ Garbage Debugging ]]--
     if os.time() > nextUpdate then
         nextUpdate = os.time() + 4
-        modules.utilities.Log({level=G_LevelDebug}, string.format('Memory Usage: %.3f KB', collectgarbage('count')))
-        collectgarbage("collect")
+        --modules.debug.GetMemoryUsage()
         collectgarbage("collect")
     end
 
@@ -264,7 +247,7 @@ hooks.register("Tick", "VK_TICK", function()
 
     -- Update extension hook
     for _, extension in pairs(extensions) do
-        if extension.callbacks.VK_Tick then
+        if extension.callbacks and extension.callbacks.VK_Tick then
             extension.callbacks.VK_Tick(1 - 60)
         end
     end
@@ -274,7 +257,7 @@ end)
 local function Initialize()
     --[[ Make sure to change the log level if you don't want console spam :) ]]--
     G_Level = G_LevelDebug
-    modules.utilities.Log({level=G_LevelInfo}, '[Server] Initialized')
+    modules.utilities.LogInfo('[Server] Initialized')
 
     modules = G_ReloadModules(modules, 'main.lua')
 
@@ -283,10 +266,10 @@ local function Initialize()
         extensions[v] = G_Try(function()
             return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
         end, function()
-            modules.utilities.Log({level=G_LevelFatal}, '[Extension] Failed Loading Extension: '..v)
+            --modules.utilities.Log({level=G_LevelFatal}, '[Extension] Failed Loading Extension: '..v) TODO fix
         end)
 
-        modules.utilities.Log({level=G_LevelDebug}, '[Extension] Loaded Extension: '..v)
+        modules.utilities.LogDebug('[Extension] Loaded Extension: '..v)
     end
 
     --[[ Load all Extension Modules ]]--
@@ -309,22 +292,18 @@ local function Initialize()
     modules.server.ColourWarning = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Warning'))
     modules.server.ColourError = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Error'))
 
-    if extensions['vulcan_rp'] then
-        modules.server.ColourDarkweb = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Darkweb'))
-        modules.server.ColourTwitter = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Twitter'))
-        modules.server.ColourPoliceRadio = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'PoliceRadio'))
-    end
+    modules.server.ColourDarkweb = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Darkweb'))
+    modules.server.ColourTwitter = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Twitter'))
+    modules.server.ColourPoliceRadio = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'PoliceRadio'))
 
     --[[ Create Console ]]--
     G_Clients[1337] = modules.server.consolePlayer
 
-    if extensions['vulcan_moderation'] then
-        modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
-    end
+    modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
+    modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
+    modules.debug = require('addons.vulcan_script.extensions.vulcan_debug.vulcan_debug')
 
-    if extensions['vulcan_rp'] then
-        modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
-    end
+    modules.utilities.LogError('Test %s', 'Ok')
 end
 
 Initialize()

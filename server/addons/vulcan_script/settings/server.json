@@ -11,7 +11,7 @@
         "use_discord": false,
         "player_location": "./addons/vulcan-script/settings/",
         "colour_location": "./addons/vulcan-script/settings/",
-        "extensions": ["vulcan_moderation", "vulcan_rp"],
+        "extensions": ["vulcan_moderation", "vulcan_rp", "vulcan_debug"],
         "discord_link": "https://discord.gg/xwKu8prVtz",
         "patreon_link": ""
     }

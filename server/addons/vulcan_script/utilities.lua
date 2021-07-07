@@ -24,62 +24,114 @@ local function GetDateTime(format, time)
     return os.date(format, time)
 end
 
-local function Log(named, ...)
-    --[[ Check if arg level is > the set Level in initialize(). If not then don't send unless it's important like Error or Fatal ]]--
-    if named.level and (named.level > G_Level) and named.level < G_LevelError then return end
+local function LuaStrEscape(str, q)
+    local escapeMap = {
+        ["\n"] = [[\n]],
+        ["\\"] = [[\]]
+    }
 
-    --[[ Maps the number to a string for outputting ]]--
-    local level_str = G_LogLevel[named.level] or G_LogLevel[G_LevelInfo]
-
-    local file = named.level or G_LogFile
-
-    local args = {}
-
-    --[[ Check if arg named exists, if not then assign args to arg named ]]--
-    if type(named) == 'string' then
-        if ... then
-            args = {named .. ...}
-        else
-            args = {named}
-        end
-    else
-        args = {...}
+    local qOther = nil
+    if not q then
+        q = "'"
+    end
+    if q == "'" then
+        qOther = '"'
     end
 
-    local str = ''
-
-    --[[ Loop over each argument and convert them to a string ]]--
-    for _, value in ipairs(args) do
-        if value:sub(#value) ~= ' ' then str = str .. value .. ' ' --[[ No space found at end so add one ]]--
-        else str = str .. value end -- ' ' --[[ Space found at end so don't add another ]]--
-    end
-
-    local output = string.format('[%s] [%s]: %s', level_str, GetDateTime(), str)
-
-    --[[ Write to File ]]--
-    if file then
-        local f = io.open(string.format('./addons/vulcan_script/logs/%s.log', GetDateTime('%Y-%m-%d')), 'a+')
-
-        --[[ Write to File if Exists ]]--
-        if f then
-            f:write(string.format('[%s] [%s]: %s\n', level_str, GetDateTime('%H:%M:%S'), str))
-            f:close()
+    local serializedStr = q
+    for i = 1, str:len(), 1 do
+        local c = str:sub(i, i)
+        if c == q then
+            serializedStr = serializedStr .. q .. " .. " .. qOther .. c .. qOther .. " .. " .. q
+        elseif escapeMap[c] then
+            serializedStr = serializedStr .. escapeMap[c]
         else
-            output = output .. '( ERROR: Could not write to file)'
+            serializedStr = serializedStr .. c
         end
     end
-
-    if level_str == G_LogLevel[G_LevelFatal] then
-        --[[ Fatal Error, close server ]]--
-        output = output .. '(Closing Server)'
-        print(output)
-        os.execute('pause')
-        os.exit(1)
-    else
-        --[[ Print the message ]]--
-        print(output)
-    end
+    serializedStr = serializedStr .. q
+    return serializedStr
 end
+
+--[[ Logging ]]--
+
+-- https://stackoverflow.com/questions/22123970/in-lua-how-to-get-all-arguments-including-nil-for-variable-number-of-arguments
+function table.pack(...)
+    return { n = select("#", ...); ... }
+end
+
+local function Log(message, ...)
+    local stringArgs = ''
+    local args = table.pack(...)
+
+    for i = 1, args.n do
+        stringArgs = stringArgs .. tostring(args[i])
+    end
+
+    print('['..GetDateTime()..'] ' .. string.format(message, stringArgs))
+end
+
+local function LogDebug(debug, ...) Log('[DEBUG]: ' .. debug, ...) end
+local function LogInfo(info, ...) Log('[INFO]: ' .. info, ...) end
+local function LogError(error, ...) Log('[ERRO]: ' .. error, ...) end
+local function LogWarning(warning, ...) Log('[WARN]: ' .. warning, ...) end
+
+-- local function Log(named, ...)
+--     --[[ Check if arg level is > the set Level in initialize(). If not then don't send unless it's important like Error or Fatal ]]--
+--     if named.level and (named.level > G_Level) and named.level < G_LevelError then return end
+
+--     --[[ Maps the number to a string for outputting ]]--
+--     local level_str = G_LogLevel[named.level] or G_LogLevel[G_LevelInfo]
+
+--     local file = named.level or G_LogFile
+
+--     local args = {}
+
+--     --[[ Check if arg named exists, if not then assign args to arg named ]]--
+--     if type(named) == 'string' then
+--         if ... then
+--             args = {named .. ...}
+--         else
+--             args = {named}
+--         end
+--     else
+--         args = {...}
+--     end
+
+--     local str = ''
+
+--     --[[ Loop over each argument and convert them to a string ]]--
+--     for _, value in ipairs(args) do
+--         if value:sub(#value) ~= ' ' then str = str .. value .. ' ' --[[ No space found at end so add one ]]--
+--         else str = str .. value end -- ' ' --[[ Space found at end so don't add another ]]--
+--     end
+
+--     local output = string.format('[%s] [%s]: %s', level_str, GetDateTime(), str)
+
+--     --[[ Write to File ]]--
+--     if file then
+--         local f = io.open(string.format('./addons/vulcan_script/logs/%s.log', GetDateTime('%Y-%m-%d')), 'a+')
+
+--         --[[ Write to File if Exists ]]--
+--         if f then
+--             f:write(string.format('[%s] [%s]: %s\n', level_str, GetDateTime('%H:%M:%S'), str))
+--             f:close()
+--         else
+--             output = output .. '( ERROR: Could not write to file)'
+--         end
+--     end
+
+--     if level_str == G_LogLevel[G_LevelFatal] then
+--         --[[ Fatal Error, close server ]]--
+--         output = output .. '(Closing Server)'
+--         print(output)
+--         os.execute('pause')
+--         os.exit(1)
+--     else
+--         --[[ Print the message ]]--
+--         print(output)
+--     end
+-- end
 
 --[[ Utility Data ]]--
 local function EditKey(filename, object, key, value, log_level)
@@ -116,7 +168,7 @@ local function GetKey(filename, object, key, log_level, bypass, create)
     local file = G_Try(function()
         return io.open(filename, 'r');
     end, function()
-        Log({level=G_LevelError}, string.format('Error opening "%s"', filename))
+        LogError('Error opening "%s"', filename)
     end)
 
     local json_data = decode_json(file:read('*all'))
@@ -217,9 +269,15 @@ local function ReloadModules()
     modules = G_ReloadModules(modules, 'utilities.lua')
 end
 
-M.Log = Log
 M.GetDateTime = GetDateTime
+M.LuaStrEscape = LuaStrEscape
+-- M.Log = Log
 M.IsNumber = IsNumber
+
+M.LogError = LogError
+M.LogInfo = LogInfo
+M.LogWarning = LogWarning
+M.LogDebug = LogDebug
 
 M.ParseCommand = ParseCommand
 M.GetKey = GetKey
