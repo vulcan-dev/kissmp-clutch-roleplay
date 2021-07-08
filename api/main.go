@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"io"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -39,15 +41,36 @@ func main() {
 
     cmd := exec.Command("../server/clutch-roleplay.exe")
 	cmd.Dir = "../server/"
-    stdout, err := cmd.StdoutPipe()
+    // stdout, err := cmd.StdoutPipe()
 
-    if err != nil {
-        log.Fatal(err)
-    }
+    // if err != nil {
+    //     log.Fatal(err)
+    // }
 
-    cmd.Start()
+    // cmd.Start()
 
-    buf := bufio.NewReader(stdout)
+    // buf := bufio.NewReader(stdout)
+
+	cmd.Stderr = os.Stderr
+	stdin, err := cmd.StdinPipe()
+	if nil != err {
+		log.Fatalf("Error obtaining stdin: %s", err.Error())
+	}
+	stdout, err := cmd.StdoutPipe()
+	if nil != err {
+		log.Fatalf("Error obtaining stdout: %s", err.Error())
+	}
+	reader := bufio.NewReader(stdout)
+	go func(reader io.Reader) {
+		scanner := bufio.NewScanner(reader)
+		for scanner.Scan() {
+			log.Printf("Reading from subprocess: %s", scanner.Text())
+			stdin.Write([]byte("some sample text\n"))
+		}
+	}(reader)
+	if err := cmd.Start(); nil != err {
+		log.Fatalf("Error starting program: %s, %s", cmd.Path, err.Error())
+	}
 
 	var cmdData Commands
 	joinleave, err := disgohook.NewWebhookClientByToken(nil, log, "862747269722800188/5Q1JIPOmFWEYU420QM2CQiR7UtdbKly1iYiC5kA7JrTWOwHq0QFNWjSIKtzfrWXWFwoo")
@@ -75,7 +98,7 @@ func main() {
 	}
 		
     for {
-        line, _, _ := buf.ReadLine()
+        line, _, _ := reader.ReadLine()
 		utilities.WriteLine(string(line))
 		
 		if strings.HasPrefix(string(line), "[API]") {
