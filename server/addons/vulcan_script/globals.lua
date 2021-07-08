@@ -35,6 +35,7 @@ G_PatreonLink = ''
 
 G_Uptime = 0
 G_Cooldown = 0
+G_API = true
 
 G_TimedEvents = {}
 G_Commands = {}
@@ -57,6 +58,7 @@ function G_ReloadModules(modules, filename)
         if package.loaded[module_name] then
             package.loaded[module_name] = nil
             utilities.LogDebug('[Module] [%s] Reloaded %s', filename, module_name)
+            
             modules[module_name] = require(module_name)
         else
             modules[module_name] = require(module_name)

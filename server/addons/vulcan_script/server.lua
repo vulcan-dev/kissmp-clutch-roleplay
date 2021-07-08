@@ -379,7 +379,10 @@ local function SendChatMessage(client_id, message, colour)
 
             --[[ Send Message to All Clients ]]--
             if canSend then
-                client.user:sendLua('extensions.kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
+                -- client.user:sendLua('extensions.kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
+                -- tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
+                -- tostring(colour.b) .. ",a=1})")
+                client.user:sendLua('kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
                 tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
                 tostring(colour.b) .. ",a=1})")
             end
@@ -400,9 +403,13 @@ local function SendChatMessage(client_id, message, colour)
 
         --[[ Send Message to Client ]]--
         if canSend then
-            G_Clients[client_id].user:sendLua('extensions.kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
-                tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
-                tostring(colour.b) .. ",a=1})")
+            -- G_Clients[client_id].user:sendLua('extensions.kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
+            --     tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
+            --     tostring(colour.b) .. ",a=1})")
+
+            G_Clients[client_id].user:sendLua('kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
+            tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
+            tostring(colour.b) .. ",a=1})")
 
             canSend = false
         end

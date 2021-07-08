@@ -58,6 +58,16 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
         modules.utilities.LogInfo("%s has connected", client.user:getName())
         modules.server.DisplayDialog(client, string.format('%s has joined!', client.user:getName()), 3)
 
+        --[[ Send Webhook ]]--
+        modules.utilities.SendAPI({
+            client = {
+                name = client.user:getName()
+            },
+
+            data = 'Connected',
+            type = 'user_join'
+        })
+
         --[[ Kick if Unknown (Specified in server.json) ]]
         if modules.utilities.GetKey(G_ServerLocation, 'options', 'kick_unknown') and client.user:getName() == 'Unknown' then
             client.user:kick('Please join back with a different name')
@@ -96,6 +106,15 @@ hooks.register('OnPlayerDisconnected', 'VK_PLAYER_DISCONNECT', function(client_i
 
     modules.utilities.LogInfo("%s has Disconnected [ %s ]", oldClient.user:getName(), oldClient.user:getSecret())
 
+    modules.utilities.SendAPI({
+        client = {
+            name = oldClient.user:getName()
+        },
+
+        data = 'Disconnected',
+        type = 'user_join'
+    })
+
     --[[ Load Extension Hook VK_PlayerDisconnect ]]--
     for _, extension in pairs(extensions) do
         if extension.callbacks and extension.callbacks.VK_PlayerDisconnect then
@@ -107,6 +126,15 @@ hooks.register('OnPlayerDisconnected', 'VK_PLAYER_DISCONNECT', function(client_i
 end)
 
 hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_id, client_id)
+    modules.utilities.SendAPI({
+        client = {
+            name = G_Clients[client_id].user:getName()
+        },
+
+        data = 'Spawned a ' .. vehicles[vehicle_id]:getData():getName(),
+        type = 'vehicle_log'
+    })
+
     --[[ Load Extension Hook VK_VehicleSpawn ]]--
     for _, extension in pairs(extensions) do
         if extension.callbacks and extension.callbacks.VK_VehicleSpawn then
@@ -118,6 +146,15 @@ hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_i
 end) -- Vehicle Spawned
 
 hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle_id, client_id)
+    modules.utilities.SendAPI({
+        client = {
+            name = G_Clients[client_id].user:getName()
+        },
+
+        data = 'Removed a ' .. vehicles[vehicle_id]:getData():getName(),
+        type = 'vehicle_log'
+    })
+
     G_Try(function()
         G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
     end)
@@ -177,6 +214,15 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
             modules.server.SendChatMessage(executor.user:getID(), 'Invalid Command, please use /help', modules.server.ColourWarning)
         end
     else
+        modules.utilities.SendAPI({
+            client = {
+                name = executor.user:getName()
+            },
+
+            data = message,
+            type = 'user_message'
+        })
+
         modules.moderation.SendUserMessage(executor, 'OOC', message)
     end
 
@@ -284,6 +330,13 @@ local function Initialize()
     G_PatreonLink = modules.utilities.GetKey(G_ServerLocation, 'options', 'patreon_link')
 
     prefix = modules.utilities.GetKey(G_ServerLocation, 'options', 'command_prefix')
+
+    -- modules.utilities.SendAPI({
+    --     client = {
+    --         name = 'Dan'
+    --     },
+    --     type = 'user_join'
+    -- })
 
     --[[ Set Colours ]]--
     modules.server.ColourSuccess = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Success'))

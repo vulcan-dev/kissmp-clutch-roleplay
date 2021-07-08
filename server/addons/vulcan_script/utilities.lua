@@ -70,6 +70,10 @@ local function LogError(error, ...) Log('[ERRO]: ' .. error, ...) end
 local function LogWarning(warning, ...) Log('[WARN]: ' .. warning, ...) end
 local function LogFatal(fatal, ...) Log('[FATAL]: ' .. fatal, ...) os.execute('pause') os.exit(1) end
 
+local function SendAPI(json)
+    print('[API]: ' .. encode_json  (json))
+end
+
 -- local function Log(named, ...)
 --     --[[ Check if arg level is > the set Level in initialize(). If not then don't send unless it's important like Error or Fatal ]]--
 --     if named.level and (named.level > G_Level) and named.level < G_LevelError then return end
@@ -273,6 +277,7 @@ M.LogInfo = LogInfo
 M.LogWarning = LogWarning
 M.LogDebug = LogDebug
 M.LogFatal = LogFatal
+M.SendAPI = SendAPI
 
 M.ParseCommand = ParseCommand
 M.GetKey = GetKey
