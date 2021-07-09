@@ -109,7 +109,7 @@ M.callbacks = {
         local vehicle = vehicles[ply:getCurrentVehicle()]
 
         if vehicle then
-            vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
+            -- vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
         end
         return ""
     end,
