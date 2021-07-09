@@ -28,6 +28,8 @@ M.commands = {
 
             table.remove(args, 1)
 
+            print('Oi mate')
+
             local message = ''
             for _, v in pairs(args) do
                 message = message .. v .. ' '

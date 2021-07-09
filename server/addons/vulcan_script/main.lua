@@ -11,6 +11,8 @@ require('addons.vulcan_script.globals')
     TODO add /arrest (freeze user for x time (15sec))
     TODO Make veh spawn and edit different (on spawn set var in user to veh and check in spawn)
 
+    TODO Add input to bufio
+
     local inputActionFilter = extensions.core_input_actionFilter
     inputActionFilter.setGroup('default_blacklist_exploration', {"switch_next_vehicle", "switch_previous_vehicle", "loadHome", "saveHome", "reload_vehicle", "reload_all_vehicles", "vehicle_selector", "parts_selector", "dropPlayerAtCamera", "toggleWalkingMode"} )  
 
@@ -65,7 +67,7 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
             },
 
             data = 'Connected',
-            type = 'user_join'
+            type = 'user_join_leave'
         })
 
         --[[ Kick if Unknown (Specified in server.json) ]]
@@ -112,7 +114,7 @@ hooks.register('OnPlayerDisconnected', 'VK_PLAYER_DISCONNECT', function(client_i
         },
 
         data = 'Disconnected',
-        type = 'user_join'
+        type = 'user_join_leave'
     })
 
     --[[ Load Extension Hook VK_PlayerDisconnect ]]--
@@ -237,6 +239,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
 end) -- OnChat
 
 hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
+    print(input)
     --[[ Reload all Modules ]]--
     if input == '!rl' then
         G_ServerLocation = './addons/vulcan_script/settings/server.json'
@@ -335,7 +338,8 @@ local function Initialize()
     --     client = {
     --         name = 'Dan'
     --     },
-    --     type = 'user_join'
+    --     type = 'user_join_leave',
+    --     data = 'Joined'
     -- })
 
     --[[ Set Colours ]]--
@@ -353,6 +357,17 @@ local function Initialize()
     modules.vulcan_debug = require('addons.vulcan_script.extensions.vulcan_debug.vulcan_debug')
     modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
     modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
+
+    modules.utilities.SendAPI({
+        executor = {
+            name = "Dan"
+        },
+        client = {
+            name = "User"
+        },
+        type = 'mod_log',
+        data = 'Kicked'
+    })
 end
 
 Initialize()

@@ -83,11 +83,24 @@ M.commands = {
                 modules.moderation.AddBan(client.user:getSecret(), reason, os.date('%Y-%m-%d %H:%M:%S'), exp_sec, os.date('%Y-%m-%d %H:%M:%S', exp_sec), executor.user:getName())
 
                 --[[ Check if the Client is In-Game, if so kick them ]]--
+                modules.utilities.SendAPI({
+                    executor = {
+                        name = executor.user:getName()
+                    },
+                    client = {
+                        name = client.user:getName()
+                    },
+                    time_str = os.date('%Y-%m-%d %H:%M:%S', exp_sec),
+                    reason = reason,
+                    data = 'kicked',
+                    type = 'mod_log'
+                })
+
+                modules.server.SendChatMessage(string.format('[Moderation] %s has been banned by %s', client.user:getName(), executor.user:getName()))
+
                 if G_Clients[client.user:getID()] then
                     client.user:kick(string.format('You have been banned by %s. Unban Date: %s', executor.user:getName(), os.date('%Y-%m-%d %H:%M:%S', exp_sec)))
                 end
-
-                modules.server.SendChatMessage(string.format('[Moderation] %s has been banned by %s', client.user:getName(), executor.user:getName()))
             end
         end
     },
@@ -141,6 +154,18 @@ M.commands = {
 
             modules.server.DisplayDialog(executor, string.format('Successfully warned %s', client.user:getName()))
 
+            modules.utilities.SendAPI({
+                executor = {
+                    name = executor.user:getName()
+                },
+                client = {
+                    name = client.user:getName()
+                },
+                reason = reason,
+                data = 'warn',
+                type = 'mod_log'
+            })
+            
             --[[ Check if the Client is In-Game, if so send them a dialog ]]--
             if G_Clients[client.user:getID()] then
                 modules.server.DisplayDialog(client, string.format('%s has warned you for: %s', client.user:getName(), reason))
@@ -168,6 +193,17 @@ M.commands = {
                 modules.server.DisplayDialog(executor, client.user:getName()..' is not banned')
                 return
             end
+
+            modules.utilities.SendAPI({
+                executor = {
+                    name = executor.user:getName()
+                },
+                client = {
+                    name = client.user:getName()
+                },
+                data = 'unbanned',
+                type = 'mod_log'
+            })
 
             if modules.moderation.removeBan(client.user:getSecret(), ban_name) then
                 modules.server.DisplayDialog(executor, 'Successfully unbanned '..client.user:getName())
@@ -254,6 +290,17 @@ M.commands = {
                     modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'warns', warn_data)
                     modules.server.DisplayDialog(executor, 'Successfully removed warn from user')
                     count = count + 1
+
+                    modules.utilities.SendAPI({
+                        executor = {
+                            name = executor.user:getName()
+                        },
+                        client = {
+                            name = client.user:getName()
+                        },
+                        data = 'remove_warn',
+                        type = 'mod_log'
+                    })
                     return
                 end
             end
@@ -397,6 +444,18 @@ M.commands = {
                 end
 
                 modules.server.SendChatMessage(string.format('[Moderation] %s has been muted by %s', executor.user:getName(), client.user:getName()))
+                modules.utilities.SendAPI({
+                    executor = {
+                        name = executor.user:getName()
+                    },
+                    client = {
+                        name = client.user:getName()
+                    },
+                    time_str = os.date('%Y-%m-%d %H:%M:%S', exp_sec),
+                    reason = reason,
+                    data = 'muted',
+                    type = 'mod_log'
+                })
             end
         end
     },
@@ -425,6 +484,17 @@ M.commands = {
                 modules.server.SendChatMessage(client.user:getID(), string.format('You have been unmuted by %s', executor.user:getName()))
                 modules.server.DisplayDialog(executor, '[Error] User it not muted')
             end
+
+            modules.utilities.SendAPI({
+                executor = {
+                    name = executor.user:getName()
+                },
+                client = {
+                    name = client.user:getName()
+                },
+                data = 'unmuted',
+                type = 'mod_log'
+            })
 
             modules.server.SendChatMessage(string.format('[Moderation] %s has been unmuted by %s', executor.user:getName(), client.user:getName()))
         end

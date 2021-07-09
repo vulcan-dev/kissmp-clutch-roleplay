@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/DisgoOrg/disgohook"
 	"github.com/DisgoOrg/disgohook/api"
@@ -16,6 +17,7 @@ import (
 var (
 	utilities Utilities
 	log = utilities.InitializeLogger()
+	cmd *exec.Cmd
 )
 
 type Commands struct {
@@ -36,41 +38,64 @@ type Commands struct {
 	Data string `json:"data"`
 }
 
+type InputHandler interface {
+    Input(string) error
+}
+
+type Foo struct {
+	writer io.Writer
+	reader io.Reader
+}
+
+func (f* Foo) Input(s string) error {
+	f.writer.Write([]byte(s))
+	return nil
+}
+
+func inputReader(r io.Reader, handler InputHandler) error {
+    scanner := bufio.NewScanner(r)
+    scanner.Split(bufio.ScanLines)
+
+    for scanner.Scan() {
+        if err := scanner.Err(); err != nil {
+            return err
+        }
+        if err := handler.Input(scanner.Text()); err != nil {
+            return err
+        }
+    }
+
+    return nil
+}
+
 func main() {
 	utilities.SetupCloseHandler()
 
-    cmd := exec.Command("../server/clutch-roleplay.exe")
+	// foo := &Foo{}
+
+    cmd = exec.Command("../server/clutch-roleplay.exe")
 	cmd.Dir = "../server/"
-    // stdout, err := cmd.StdoutPipe()
+    stdout, err := cmd.StdoutPipe()
+	writer, _ := cmd.StdinPipe()
+	writer.Close()
 
-    // if err != nil {
-    //     log.Fatal(err)
-    // }
+    if err != nil {
+        log.Fatal(err)
+    }
 
-    // cmd.Start()
+    cmd.Start()
 
-    // buf := bufio.NewReader(stdout)
+    reader := bufio.NewReader(stdout)
+	foo := &Foo{reader: stdout, writer: writer}
 
-	cmd.Stderr = os.Stderr
-	stdin, err := cmd.StdinPipe()
-	if nil != err {
-		log.Fatalf("Error obtaining stdin: %s", err.Error())
-	}
-	stdout, err := cmd.StdoutPipe()
-	if nil != err {
-		log.Fatalf("Error obtaining stdout: %s", err.Error())
-	}
-	reader := bufio.NewReader(stdout)
-	go func(reader io.Reader) {
-		scanner := bufio.NewScanner(reader)
-		for scanner.Scan() {
-			log.Printf("Reading from subprocess: %s", scanner.Text())
-			stdin.Write([]byte("some sample text\n"))
-		}
-	}(reader)
-	if err := cmd.Start(); nil != err {
-		log.Fatalf("Error starting program: %s, %s", cmd.Path, err.Error())
-	}
+	wg := sync.WaitGroup{}
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
+        if err := inputReader(os.Stdin, foo); err != nil {
+            log.Println("input error:", err)
+        }
+    }()
 
 	var cmdData Commands
 	joinleave, err := disgohook.NewWebhookClientByToken(nil, log, "862747269722800188/5Q1JIPOmFWEYU420QM2CQiR7UtdbKly1iYiC5kA7JrTWOwHq0QFNWjSIKtzfrWXWFwoo")
@@ -96,9 +121,10 @@ func main() {
 		log.Errorf("Failed creating Webhook: %s", err)
 		return
 	}
-		
-    for {
-        line, _, _ := reader.ReadLine()
+
+	for {
+		line, _, _ := reader.ReadLine()
+			
 		utilities.WriteLine(string(line))
 		
 		if strings.HasPrefix(string(line), "[API]") {
@@ -140,5 +166,7 @@ func main() {
 				commandMap[cmdData.Type](cmdData)
 			}
 		}
-    }
+	}
+
+	wg.Wait()
 }
