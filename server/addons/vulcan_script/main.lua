@@ -362,17 +362,17 @@ local function Initialize()
     modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
     modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
 
-    modules.utilities.SendAPI({
-        executor = {
-            name = "Dan"
-        },
-        client = {
-            name = "User"
-        },
-        type = 'mod_log',
-        reason = 'test',
-        data = 'kicked'
-    })
+    -- modules.utilities.SendAPI({
+    --     executor = {
+    --         name = "Dan"
+    --     },
+    --     client = {
+    --         name = "User"
+    --     },
+    --     type = 'mod_log',
+    --     reason = 'test',
+    --     data = 'kicked'
+    -- })
 end
 
 Initialize()
