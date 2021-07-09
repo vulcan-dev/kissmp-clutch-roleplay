@@ -4,7 +4,6 @@ use tokio::process;
 use std::{process::{Stdio}};
 use tokio::io::{BufReader, AsyncBufReadExt, AsyncWriteExt};
 use regex::Regex;
-use serde_json::{Value};
 use pretty_env_logger;
 use std::error::Error;
 use chrono::offset::Local;
@@ -109,7 +108,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                 "kicked" => {
                     webhooks.moderation.send(move |m| m
                         .embed(|e| e
-                            .title(data)
+                            .title(&data)
                             .color(0xB8323B)
                             .field("Executor"   , ename, true)
                             .field("Client"     , cname, true)
@@ -155,7 +154,9 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                             .field("Reason", reason, false)
                             .timestamp(format!("{}", Local::now().to_rfc3339()).as_str())
                         )
-                    ).await?
+                    ).await.unwrap_or_else(|e|{
+                        error!("Failed sending {}", e)
+                    })
                 },
                 "unmuted" => {
                     webhooks.moderation.send(move |m| m.
@@ -166,7 +167,9 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                             .field("Client"     , cname, true)
                             .timestamp(format!("{}", Local::now().to_rfc3339()).as_str())
                         )
-                    ).await?
+                    ).await.unwrap_or_else(|e|{
+                        error!("Failed sending {}", e)
+                    })
                 },
                 "warn" => {
                     let warn_date = cmd.time_str.as_ref().unwrap().as_str();
@@ -180,7 +183,9 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                             .field("Reason", reason, false)
                             .timestamp(format!("{}", Local::now().to_rfc3339()).as_str())
                         )
-                    ).await?
+                    ).await.unwrap_or_else(|e|{
+                        error!("Failed sending {}", e)
+                    })
                 },
                 "remove_warn" => {
                     webhooks.moderation.send(move |m| m.
@@ -191,7 +196,9 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                             .field("Client"     , cname, true)
                             .timestamp(format!("{}", Local::now().to_rfc3339()).as_str())
                         )
-                    ).await?
+                    ).await.unwrap_or_else(|e|{
+                        error!("Failed sending {}", e)
+                    })
                 }
                 _ => warn!("Command not understood: {:?}", cmd)
             }
