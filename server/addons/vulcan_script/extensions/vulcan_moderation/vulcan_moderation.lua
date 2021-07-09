@@ -89,7 +89,7 @@ M.callbacks = {
 
         if can_drive then
             if vehicle then
-                vehicle:sendLua(string.format('obj:setWind(%d,%d,%d)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
+                -- vehicle:sendLua(string.format('obj:setWind(%d,%d,%d)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
             end
         
             if (vehicle:getData():getName() ~= 'unicycle') then
