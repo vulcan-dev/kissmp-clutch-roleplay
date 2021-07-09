@@ -99,7 +99,9 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                     data
                 );
                 m.content(message.as_str())
-            }).await?
+            }).await.unwrap_or_else(|e|{
+                error!("Failed sending {}", e)
+            })
         },
         "mod_log" => {
             let ename = cmd.executor.as_ref().unwrap().name.as_ref().unwrap();
@@ -115,7 +117,9 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                             .field("Reason", reason, false)
                             .timestamp(format!("{}", Local::now().to_rfc3339()).as_str())
                         )
-                    ).await?
+                    ).await.unwrap_or_else(|e|{
+                        error!("Failed sending {}", e)
+                    })
                 },
                 "banned" => {
                     let unban_date = cmd.time_str.as_ref().unwrap().as_str();
@@ -129,7 +133,9 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                             .field("Reason", reason, false)
                             .timestamp(format!("{}", Local::now().to_rfc3339()).as_str())
                         )
-                    ).await?
+                    ).await.unwrap_or_else(|e|{
+                        error!("Failed sending {}", e)
+                    })
                 },
                 "unbanned" => {
                     webhooks.moderation.send(move |m| m.
@@ -140,7 +146,9 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                             .field("Client"     , cname, true)
                             .timestamp(format!("{}", Local::now().to_rfc3339()).as_str())
                         )
-                    ).await?
+                    ).await.unwrap_or_else(|e|{
+                        error!("Failed sending {}", e)
+                    })
                 },
                 "muted" => {
                     let unmute_date = cmd.time_str.as_ref().unwrap().as_str();
@@ -210,13 +218,17 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                     data
                 );
                 m.content(message.as_str())
-            }).await?
+            }).await.unwrap_or_else(|e|{
+                error!("Failed sending {}", e)
+            })
         },
         "user_message" => {
             webhooks.chat.send(move |m| {
                 m.username(&cname)
                 .content(&data)
-            }).await?
+            }).await.unwrap_or_else(|e|{
+                error!("Failed sending {}", e)
+            })
         },
         _ => warn!("Command not understood: {:?}", cmd)
     }
