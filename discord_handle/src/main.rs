@@ -34,10 +34,9 @@ fn setup_webhooks() -> Webhooks {
 async fn main() -> Result<(), Box<dyn Error + 'static>> {
     pretty_env_logger::init();
     let webhooks = setup_webhooks();
-    let mut clutchrp = process::Command::new("../server/clutch-roleplay.exe")
+    let mut clutchrp = process::Command::new("./clutch-roleplay.exe")
         .stdout(Stdio::piped())
         .stdin(Stdio::piped())
-        .current_dir("../server")
         .spawn()
         .expect("Failed processing command");
 
@@ -110,8 +109,8 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
             let reason = cmd.reason.as_deref().unwrap();
             match data.as_str() {
                 "kicked" => {
-                    webhooks.moderation.send(move |m| m.
-                        embed(|e| e
+                    webhooks.moderation.send(move |m| m
+                        .embed(|e| e
                             .title(data)
                             .color(0xB8323B)
                             .field("Executor"   , ename, true)

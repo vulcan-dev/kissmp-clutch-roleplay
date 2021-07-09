@@ -128,14 +128,16 @@ hooks.register('OnPlayerDisconnected', 'VK_PLAYER_DISCONNECT', function(client_i
 end)
 
 hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_id, client_id)
-    modules.utilities.SendAPI({
-        client = {
-            name = G_Clients[client_id].user:getName()
-        },
+    if vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
+        modules.utilities.SendAPI({
+            client = {
+                name = G_Clients[client_id].user:getName()
+            },
 
-        data = 'Spawned a ' .. vehicles[vehicle_id]:getData():getName(),
-        type = 'vehicle_log'
-    })
+            data = 'Spawned a ' .. vehicles[vehicle_id]:getData():getName(),
+            type = 'vehicle_log'
+        })
+    end
 
     --[[ Load Extension Hook VK_VehicleSpawn ]]--
     for _, extension in pairs(extensions) do
@@ -148,14 +150,16 @@ hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_i
 end) -- Vehicle Spawned
 
 hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle_id, client_id)
-    modules.utilities.SendAPI({
-        client = {
-            name = G_Clients[client_id].user:getName()
-        },
+    if vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
+        modules.utilities.SendAPI({
+            client = {
+                name = G_Clients[client_id].user:getName()
+            },
 
-        data = 'Removed a ' .. vehicles[vehicle_id]:getData():getName(),
-        type = 'vehicle_log'
-    })
+            data = 'Removed a ' .. vehicles[vehicle_id]:getData():getName(),
+            type = 'vehicle_log'
+        })
+    end
 
     G_Try(function()
         G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
@@ -366,7 +370,8 @@ local function Initialize()
             name = "User"
         },
         type = 'mod_log',
-        data = 'Kicked'
+        reason = 'test',
+        data = 'kicked'
     })
 end
 
