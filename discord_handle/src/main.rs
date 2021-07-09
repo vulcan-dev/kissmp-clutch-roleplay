@@ -94,7 +94,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
         "user_join_leave" => {
             webhooks.join.send(move |m| {
                 let message = format!(
-                    "{} has {}",
+                    "> {} has **{}**",
                     cname,
                     data
                 );
@@ -205,7 +205,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
         "vehicle_log" => {
             webhooks.vehicle.send(move |m| {
                 let message = format!(
-                    "> {} has ***{}***",
+                    "> {} has **{}**",
                     cname,
                     data
                 );
