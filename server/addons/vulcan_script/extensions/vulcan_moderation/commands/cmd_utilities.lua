@@ -38,7 +38,13 @@ M.commands = {
         description = 'Sends a message to chat without any user',
         usage = '/say <message>',
         exec = function(executor, args)
-            local message = args[1] or nil
+            local message = ''
+            for k, v in pairs(args) do
+                message = message .. v .. ' '
+            end
+
+            -- Check if message is valid
+            if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
 
             if not message then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
             modules.server.SendChatMessage('[Console]: ' .. tostring(message))

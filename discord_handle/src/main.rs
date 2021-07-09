@@ -64,8 +64,6 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
     /* Output */
     while let Some(line) = server_r.next_line().await? {
         if let Some(data) = api_regex.captures(&line) {
-            let v: Value = serde_json::from_str(&data[1])?;
-            info!("{}", v["type"]);
             let cmd: Commands = serde_json::from_str(&data[1])?;
             if let Err(e) = command_handler(cmd, &webhooks).await {
                 warn!("Failed to handle message: {:#?}", e);
@@ -92,7 +90,7 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
 
 async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<dyn Error>> {
     let cname = cmd.client.as_ref().unwrap().name.as_ref().unwrap();
-    let data = cmd.data.as_ref().unwrap();
+    let data = format!(r"{}", cmd.data.as_ref().unwrap());
     match cmd.command.as_str() {
         "user_join_leave" => {
             webhooks.join.send(move |m| {
@@ -124,7 +122,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                     let unban_date = cmd.time_str.as_ref().unwrap().as_str();
                     webhooks.moderation.send(move |m| m.
                         embed(|e| e
-                            .title(data)
+                            .title(&data)
                             .color(0xB8323B)
                             .field("Executor"   , ename, true)
                             .field("Client"     , cname, true)
@@ -137,7 +135,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                 "unbanned" => {
                     webhooks.moderation.send(move |m| m.
                         embed(|e| e
-                            .title(data)
+                            .title(&data)
                             .color(0x26BD9C)
                             .field("Executor"   , ename, true)
                             .field("Client"     , cname, true)
@@ -149,7 +147,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                     let unmute_date = cmd.time_str.as_ref().unwrap().as_str();
                     webhooks.moderation.send(move |m| m.
                         embed(|e| e
-                            .title(data)
+                            .title(&data)
                             .color(0xB8323B)
                             .field("Executor"   , ename, true)
                             .field("Client"     , cname, true)
@@ -162,7 +160,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                 "unmuted" => {
                     webhooks.moderation.send(move |m| m.
                         embed(|e| e
-                            .title(data)
+                            .title(&data)
                             .color(0x26BD9C)
                             .field("Executor"   , ename, true)
                             .field("Client"     , cname, true)
@@ -174,7 +172,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                     let warn_date = cmd.time_str.as_ref().unwrap().as_str();
                     webhooks.moderation.send(move |m| m.
                         embed(|e| e
-                            .title(data)
+                            .title(&data)
                             .color(0xB8323B)
                             .field("Executor"   , ename, true)
                             .field("Client"     , cname, true)
@@ -187,7 +185,7 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                 "remove_warn" => {
                     webhooks.moderation.send(move |m| m.
                         embed(|e| e
-                            .title(data)
+                            .title(&data)
                             .color(0x26BD9C)
                             .field("Executor"   , ename, true)
                             .field("Client"     , cname, true)
