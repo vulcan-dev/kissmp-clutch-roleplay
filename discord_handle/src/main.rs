@@ -172,14 +172,13 @@ async fn command_handler(cmd: Commands, webhooks: &Webhooks) -> Result<(), Box<d
                     })
                 },
                 "warn" => {
-                    let warn_date = cmd.time_str.as_ref().unwrap().as_str();
+                    
                     webhooks.moderation.send(move |m| m.
                         embed(|e| e
                             .title(&data)
                             .color(0xB8323B)
                             .field("Executor"   , ename, true)
                             .field("Client"     , cname, true)
-                            .field("WarnDate"  , warn_date, false)
                             .field("Reason", reason, false)
                             .timestamp(format!("{}", Local::now().to_rfc3339()).as_str())
                         )
