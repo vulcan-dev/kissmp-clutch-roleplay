@@ -10,7 +10,6 @@ use chrono::offset::Local;
 
 mod structs;
 use structs::Commands;
-
 struct Webhooks {
     join: Webhook,
     vehicle: Webhook,
@@ -32,13 +31,16 @@ fn setup_webhooks() -> Webhooks {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + 'static>> {
     pretty_env_logger::init();
-    let webhooks = setup_webhooks();
-    let mut clutchrp = process::Command::new("./clutch-roleplay.exe")
-        .stdout(Stdio::piped())
-        .stdin(Stdio::piped())
-        .spawn()
-        .expect("Failed processing command");
 
+    
+    let webhooks = setup_webhooks();
+    let mut clutchrp = process::Command::new("../server/clutch-roleplay.exe")
+    .stdout(Stdio::piped())
+    .stdin(Stdio::piped())
+    .current_dir("../server/")
+    .spawn()
+    .expect("Failed processing command");
+    
     let stdout = clutchrp.stdout.take().expect("Failed to open stdout");
     let mut stdin = clutchrp.stdin.take().expect("Failed to open stdin");
     let mut server_r = BufReader::new(stdout).lines();
@@ -60,7 +62,6 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
     let warning_regex = Regex::new(r".*\[WARN\]: (.*)").expect("Bad Regex");
     let fatal_regex = Regex::new(r".*\[FATAL\]: (.*)").expect("Bad Regex");
 
-    /* Output */
     while let Some(line) = server_r.next_line().await? {
         if let Some(data) = api_regex.captures(&line) {
             let cmd: Commands = serde_json::from_str(&data[1])?;

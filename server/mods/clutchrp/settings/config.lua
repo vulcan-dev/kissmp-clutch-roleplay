@@ -42,7 +42,7 @@ config.motd.enabled = true -- enables or disables the motd
 config.motd.type = "htmlOnly" -- htmlOnly: simple (large) motd || selectableVehicle: motd with the ability to select a vehicle
 config.motd.title = "Welcome to Clutch Roleplay Community!"
 config.motd.description = [[
-    [center][img]ui/uj_base/ClutchRP-logo-motd.jpeg[/img][/center]
+    [center][img]uj_base/logo.jpeg[/img][/center]
     [h2]Introduction[/h2]
     Thank you for choosing us! We are always looking for active moderators so if you're up for it do /discord and ask there, one of the staff members will answer you.
     [br]
@@ -59,7 +59,9 @@ config.motd.description = [[
 		[*]11. No Cop-Baiting.
 		[*]12. No Metagaming.
 		[*]13. No VDM.
-        [*]14. No Driving Unrealistically
+        [*]14. No FailRP
+        [*]15. No Driving Unrealistically
+        [*]16. Must read rules
     [/list]
     [br]
 ]] -- all bbcodes can be found in README.md

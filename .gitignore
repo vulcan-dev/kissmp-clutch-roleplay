@@ -4,6 +4,7 @@
 monitor
 players.json
 KissMP
+discord_bot
 
 *.log
 *.exe

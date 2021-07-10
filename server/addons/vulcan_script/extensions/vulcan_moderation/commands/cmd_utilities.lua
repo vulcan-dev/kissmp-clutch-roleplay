@@ -118,9 +118,9 @@ M.commands = {
                         local ply = connections[c.user:getID()]
                         local vehicle = vehicles[ply:getCurrentVehicle()]
 
-                        if vehicle then
-                            vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', speed_x, speed_y, speed_x))
-                        end
+                        -- if vehicle then
+                            -- vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', speed_x, speed_y, speed_x))
+                        -- end
 
                         modules.server.DisplayDialog(c.data, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
                         return
@@ -530,7 +530,7 @@ Categories:
         description = 'Displays patreon link',
         usage = '/donate',
         exec = function(executor, args)
-            modules.server.SendChatMessage(executor.user:getID(), 'Patreon URL: patreon.com/'..G_PatreonLink, modules.server.ColourSuccess)
+            executor.user:sendLua("openWebBrowser('"..G_PatreonLink.."')");
         end
     },
 

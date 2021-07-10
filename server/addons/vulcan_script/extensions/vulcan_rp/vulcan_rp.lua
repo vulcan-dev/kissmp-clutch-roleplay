@@ -66,8 +66,8 @@ M.callbacks = {
             for _, client in pairs(G_Clients) do
                 if client.user:getID() ~= 1337 then
                     -- [[ Send Money ]]
-                    if modules.rp.IsLeo(client) then money = 456
-                    else money = 60 end
+                    if modules.rp.IsLeo(client) then money = math.random( 200, 400 )
+                    else money = math.random( 60, 140 ) end
                     modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'money') + money)
                     modules.server.DisplayDialog(client, 'You have received a paycheck of $'..money..'!')
 

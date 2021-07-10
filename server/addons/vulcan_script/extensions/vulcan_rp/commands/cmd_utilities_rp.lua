@@ -605,6 +605,8 @@ M.commands = {
                     else
                         modules.server.DisplayDialog(executor, 'You cannot rob this location')
                     end
+                else
+                    modules.server.DisplayDialogError(G_ErrorNotInVehicle, executor)
                 end
             else
                 modules.server.DisplayDialog(executor, 'You are already doing this')
@@ -718,6 +720,8 @@ M.commands = {
                 executor.home.w = vehicle:getTransform():getRotation()[4]
 
                 modules.server.DisplayDialog(executor, 'Successfully set your home postion. TP back with /home')
+            else
+                modules.server.DisplayDialog(executor, 'It appears you are not in a vehicle')
             end
         end
     },
