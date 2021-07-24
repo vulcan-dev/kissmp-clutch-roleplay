@@ -134,6 +134,7 @@ M.commands["set_wind"] = {
 M.commands["set_time"] = {
     rank = modules.moderation.RankModerator,
     category = 'Moderation Utilities',
+    alias = "time_set",
     description = 'Sets the time for everyone',
     usage = '/set_time <hh:mm:ss>',
     exec = function(executor, args)

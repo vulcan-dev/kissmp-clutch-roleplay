@@ -206,6 +206,14 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
         args[1] = args[1]:sub(2)
 
         local command = G_Commands[args[1]]
+        if not command then
+            for name, cmd in pairs(G_Commands) do
+                if args[1] == cmd.alias then
+                    command = cmd -- this line (attempt to access nil value)
+                    break
+                end
+            end
+        end
 
         if command then
             if executor.GetRank() >= command.rank then
@@ -252,13 +260,10 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
         G_PlayersLocation = './addons/vulcan_script/settings/players.json'
         G_ColoursLocation = './addons/vulcan_script/settings/colours.json'
 
-        --[[ Reload all Extensions & Modules ]]--
-        extensions = G_ReloadExtensions(extensions)
-        for _, v in pairs(extensions) do
-            v.ReloadModules()
-        end
+        modules = G_ReloadModules(modules, 'main.lua')
 
-        -- Load all extensions
+        --[[ Load all Extensions ]]--
+        extensions = G_ReloadExtensions(extensions, 'main.lua')
         for _, v in pairs(modules.utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
             extensions[v] = G_Try(function()
                 package.loaded[v] = nil
@@ -269,8 +274,11 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
 
             modules.utilities.LogDebug('[Extension] Reloaded Extension: %s', v)
         end
-
-        modules = G_ReloadModules(modules, 'main.lua')
+        
+        --[[ Load all Extension Modules ]]--
+        for _, v in pairs(extensions) do
+            v.ReloadModules()
+        end
     end
 
     for _, extension in pairs(extensions) do
@@ -309,7 +317,7 @@ end)
 
 local function Initialize()
     --[[ Make sure to change the log level if you don't want console spam :) ]]--
-    G_Level = G_LevelInfo
+    G_Level = G_LevelDebug
     modules.utilities.LogInfo('[Server] Initialized')
 
     modules = G_ReloadModules(modules, 'main.lua')
@@ -321,15 +329,15 @@ local function Initialize()
         end, function()
             modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
         end)
-
+        
         modules.utilities.LogDebug('[Extension] Loaded Extension: '..v)
     end
-
+    
     --[[ Load all Extension Modules ]]--
     for _, v in pairs(extensions) do
         v.ReloadModules()
     end
-
+    
     G_Verbose = modules.utilities.GetKey(G_ServerLocation, 'log', 'verbose')
     G_LogFile = modules.utilities.GetKey(G_ServerLocation, 'log', 'file')
 

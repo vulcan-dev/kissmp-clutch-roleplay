@@ -49,6 +49,7 @@ function G_ReloadModules(modules, filename)
 
     for module_name, _ in pairs(modules) do
         if package.loaded[module_name] then
+            package.loaded[module_name] = nil
             utilities.LogDebug('[Module] [%s] Reloaded %s', filename, module_name)
         else
             utilities.LogDebug('[Module] [%s] Loaded %s', filename, module_name)
@@ -70,8 +71,9 @@ function G_ReloadExtensions(extensions, filename)
         else
             utilities.LogDebug('[Extension] [%s] Loaded %s', filename, ext)
         end
-    
-        extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
+
+        extensions[ext] = nil
+        --extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
     end
 
     return extensions
