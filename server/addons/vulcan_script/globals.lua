@@ -16,13 +16,6 @@ G_LevelDebug = 2
 G_LevelError = 3
 G_LevelFatal = 4
 
-G_LogLevel = {
-    [G_LevelInfo] = 'Info',
-    [G_LevelDebug] = 'Debug',
-    [G_LevelError] = 'Error',
-    [G_LevelFatal] = 'Fatal'
-}
-
 G_Level = G_LevelDebug
 
 --[[ Verbose & Log File ]]--
@@ -56,14 +49,12 @@ function G_ReloadModules(modules, filename)
 
     for module_name, _ in pairs(modules) do
         if package.loaded[module_name] then
-            package.loaded[module_name] = nil
             utilities.LogDebug('[Module] [%s] Reloaded %s', filename, module_name)
-            
-            modules[module_name] = require(module_name)
         else
-            modules[module_name] = require(module_name)
             utilities.LogDebug('[Module] [%s] Loaded %s', filename, module_name)
         end
+
+        modules[module_name] = require(module_name)
     end
 
     return modules
@@ -75,13 +66,12 @@ function G_ReloadExtensions(extensions, filename)
 
     for ext, _ in pairs(extensions) do
         if package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] then
-            package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] = nil
-            extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
             utilities.LogDebug('[Extension] [%s] Reloaded %s', filename, ext)
         else
-            extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
             utilities.LogDebug('[Extension] [%s] Loaded %s', filename, ext)
         end
+    
+        extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
     end
 
     return extensions

@@ -64,72 +64,17 @@ local function Log(message, ...)
     print('['..GetDateTime()..'] ' .. string.format(message, ...))
 end
 
-local function LogDebug(debug, ...) Log('[DEBUG]: ' .. debug, ...) end
+local function LogDebug(debug, ...) if G_Level == G_LevelDebug then Log('[DEBUG]: ' .. debug, ...) end end
 local function LogInfo(info, ...) Log('[INFO]: ' .. info, ...) end
 local function LogError(error, ...) Log('[ERRO]: ' .. error, ...) end
 local function LogWarning(warning, ...) Log('[WARN]: ' .. warning, ...) end
 local function LogFatal(fatal, ...) Log('[FATAL]: ' .. fatal, ...) os.execute('pause') os.exit(1) end
 
+local function LogReturn(...) Log('[Return]' .. ...) end
+
 local function SendAPI(json)
     print('[API]: ' .. encode_json  (json))
 end
-
--- local function Log(named, ...)
---     --[[ Check if arg level is > the set Level in initialize(). If not then don't send unless it's important like Error or Fatal ]]--
---     if named.level and (named.level > G_Level) and named.level < G_LevelError then return end
-
---     --[[ Maps the number to a string for outputting ]]--
---     local level_str = G_LogLevel[named.level] or G_LogLevel[G_LevelInfo]
-
---     local file = named.level or G_LogFile
-
---     local args = {}
-
---     --[[ Check if arg named exists, if not then assign args to arg named ]]--
---     if type(named) == 'string' then
---         if ... then
---             args = {named .. ...}
---         else
---             args = {named}
---         end
---     else
---         args = {...}
---     end
-
---     local str = ''
-
---     --[[ Loop over each argument and convert them to a string ]]--
---     for _, value in ipairs(args) do
---         if value:sub(#value) ~= ' ' then str = str .. value .. ' ' --[[ No space found at end so add one ]]--
---         else str = str .. value end -- ' ' --[[ Space found at end so don't add another ]]--
---     end
-
---     local output = string.format('[%s] [%s]: %s', level_str, GetDateTime(), str)
-
---     --[[ Write to File ]]--
---     if file then
---         local f = io.open(string.format('./addons/vulcan_script/logs/%s.log', GetDateTime('%Y-%m-%d')), 'a+')
-
---         --[[ Write to File if Exists ]]--
---         if f then
---             f:write(string.format('[%s] [%s]: %s\n', level_str, GetDateTime('%H:%M:%S'), str))
---             f:close()
---         else
---             output = output .. '( ERROR: Could not write to file)'
---         end
---     end
-
---     if level_str == G_LogLevel[G_LevelFatal] then
---         --[[ Fatal Error, close server ]]--
---         output = output .. '(Closing Server)'
---         print(output)
---         os.execute('pause')
---         os.exit(1)
---     else
---         --[[ Print the message ]]--
---         print(output)
---     end
--- end
 
 --[[ Utility Data ]]--
 local function EditKey(filename, object, key, value, log_level)
@@ -277,6 +222,7 @@ M.LogInfo = LogInfo
 M.LogWarning = LogWarning
 M.LogDebug = LogDebug
 M.LogFatal = LogFatal
+M.LogReturn = LogReturn
 M.SendAPI = SendAPI
 
 M.ParseCommand = ParseCommand

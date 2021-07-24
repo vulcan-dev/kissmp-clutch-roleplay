@@ -12,68 +12,59 @@ local modules = {
     server = require('addons.vulcan_script.server')
 }
 
-M.commands = {
-    --[[ Administator Commands ]]
-    imitate = {
-        rank = modules.moderation.RankAdmin,
-        category = 'Moderation Fun',
-        description = 'Imitates a user',
-        usage = '/imitate <user> <message>',
-        exec = function(executor, args)
-            local client = modules.server.GetUser(args[1])
+M.commands = {}
 
-            -- Check if the client exists
-            if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+--[[ Imitate ]]--
+M.commands["imitate"] = {
+    rank = modules.moderation.RankAdmin,
+    category = 'Moderation Fun',
+    description = 'Imitates a user',
+    usage = '/imitate <user> <message>',
+    exec = function(executor, args)
+        local client = modules.server.GetUser(args[1])
+
+        -- Check if the client exists
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        client = client.data
+
+        table.remove(args, 1)
+
+        print('Oi mate')
+
+        local message = ''
+        for _, v in pairs(args) do
+            message = message .. v .. ' '
+        end
+
+        if not message then G_DiscordLink(executor.data, '[Error] No message specified') return end
+
+        modules.moderation.SendUserMessage(client, nil, message)
+    end
+}
+
+--[[ Set Gravity ]]--
+M.commands["set_gravity"] = {
+    rank = modules.moderation.RankAdmin,
+    category = 'Moderation Fun',
+    description = 'Sets gravity for everyone or for a specific user',
+    usage = '/set_gravity (user) <value>',
+    exec = function(executor, args)
+        local client = modules.server.GetUser(args[1])
+        local gravity = (not client.success and args[1] or args[2]) or -9.81
+
+        if not client.success then
+            client = executor
+        else
             client = client.data
-
-            table.remove(args, 1)
-
-            print('Oi mate')
-
-            local message = ''
-            for _, v in pairs(args) do
-                message = message .. v .. ' '
-            end
-
-            if not message then G_DiscordLink(executor.data, '[Error] No message specified') return end
-
-            modules.moderation.SendUserMessage(client, nil, message)
         end
-    },
 
-    set_gravity = {
-        rank = modules.moderation.RankAdmin,
-        category = 'Moderation Fun',
-        description = 'Sets gravity for everyone or for a specific user',
-        usage = '/set_gravity (user) <value>',
-        exec = function(executor, args)
-            local client = modules.server.GetUser(args[1])
-            local gravity = (not client.success and args[1] or args[2]) or -9.81
-
-            if not client.success then
-                client = executor
-            else
-                client = client.data
-            end
-
-            if modules.utilities.IsNumber(gravity) then
-                client.user:sendLua('core_environment.setGravity('..gravity..')')
-                modules.server.DisplayDialog(client, '[Enviroment] Gravity set to ' .. gravity)
-            else
-                modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
-            end
+        if modules.utilities.IsNumber(gravity) then
+            client.user:sendLua('core_environment.setGravity('..gravity..')')
+            modules.server.DisplayDialog(client, '[Enviroment] Gravity set to ' .. gravity)
+        else
+            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
         end
-    },
-
-    destroy = {
-        rank = modules.moderation.RankAdmin,
-        category = 'Moderation Fun',
-        description = 'Destroys a users vehicle',
-        usage = '/destroy <user>',
-        exec = function(executor, args)
-
-        end
-    },
+    end
 }
 
 --[[ Reload Modules ]]

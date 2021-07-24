@@ -150,15 +150,17 @@ hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_i
 end) -- Vehicle Spawned
 
 hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle_id, client_id)
-    if vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
-        modules.utilities.SendAPI({
-            client = {
-                name = G_Clients[client_id].user:getName()
-            },
+    if vehicles[vehicle_id] and vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
+        G_Try(function()
+            modules.utilities.SendAPI({
+                client = {
+                    name = G_Clients[client_id].user:getName()
+                },
 
-            data = 'Removed a ' .. vehicles[vehicle_id]:getData():getName(),
-            type = 'vehicle_log'
-        })
+                data = 'Removed a ' .. vehicles[vehicle_id]:getData():getName(),
+                type = 'vehicle_log'
+            })
+        end, function() modules.utilities.LogWarning("Failed to get clientName in hook \"SendAPI\"") end )
     end
 
     G_Try(function()
@@ -211,7 +213,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
                 G_Try(function ()
                     command.exec(executor, args)
                 end, function(err)
-                    modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please post it in bug-reports in /discord ]\nMessage: %s', message, err), modules.server.ColourError)
+                    modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please post it in bug-reports in /discord ] Message: %s', message, err), modules.server.ColourError)
                     modules.utilities.LogError('Command failed! User: %s\n  Message: %s', executor.user:getName(), err)
                     return ""
                 end)
@@ -243,7 +245,6 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
 end) -- OnChat
 
 hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
-    print(input)
     --[[ Reload all Modules ]]--
     if input == '!rl' then
         G_ServerLocation = './addons/vulcan_script/settings/server.json'
@@ -251,11 +252,11 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
         G_PlayersLocation = './addons/vulcan_script/settings/players.json'
         G_ColoursLocation = './addons/vulcan_script/settings/colours.json'
 
-        modules = G_ReloadModules(modules, 'main.lua')
-
         --[[ Reload all Extensions & Modules ]]--
         extensions = G_ReloadExtensions(extensions)
-        for _, v in pairs(extensions) do v.ReloadModules() end
+        for _, v in pairs(extensions) do
+            v.ReloadModules()
+        end
 
         -- Load all extensions
         for _, v in pairs(modules.utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
@@ -269,6 +270,7 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
             modules.utilities.LogDebug('[Extension] Reloaded Extension: %s', v)
         end
 
+        modules = G_ReloadModules(modules, 'main.lua')
     end
 
     for _, extension in pairs(extensions) do
@@ -307,7 +309,7 @@ end)
 
 local function Initialize()
     --[[ Make sure to change the log level if you don't want console spam :) ]]--
-    G_Level = G_LevelDebug
+    G_Level = G_LevelInfo
     modules.utilities.LogInfo('[Server] Initialized')
 
     modules = G_ReloadModules(modules, 'main.lua')
@@ -339,11 +341,20 @@ local function Initialize()
     prefix = modules.utilities.GetKey(G_ServerLocation, 'options', 'command_prefix')
 
     -- modules.utilities.SendAPI({
-    --     client = {
-    --         name = 'Dan'
+    --     Executor = {
+    --         Name = "executor",
+    --         ID = 1,
+    --         MID = 2,
+    --         Secret = "Secret"
     --     },
-    --     type = 'user_join_leave',
-    --     data = 'Joined'
+    --     Client = {
+    --         Name = "client",
+    --         ID = 4,
+    --         MID = 3,
+    --         Secret = "Secret2"
+    --     },
+    --     Data = "test data",
+    --     Type = "user_ban"
     -- })
 
     --[[ Set Colours ]]--

@@ -325,6 +325,8 @@ local function DisplayDialog(error, client, message, time)
 
     time = time or 3
 
+    modules.utilities.LogReturn(message)
+
     if client.user then
         --[[ Send to One Client ]]--
         client.user:sendLua(string.format("ui_message('%s', %s)", message, time))
@@ -344,13 +346,14 @@ end
 
 local function SendChatMessage(client_id, message, colour)
     --if G_CurrentPlayers == 1 then return end --[[ Don't Send Anything to Prevent Spam ]]--
-
     --modules.utilities.LogDebug('Sending Message (client_id, msg, colour): %s %s %s', client_id or nil, message or nil, colour or nil)
     --[[ Check if Client is Valid ]]--
     if not G_Clients[client_id] then
         colour = message
         message = client_id
     end
+
+    modules.utilities.LogReturn(message)
 
     --[[ Check if Colour is Valid ]]--
     if type(colour) ~= 'table' then colour = {} end
@@ -379,9 +382,6 @@ local function SendChatMessage(client_id, message, colour)
 
             --[[ Send Message to All Clients ]]--
             if canSend then
-                -- client.user:sendLua('extensions.kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
-                -- tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
-                -- tostring(colour.b) .. ",a=1})")
                 client.user:sendLua('kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
                 tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
                 tostring(colour.b) .. ",a=1})")
@@ -403,14 +403,9 @@ local function SendChatMessage(client_id, message, colour)
 
         --[[ Send Message to Client ]]--
         if canSend then
-            -- G_Clients[client_id].user:sendLua('extensions.kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
-            --     tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
-            --     tostring(colour.b) .. ",a=1})")
-
             G_Clients[client_id].user:sendLua('kissui.add_message(' .. modules.utilities.LuaStrEscape(message) .. ', {r=' ..
             tostring(colour.r) .. ",g=" .. tostring(colour.g) .. ",b=" ..
             tostring(colour.b) .. ",a=1})")
-
             canSend = false
         end
     end
@@ -418,7 +413,9 @@ end
 
 --[[ Utility Functions ]]--
 local function ReloadModules()
+    modules.utilities.LogDebug("Reloaded")
     modules = G_ReloadModules(modules, 'server.lua')
+    modules.utilities.LogDebug("Reloaded")
 end
 
 --[[ Colour Variables ]]--

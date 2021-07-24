@@ -72,11 +72,11 @@ config.timesync.realtime = false -- whether in-game time should be actively sync
 
 -- NOTE: not all weather settings work on all maps
 config.weathersync.enabled = true -- enables or disables in-game weather syncing
-config.weathersync.cloudCover = 20 -- 0-100 (0 = no clouds; 100 = very cloudy)
+config.weathersync.cloudCover = 100 -- 0-100 (0 = no clouds; 100 = very cloudy)
 config.weathersync.windSpeed = 1 -- 0-10 (0 = no wind; 10 = very windy) -- affects clouds and rain
-config.weathersync.rainDrops = 0 -- 0-100 (0 = no rain; 100 = very rainy)
-config.weathersync.rainIsSnow = 0 -- set to true to enable snow
-config.weathersync.fogDensity = 9 -- 0-100 (0 = no fog; 100 = very foggy)
+config.weathersync.rainDrops = 40 -- 0-100 (0 = no rain; 100 = very rainy)
+config.weathersync.rainIsSnow = 1 -- set to true to enable snow
+config.weathersync.fogDensity = 100 -- 0-100 (0 = no fog; 100 = very foggy)
 config.weathersync.gravity = -9.81 -- -9.81 = earth
 
 return config

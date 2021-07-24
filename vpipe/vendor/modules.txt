@@ -1,0 +1,24 @@
+# github.com/antonfisher/nested-logrus-formatter v1.3.1
+## explicit
+github.com/antonfisher/nested-logrus-formatter
+# github.com/bwmarrin/discordgo v0.23.2
+## explicit
+github.com/bwmarrin/discordgo
+# github.com/gorilla/websocket v1.4.2
+## explicit
+github.com/gorilla/websocket
+# github.com/sirupsen/logrus v1.8.1
+## explicit
+github.com/sirupsen/logrus
+# golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
+## explicit
+golang.org/x/crypto/internal/subtle
+golang.org/x/crypto/nacl/secretbox
+golang.org/x/crypto/poly1305
+golang.org/x/crypto/salsa20/salsa
+# golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
+## explicit
+golang.org/x/sys/cpu
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
+golang.org/x/sys/windows

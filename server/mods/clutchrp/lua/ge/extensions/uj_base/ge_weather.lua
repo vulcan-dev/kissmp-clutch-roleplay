@@ -28,10 +28,10 @@ local function setPrecipitation(rainDrops) -- rain function has typo in core ng 
     local rainObj = getObject("Precipitation", "rain_coverage") or getObject("Precipitation")
     if rainObj and rainDrops then
         rainObj.numDrops = rainDrops
-        
-        if config.weathersync.rainIsSnow then
-            rainObj.dataBlock = scenetree.findObject("Snow_menu")
-        end
+        rainObj.dataBlock = scenetree.findObject("rain_medium")
+        rainObj.useLighting = true
+        rainObj.hitPlayers = true
+        rainObj.hitVehicles = true
     end
 end
 

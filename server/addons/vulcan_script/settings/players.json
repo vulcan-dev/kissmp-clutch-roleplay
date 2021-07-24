@@ -4,22 +4,16 @@
       "Daniel W"
     ],
     "bans": [],
+    "money": 4244.0,
     "mute_time": 0.0,
-    "onduty": false,
-    "playtime": 4295.0,
-    "rank": 0.0,
-    "vehicleLimit": 2.0,
-    "warns": []
-  },
-  "706b9ba03282e8a5d64531e1f34964c7a11004ea": {
-    "alias": [
-      "Daniel W"
+    "onduty": true,
+    "playtime": 5040.0,
+    "rank": 6.0,
+    "roles": [
+      "Police",
+      "Dispatch"
     ],
-    "bans": [],
-    "mute_time": 0.0,
-    "playtime": 1115.0,
-    "rank": 0.0,
-    "vehicleLimit": 2.0,
+    "vehicleLimit": 11.0,
     "warns": []
   },
   "secret_console": {
