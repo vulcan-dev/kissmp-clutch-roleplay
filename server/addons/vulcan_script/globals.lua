@@ -90,14 +90,14 @@ G_ErrorCannotPerformUser = 6
 G_ErrorNotInVehicle = 7
 
 G_Errors = {
-    [G_ErrorInvalidUser] = 'Invalid User Specified',
-    [G_ErrorInvalidArguments] = 'Invalid Arguments',
-    [G_ErrorInvalidMessage] = 'Invalid Message Specified',
-    [G_ErrorVehicleBlacklisted] = 'This Vehicle is Blacklisted',
-    [G_ErrorInvalidVehiclePermissions] = 'You Do Not Have The Required Permissions to Drive This Vehicle',
-    [G_ErrorInsufficentPermissions] = 'You Do Not Have The Required Permissions to Perform This Action',
-    [G_ErrorCannotPerformUser] = 'You Do Not Have The Required Permissions to Perform This Action On This User',
-    [G_ErrorNotInVehicle] = 'User is Not in a Vehicle'
+    [G_ErrorInvalidUser] = 'Invalid user specified',
+    [G_ErrorInvalidArguments] = 'Invalid arguments',
+    [G_ErrorInvalidMessage] = 'Invalid message specified',
+    [G_ErrorVehicleBlacklisted] = 'This vehicle is blacklisted',
+    [G_ErrorInvalidVehiclePermissions] = 'You do not have the required permissions to drive this vehicle',
+    [G_ErrorInsufficentPermissions] = 'You do not have the required permissions to perform this action',
+    [G_ErrorCannotPerformUser] = 'You do not have the required permissions to perform this action on this user',
+    [G_ErrorNotInVehicle] = 'User is not in a vehicle'
 }
 
 --[[ Command Utilites ]]--
