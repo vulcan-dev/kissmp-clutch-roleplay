@@ -61,7 +61,7 @@ function table.pack(...)
 end
 
 local function Log(message, ...)
-    print('['..GetDateTime()..'] ' .. string.format(message, ...))
+    print('['..GetDateTime()..'] ' .. tostring(string.format(message, ...)))
 end
 
 local function LogDebug(debug, ...) if G_Level == G_LevelDebug then Log('[DEBUG]: ' .. debug, ...) end end

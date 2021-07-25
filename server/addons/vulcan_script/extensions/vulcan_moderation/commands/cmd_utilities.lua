@@ -260,17 +260,28 @@ M.commands["help"] = {
     usage = '/help (command) (category)',
     exec = function(executor, args)
         local search = args[1]
+        local result = ''
+
+        local map = {
+            [1] = "Moderation",
+            [2] = "Moderation Fun",
+            [3] = "Moderation Utilities",
+            [4] = "Roleplay Utilities"
+        }
+
+        local sorted = {}
+        for k, v in pairs(map) do table.insert( sorted, k) end
+        table.sort( map, function (a, b)
+            return a < b
+        end )
 
         if not search then
-            modules.server.SendChatMessage(executor.user:getID(), [[
-Try /help category or /help commandName.
-Categories:
-- 1. Moderation
-- 2. Moderation Utilities
-- 3. Moderation Fun
-- 4. Roleplay Utilities
-            ]], modules.server.ColourWarning)
+            result = 'Categories:\n'
+            for k in pairs(sorted) do
+                result = result .. string.format('  - %d. %s\n', k, map[k])
+            end
 
+            modules.server.SendChatMessage(executor.user:getID(), result, modules.server.ColourWarning)
             return
         end
 
@@ -282,67 +293,38 @@ Categories:
                     'Description: ' .. command.description ..
                     '\nUsage: ' .. command.usage .. '\n\n'
                 )
+
+                count = count + 1
             else
                 modules.server.SendChatMessage(executor.user:getID(), 'You are unable to view this command', modules.server.ColourError)
                 return
             end
         else
-            for name, command in pairs(G_Commands) do
-                if command and command.description and command.category and command.usage and name ~= 'reloadModules' then
+            if map[tonumber(search)] then
+                for name, command in pairs(G_Commands) do
+                -- if command and command.description and command.category and command.usage and name ~= 'reloadModules' then
                     if executor.GetRank() >= command.rank then
-                        if tonumber(search) == 1 then
-                            -- Moderation
-                            if command.category == 'Moderation' then
-                                modules.server.SendChatMessage(executor.user:getID(),
-                                    'Command: /' .. name ..
-                                    '\nDescription: ' .. command.description ..
-                                    '\nUsage: ' .. command.usage .. '\n\n'
-                                )
-                                count = count + 1
-                            end
-                        elseif tonumber(search) == 2 then
-                            -- mod utils
-                            if command.category == 'Moderation Utilities' then
-                                modules.server.SendChatMessage(executor.user:getID(),
-                                    'Command: /' .. name ..
-                                    '\nDescription: ' .. command.description ..
-                                    '\nUsage: ' .. command.usage .. '\n\n'
-                                )
-                                count = count + 1
-                            end
-                        elseif tonumber(search) == 3 then
-                            -- mod fun
-                            if command.category == 'Moderation Fun' then
-                                modules.server.SendChatMessage(executor.user:getID(),
-                                    'Command: /' .. name ..
-                                    '\nDescription: ' .. command.description ..
-                                    '\nUsage: ' .. command.usage .. '\n\n'
-                                )
+                        if command.category then
+                            if command.category == tostring(map[tonumber(search)]) then
+                                result = result .. string.format('Command: /%s\nDescription: %s\nUsage: %s\n', name, command.description, command.usage)
 
+                                if command.alias then
+                                    result = result .. 'Alias: /' .. command.alias .. '\n\n'
+                                else
+                                    result = result .. '\n'
+                                end
                                 count = count + 1
                             end
-                        elseif tonumber(search) == 4 then
-                            -- rp utils
-                            if command.category == 'Roleplay Utilities' then
-                                modules.server.SendChatMessage(executor.user:getID(),
-                                    'Command: /' .. name ..
-                                    '\nDescription: ' .. command.description ..
-                                    '\nUsage: ' .. command.usage .. '\n\n'
-                                )
-                                count = count + 1
-                            end
-                        else
-                            modules.server.SendChatMessage(executor.user:getID(), 'Invalid page', modules.server.ColourError)
-                            return
                         end
                     end
                 end
             end
-
         end
 
         if count == 0 then
             modules.server.SendChatMessage(executor.user:getID(), 'Nothing has shown because you do not have the required rank to view these commands', modules.server.ColourError)
+        else
+            modules.server.SendChatMessage(executor.user:getID(), result)
         end
     end
 }
