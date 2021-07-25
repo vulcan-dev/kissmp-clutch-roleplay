@@ -62,11 +62,13 @@ M.commands["add_role"] = {
     usage = '/add_role <user> <role>',
     exec = function(executor, args)
         local client = modules.server.GetUser(args[1])
-        local role = string.lower(args[2])
+        local role = args[2]
 
         -- Check if the client exists
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
         client = client.data
+
+        role = tostring(string.lower(args[2]))
 
         --[[ Check if role exists ]]--
         local found = false
@@ -834,7 +836,7 @@ M.commands["refuel"] = {
                     modules.server.DisplayDialog(executor, 'No fuel station found')
                 end
             else
-                modules.server.DisplayDialog(executor, 'You are not in a vehicle')
+                modules.server.DisplayDialogError(G_ErrorNotInVehicle, executor)
             end
         else
             modules.server.DisplayDialog(executor, 'You are already doing this')

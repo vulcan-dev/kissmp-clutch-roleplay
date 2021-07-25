@@ -65,16 +65,18 @@ M.callbacks = {
         local vehicle = vehicles[vehicle_id]
 
         local can_drive = true
+        local found = false
         local blacklist = modules.utilities.GetKey(G_BlacklistLocation)
         for k, v in pairs(blacklist) do
             if k == vehicle:getData():getName() then
-                if type(v) == 'boolean' then
+                if type(v) == 'boolean' and v then
+                    modules.utilities.LogDebug(v)
                     modules.server.DisplayDialogError(G_ErrorVehicleBlacklisted, G_Clients[client_id])
                     vehicle:remove()
 
                     G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
                     G_Clients[client_id].user:sendLua('commands.setFreeCamera()')
-                    return
+                    break
                 elseif type(v) == 'table' then
                     for _, role in pairs(v) do
                         if not modules.moderation.HasRole(G_Clients[client_id], role) then
@@ -82,23 +84,30 @@ M.callbacks = {
                         else
                             can_drive = true
                         end
+
+                        found = true
                     end
                 end
             end
         end
 
+        -- if not found then
+        --     modules.server.DisplayDialogError(G_ErrorVehicleBlacklisted, G_Clients[client_id])
+        --     vehicle:remove()
+        -- end
+
         if can_drive then
             if vehicle then
-                -- vehicle:sendLua(string.format('obj:setWind(%d,%d,%d)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
+                vehicle:sendLua(string.format('obj:setWind(%d,%d,%d)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
             end
-        
+
             if (vehicle:getData():getName() ~= 'unicycle') then
                 modules.server.SendChatMessage(string.format('[Vulcan-Moderation] %s has spawned a %s', G_Clients[client_id].user:getName(), vehicle:getData():getName()), modules.server.ColourWarning)
             end
         else
             modules.server.DisplayDialogError(G_ErrorInvalidVehiclePermissions, G_Clients[client_id])
             vehicle:remove()
-            
+
             G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
             G_Clients[client_id].user:sendLua('commands.setFreeCamera()')
         end
@@ -109,7 +118,7 @@ M.callbacks = {
         local vehicle = vehicles[ply:getCurrentVehicle()]
 
         if vehicle then
-            -- vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
+            vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
         end
         return ""
     end,

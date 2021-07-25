@@ -151,16 +151,16 @@ end) -- Vehicle Spawned
 
 hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle_id, client_id)
     if vehicles[vehicle_id] and vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
-        G_Try(function()
-            modules.utilities.SendAPI({
-                client = {
-                    name = G_Clients[client_id].user:getName()
-                },
+        -- G_Try(function()
+        --     modules.utilities.SendAPI({
+        --         client = {
+        --             name = G_Clients[client_id].user:getName()
+        --         },
 
-                data = 'Removed a ' .. vehicles[vehicle_id]:getData():getName(),
-                type = 'vehicle_log'
-            })
-        end, function() modules.utilities.LogWarning("Failed to get clientName in hook \"SendAPI\"") end )
+        --         data = 'Removed a ' .. vehicles[vehicle_id]:getData():getName(),
+        --         type = 'vehicle_log'
+        --     })
+        -- end, function() modules.utilities.LogWarning("Failed to get clientName in hook \"SendAPI\"") end )
     end
 
     G_Try(function()
@@ -276,20 +276,20 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
         G_PlayersLocation = './addons/vulcan_script/settings/players.json'
         G_ColoursLocation = './addons/vulcan_script/settings/colours.json'
 
-        modules = G_ReloadModules(modules, 'main.lua')
-
+        
         --[[ Load all Extensions ]]--
         extensions = G_ReloadExtensions(extensions, 'main.lua')
-        -- for _, v in pairs(modules.utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
-        --     extensions[v] = G_Try(function()
-        --         package.loaded[v] = nil
-        --         return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
-        --     end, function()
-        --         modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
-        --     end)
-
-        --     modules.utilities.LogDebug('[Extension] Reloaded Extension: %s', v)
-        -- end
+        for _, v in pairs(modules.utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
+            extensions[v] = G_Try(function()
+                package.loaded[v] = nil
+                return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
+            end, function()
+                modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
+            end)
+            
+            modules.utilities.LogDebug('[Extension] Reloaded Extension: %s', v)
+        end
+        modules = G_ReloadModules(modules, 'main.lua')
         
         --[[ Load all Extension Modules ]]--
         for _, v in pairs(extensions) do
