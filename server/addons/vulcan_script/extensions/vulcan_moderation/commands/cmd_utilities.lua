@@ -53,7 +53,7 @@ M.commands["say"] = {
     end
 }
 
---[[  ]]--
+--[[ Time Play ]]--
 M.commands["time_play"] = {
     rank = modules.moderation.RankAdmin,
     category = 'Moderation Utilities',
@@ -339,7 +339,7 @@ M.commands["uptime"] = {
     end
 }
 
---[[  ]]--
+--[[ Playime ]]--
 M.commands["playtime"] = {
     rank = modules.moderation.RankUser,
     category = 'Moderation Utilities',
