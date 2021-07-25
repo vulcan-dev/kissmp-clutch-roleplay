@@ -302,7 +302,6 @@ M.commands["help"] = {
         else
             if map[tonumber(search)] then
                 for name, command in pairs(G_Commands) do
-                -- if command and command.description and command.category and command.usage and name ~= 'reloadModules' then
                     if executor.GetRank() >= command.rank then
                         if command.category then
                             if command.category == tostring(map[tonumber(search)]) then
