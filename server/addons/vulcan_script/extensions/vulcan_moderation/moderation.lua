@@ -37,8 +37,8 @@ local StrRanks = {
 local function GetBans(secret)
     local bans = {}
 
-    for k, v in pairs(modules.utilities.GetKey(G_PlayersLocation, secret, 'bans')) do
-        bans[k] = v
+    for reason, val in pairs(modules.utilities.GetKey(G_PlayersLocation, secret, 'bans')) do
+        bans[reason] = val
     end
 
     return bans
@@ -80,13 +80,13 @@ local function IsBanned(secret)
     local time = 0
     local name = ''
 
-    for k, v in pairs(modules.utilities.GetKey(G_PlayersLocation, secret, 'bans')) do
+    for reason, v in pairs(modules.utilities.GetKey(G_PlayersLocation, secret, 'bans')) do
         for key, value in pairs(v) do
             if key == 'ban_expirey_date' then
                 if tonumber(value) > 0 then
                     banned = true
                     time = v['ban_expirey_date']
-                    name = k
+                    name = reason
                 else
                     banned = false
                     time = 0
@@ -115,8 +115,8 @@ end
 local function GetWarns(secret)
     local warns = {}
 
-    for k, v in pairs(modules.utilities.GetKey(G_PlayersLocation, secret, 'warns')) do
-        warns[k] = v
+    for reason, v in pairs(modules.utilities.GetKey(G_PlayersLocation, secret, 'warns')) do
+        warns[reason] = v
     end
 
     return warns

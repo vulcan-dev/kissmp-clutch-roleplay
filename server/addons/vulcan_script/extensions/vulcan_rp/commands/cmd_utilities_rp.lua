@@ -371,8 +371,8 @@ M.commands["ems"] = {
     exec = function(executor, args)
         if executor.user:getSecret() == 'secret_console' then return end
         local message = ''
-        for k, v in pairs(args) do
-            message = message .. v .. ' '
+        for _, str in pairs(args) do
+            message = message .. str .. ' '
         end
 
         if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
@@ -395,8 +395,8 @@ M.commands["fire"] = {
         if executor.user:getSecret() == 'secret_console' then return end
         local message = ''
 
-        for k, v in pairs(args) do
-            message = message .. v .. ' '
+        for _, str in pairs(args) do
+            message = message .. str .. ' '
         end
 
         if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end

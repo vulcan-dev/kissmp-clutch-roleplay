@@ -22,8 +22,8 @@ M.commands["advertise"] = {
     usage = '/advertise <message>',
     exec = function(executor, args)
         local message = ''
-        for k, v in pairs(args) do
-            message = message .. v .. ' '
+        for _, str in pairs(args) do
+            message = message .. str .. ' '
         end
 
         -- Check if message is valid

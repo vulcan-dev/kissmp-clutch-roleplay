@@ -144,23 +144,23 @@ local function GetUser(user) -- ID, Name, Secret
 
         return {data=data, success=true}
     else
-        for k, _ in pairs(utilities.GetKey(G_PlayersLocation)) do
+        for secret, _ in pairs(utilities.GetKey(G_PlayersLocation)) do
             --[[ (Not In-Game) Get Client Alias ]]--
 
-            if k ~= 'secret_console' then
-                if user == utilities.GetKey(G_PlayersLocation, k, 'alias')[1] then
+            if secret ~= 'secret_console' then
+                if user == utilities.GetKey(G_PlayersLocation, secret, 'alias')[1] then
                     --[[ Alias has been found, create fake data and return ]]--
                     local data = {
                         user = {
-                            getSecret = function() return k end,
-                            getName = function() return utilities.GetKey(G_PlayersLocation, k, 'alias')[1] end,
+                            getSecret = function() return secret end,
+                            getName = function() return utilities.GetKey(G_PlayersLocation, secret, 'alias')[1] end,
                             sendChatMessage = function() end,
                             getID = function() return nil end,
                             sendLua = function() end
                         },
 
-                        GetRank = function() return utilities.GetKey(G_PlayersLocation, k, 'rank') end,
-                        GetRoles = function() return utilities.GetKey(G_PlayersLocation, k, 'roles') end,
+                        GetRank = function() return utilities.GetKey(G_PlayersLocation, secret, 'rank') end,
+                        GetRoles = function() return utilities.GetKey(G_PlayersLocation, secret, 'roles') end,
                         mid = -1
                     }
 

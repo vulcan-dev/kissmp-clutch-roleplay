@@ -197,7 +197,7 @@ local function StartsWith(string, start)
 end
 
 local function GetColour(colour)
-    for key, value in pairs(colour) do -- Convert RGB uint8 to 0-1
+    for key, value in pairs(colour) do -- Convert RGB 0-255 to 0-1
         colour[key] = value / 255
     end
 

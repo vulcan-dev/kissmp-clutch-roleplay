@@ -27,8 +27,8 @@ M.callbacks = {
         local alias_found = false
         local aliases = {}
 
-        for k, alias in pairs(modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'alias')) do
-            aliases[k] = alias
+        for name, alias in pairs(modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'alias')) do
+            aliases[name] = alias
             if alias == client.user:getName() then
                 alias_found = true
             end

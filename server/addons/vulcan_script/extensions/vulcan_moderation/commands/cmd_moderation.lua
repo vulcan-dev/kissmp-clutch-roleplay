@@ -231,11 +231,11 @@ M.commands["get_bans"] = {
         local ban_data = modules.moderation.GetBans(client.user:getSecret())
 
         local count = 0
-        for k, v in pairs(ban_data) do
-            if v.ban_expirey_date > 0 then
-                modules.server.SendChatMessage(executor.user:getID(), string.format('  [ Active: %s ]\n  Expires: %s\n  Date of Issue: %s\n  Banned by: %s', k, v.ban_expirey_date, v.date_of_issue, v.banned_by))
+        for k, ban in pairs(ban_data) do
+            if ban.ban_expirey_date > 0 then
+                modules.server.SendChatMessage(executor.user:getID(), string.format('  [ Active: %s ]\n  Expires: %s\n  Date of Issue: %s\n  Banned by: %s', k, ban.ban_expirey_date, ban.date_of_issue, ban.banned_by))
             else
-                modules.server.SendChatMessage(executor.user:getID(), string.format('  [ Inactive: %s ]\n  Expired: %s\n  Date of Issue: %s\n  Banned by: %s', k, v.ban_expirey_date, v.date_of_issue, v.banned_by))
+                modules.server.SendChatMessage(executor.user:getID(), string.format('  [ Inactive: %s ]\n  Expired: %s\n  Date of Issue: %s\n  Banned by: %s', k, ban.ban_expirey_date, ban.date_of_issue, ban.banned_by))
             end
 
             count = count + 1
@@ -262,8 +262,8 @@ M.commands["get_warns"] = {
         local warn_data = modules.moderation.getWarns(client.user:getSecret())
 
         local count = 0
-        for k, v in pairs(warn_data) do
-            modules.server.SendChatMessage(executor.user:getID(), string.format('  Reason: %s - Warned by: %s', k, v.warned_by))
+        for reason, warn in pairs(warn_data) do
+            modules.server.SendChatMessage(executor.user:getID(), string.format('  Reason: %s - Warned by: %s', reason, warn.warned_by))
             count = count + 1
         end
 
