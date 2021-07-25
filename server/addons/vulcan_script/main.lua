@@ -215,7 +215,19 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
             end
         end
 
-        if command then
+        local canExecuteWithRole = false
+        if command and command.roles then
+            for _, role in pairs(command.roles) do
+                if modules.rp.HasRole(executor, role) then
+                    modules.utilities.LogDebug(tostring(role))
+                    canExecuteWithRole = true
+                end
+            end
+        end
+
+        modules.utilities.LogDebug(tostring(canExecuteWithRole))
+
+        if command and command.roles and canExecuteWithRole or command and not command.roles and not canExecuteWithRole then
             if executor.GetRank() >= command.rank then
                 table.remove(args, 1)
                 G_Try(function ()
@@ -227,7 +239,11 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
                 end)
             end
         else
-            modules.server.SendChatMessage(executor.user:getID(), 'Invalid Command, please use /help', modules.server.ColourWarning)
+            if command and command.roles and not canExecuteWithRole then
+                modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor)
+            else
+                modules.server.SendChatMessage(executor.user:getID(), 'Invalid Command, please use /help', modules.server.ColourWarning)
+            end
         end
     else
         modules.utilities.SendAPI({

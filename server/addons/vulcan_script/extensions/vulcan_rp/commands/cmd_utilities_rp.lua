@@ -416,8 +416,8 @@ M.commands["dispatch"] = {
     category = 'Roleplay Utilities',
     description = 'Sends message as Dispatch',
     usage = '/dispatch <message>',
+    roles = {'dispatch'},
     exec = function(executor, args)
-        if not modules.rp.HasRole(executor, 'Dispatch') then modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor) return end
         local message = ''
 
         for _, v in pairs(args) do
@@ -440,10 +440,8 @@ M.commands["pd"] = {
     category = 'Roleplay Utilities',
     description = 'Teleports you to Police Depertment',
     usage = '/pd',
-    roles = {'Police'},
+    roles = {'police', 'dispatch'},
     exec = function(executor, args)
-        -- if not modules.rp.HasRole(executor, 'Police') then modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor) return end
-        
         local ply = connections[executor.user:getID()]
         local vehicle = vehicles[ply:getCurrentVehicle()]
 
@@ -470,9 +468,8 @@ M.commands["fd"] = {
     category = 'Roleplay Utilities',
     description = 'Teleports you to Fire Depertment',
     usage = '/fd',
+    roles = {'fire'},
     exec = function(executor, args)
-        if not modules.rp.HasRole(executor, 'Fire') then modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor) return end
-        
         local ply = connections[executor.user:getID()]
         local vehicle = vehicles[ply:getCurrentVehicle()]
 
@@ -521,9 +518,8 @@ M.commands["onduty"] = {
     category = 'Roleplay Utilities',
     description = 'Toggles if you\'re an active officer or not',
     usage = '/onduty',
+    roles = {'police'},
     exec = function(executor, args)
-        if not modules.rp.HasRole(executor, 'Police') then modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor) return end
-
         local onduty = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'onduty')
         modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'onduty', not onduty)
 
@@ -693,6 +689,7 @@ M.commands["pr"] = {
     category = 'Roleplay Utilities',
     description = 'Sends message from the police radio',
     usage = '/pr <message>',
+    roles = {'police', 'dispatch', 'fire', 'ems'},
     exec = function(executor, args)
         local message = ''
         for _, v in pairs(args) do
