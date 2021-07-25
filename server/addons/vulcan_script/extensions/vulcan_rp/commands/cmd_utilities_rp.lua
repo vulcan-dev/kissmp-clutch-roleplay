@@ -394,13 +394,13 @@ M.commands["fire"] = {
     exec = function(executor, args)
         if executor.user:getSecret() == 'secret_console' then return end
         local message = ''
-        
+
         for k, v in pairs(args) do
             message = message .. v .. ' '
         end
-        
+
         if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
-        
+
         for _, client in pairs(G_Clients) do
             if modules.rp.HasRole(client, 'Fire') then
                 modules.server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.user:getName(), message))
@@ -423,7 +423,7 @@ M.commands["dispatch"] = {
         for _, v in pairs(args) do
             message = message .. v .. ' '
         end
-        
+
         if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
 
         for _, client in pairs(G_Clients) do
@@ -440,8 +440,9 @@ M.commands["pd"] = {
     category = 'Roleplay Utilities',
     description = 'Teleports you to Police Depertment',
     usage = '/pd',
+    roles = {'Police'},
     exec = function(executor, args)
-        if not modules.rp.HasRole(executor, 'Police') then modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor) return end
+        -- if not modules.rp.HasRole(executor, 'Police') then modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor) return end
         
         local ply = connections[executor.user:getID()]
         local vehicle = vehicles[ply:getCurrentVehicle()]

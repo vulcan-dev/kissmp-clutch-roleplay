@@ -70,7 +70,7 @@ local function LogError(error, ...) Log('[ERRO]: ' .. error, ...) end
 local function LogWarning(warning, ...) Log('[WARN]: ' .. warning, ...) end
 local function LogFatal(fatal, ...) Log('[FATAL]: ' .. fatal, ...) os.execute('pause') os.exit(1) end
 
-local function LogReturn(...) Log('[Return]' .. ...) end
+local function LogReturn(...) Log('[Return] ' .. ...) end
 
 local function SendAPI(json)
     print('[API]: ' .. encode_json  (json))

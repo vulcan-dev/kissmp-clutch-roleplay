@@ -203,13 +203,13 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     modules.utilities.LogInfo('%s said: %s', G_Clients[client_id].user:getName(), message)
     if string.sub(message, 1, 1) == prefix then
         local args = modules.utilities.ParseCommand(message, ' ')
-        args[1] = args[1]:sub(2)
+        args[1] = string.lower(args[1]:sub(2))
 
         local command = G_Commands[args[1]]
         if not command then
-            for name, cmd in pairs(G_Commands) do
+            for _, cmd in pairs(G_Commands) do
                 if args[1] == cmd.alias then
-                    command = cmd -- this line (attempt to access nil value)
+                    command = cmd
                     break
                 end
             end
