@@ -352,7 +352,7 @@ M.commands["set_rank"] = {
     rank = modules.moderation.RankModerator,
     category = 'Moderation',
     description = 'Sets a user rank',
-    usage = '/set_rank <user> <rank>',
+    usage = '/set_rank <user> <rank (id or name)>',
     exec = function(executor, args)
         local client = modules.server.GetUser(args[1])
         local rank = args[2] or nil
@@ -361,31 +361,49 @@ M.commands["set_rank"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.SendChatMessage(executor.user:getID(), 'Invalid user specified') return end
         client = client.data
 
-        -- Check if the rank is valid
+        if not rank then
+            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            return
+        end
+
+        local found = false
+        local outStr = ''
+
+        -- Check if the rank is valid (string)
         for num, rankStr in pairs(modules.moderation.StrRanks) do
-            if rank == rankStr then
-                rank = num
+            if tostring(string.lower(rank)) == tostring(rankStr) then
+                outStr = rankStr
+                rank = tonumber(num)
+                found = true
                 break
             end
         end
 
-        if not modules.moderation.StrRanks[tonumber(rank)] then
+
+        if not found and not modules.moderation.StrRanks[tonumber(rank)] then
             modules.server.DisplayDialog(executor, '[Error] Invalid rank specified')
-            return
+        else
+            if not found and modules.moderation.StrRanks[tonumber(rank)] then
+                outStr = modules.moderation.StrRanks[tonumber(rank)]
+                found = true
+            end
         end
 
+        -- Check if the rank is valid (int)
+        if not found then return end
+
         -- Check if the executor is able to run the command against the client
-        if executor.GetRank() <= client.GetRank() then
+        if tonumber(executor.GetRank()) <= tonumber(client.GetRank()) then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
             return
         end
 
         if G_Clients[client.user:getID()] then
-            modules.server.SendChatMessage(client.user:getID(), string.format('[Moderation] %s has set your rank to %s', executor.user:getName(), modules.moderation.StrRanks[rank]), modules.server.ColourSuccess)
+            modules.server.SendChatMessage(client.user:getID(), string.format('[Moderation] %s has set your rank to %s', executor.user:getName(), outStr), modules.server.ColourSuccess)
             modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'rank', rank)
         end
 
-        modules.server.SendChatMessage(string.format('[Moderation] %s is now a %s', client.user:getName(), modules.moderation.StrRanks[rank]), modules.server.ColourSuccess)
+        modules.server.SendChatMessage(string.format('[Moderation] %s is now a %s', client.user:getName(), outStr), modules.server.ColourSuccess)
     end
 }
 

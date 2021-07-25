@@ -209,7 +209,7 @@ local function IsNumber(sIn)
 end
 
 local function ToTitle(str)
-    return (str:gsub("^%l", string.upper))
+    if str then return (str:gsub("^%l", string.upper)) else return "" end
 end
 
 local function ReloadModules()

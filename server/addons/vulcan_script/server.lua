@@ -60,7 +60,7 @@ local function AddClient(client_id)
         user = connections[client_id],
 
         --[[ Getters ]]--
-        GetRank = function() return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank') end,
+        GetRank = function() return tonumber(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank')) end,
         GetRoles = function() return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles') end,
 
 
