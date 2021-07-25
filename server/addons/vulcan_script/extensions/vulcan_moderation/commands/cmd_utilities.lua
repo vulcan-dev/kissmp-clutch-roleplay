@@ -180,12 +180,13 @@ M.commands["set_fog"] = {
         if not tonumber(fog) then modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor) return end
 
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then
-            fog = args[1]
+            fog = args[1] / 10
             for _, c in pairs(G_Clients) do
                 c.user:sendLua('extensions.core_environment.setFogDensity('..fog..')')
                 modules.server.DisplayDialog(c, string.format('[Enviroment] Set fog density to %s', fog))
             end
         else
+            fog = fog / 10
             client = client.data
             client.user:sendLua('extensions.core_environment.setFogDensity('..fog..')')
             modules.server.DisplayDialog(client, string.format('[Enviroment] Set fog density to %s', fog))

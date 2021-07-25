@@ -17,7 +17,7 @@ local modules = {
 local cooldownTime = 0
 M.commands = {}
 
---[[ View bal ]]--
+--[[ View Bal ]]--
 M.commands["view_bal"] = {
     rank = modules.moderation.RankModerator,
     category = 'Moderation',
