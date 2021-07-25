@@ -62,7 +62,7 @@ M.commands["add_role"] = {
     usage = '/add_role <user> <role>',
     exec = function(executor, args)
         local client = modules.server.GetUser(args[1])
-        local role = args[2]
+        local role = string.lower(args[2])
 
         -- Check if the client exists
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end

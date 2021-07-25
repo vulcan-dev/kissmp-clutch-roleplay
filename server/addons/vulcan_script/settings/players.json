@@ -7,9 +7,12 @@
     "money": 5560.0,
     "mute_time": 0.0,
     "onduty": false,
-    "playtime": 14710.0,
+    "playtime": 15100.0,
     "rank": 6.0,
-    "roles": [],
+    "roles": [
+      "police",
+      "ems"
+    ],
     "vehicleLimit": 2.0,
     "warns": []
   },
