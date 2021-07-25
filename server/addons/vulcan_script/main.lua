@@ -280,16 +280,16 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
 
         --[[ Load all Extensions ]]--
         extensions = G_ReloadExtensions(extensions, 'main.lua')
-        for _, v in pairs(modules.utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
-            extensions[v] = G_Try(function()
-                package.loaded[v] = nil
-                return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
-            end, function()
-                modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
-            end)
+        -- for _, v in pairs(modules.utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
+        --     extensions[v] = G_Try(function()
+        --         package.loaded[v] = nil
+        --         return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
+        --     end, function()
+        --         modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
+        --     end)
 
-            modules.utilities.LogDebug('[Extension] Reloaded Extension: %s', v)
-        end
+        --     modules.utilities.LogDebug('[Extension] Reloaded Extension: %s', v)
+        -- end
         
         --[[ Load all Extension Modules ]]--
         for _, v in pairs(extensions) do
@@ -380,15 +380,6 @@ local function Initialize()
     --     Data = "test data",
     --     Type = "user_ban"
     -- })
-
-    --[[ Set Colours ]]--
-    modules.server.ColourSuccess = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Success'))
-    modules.server.ColourWarning = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Warning'))
-    modules.server.ColourError = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Error'))
-
-    modules.server.ColourDarkweb = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Darkweb'))
-    modules.server.ColourTwitter = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Twitter'))
-    modules.server.ColourPoliceRadio = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'PoliceRadio'))
 
     --[[ Create Console ]]--
     G_Clients[1337] = modules.server.consolePlayer

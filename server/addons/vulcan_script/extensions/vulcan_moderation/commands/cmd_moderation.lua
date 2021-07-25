@@ -355,14 +355,21 @@ M.commands["set_rank"] = {
     usage = '/set_rank <user> <rank>',
     exec = function(executor, args)
         local client = modules.server.GetUser(args[1])
-        local rank = tonumber(args[2]) or nil
+        local rank = args[2] or nil
 
         -- Check if the client exists
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.SendChatMessage(executor.user:getID(), 'Invalid user specified') return end
         client = client.data
 
         -- Check if the rank is valid
-        if not modules.moderation.StrRanks[rank] then
+        for num, rankStr in pairs(modules.moderation.StrRanks) do
+            if rank == rankStr then
+                rank = num
+                break
+            end
+        end
+
+        if not modules.moderation.StrRanks[tonumber(rank)] then
             modules.server.DisplayDialog(executor, '[Error] Invalid rank specified')
             return
         end

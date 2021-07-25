@@ -7,10 +7,10 @@ require('addons.vulcan_script.globals')
 local M = {}
 
 local roles = {
-    'Dispatch',
-    'Police',
-    'Fire',
-    'EMS',
+    'dispatch',
+    'police',
+    'fire',
+    'ems',
 }
 
 local modules = {

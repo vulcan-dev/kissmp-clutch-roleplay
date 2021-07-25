@@ -73,7 +73,7 @@ function G_ReloadExtensions(extensions, filename)
         end
 
         extensions[ext] = nil
-        --extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
+        extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
     end
 
     return extensions

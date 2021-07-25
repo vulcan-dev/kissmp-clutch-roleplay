@@ -23,14 +23,14 @@ local RankDeveloper = 6
 local RankConsole = 7
 
 local StrRanks = {
-    [RankUser] = 'User',
-    [RankTrusted] = 'Trusted',
-    [RankVIP] = 'VIP',
-    [RankModerator] = 'Moderator',
-    [RankAdmin] = 'Admin',
-    [RankOwner] = 'Owner',
-    [RankDeveloper] = 'Developer',
-    [RankConsole] = 'Console'
+    [RankUser] = 'user',
+    [RankTrusted] = 'trusted',
+    [RankVIP] = 'vip',
+    [RankModerator] = 'moderator',
+    [RankAdmin] = 'admin',
+    [RankOwner] = 'owner',
+    [RankDeveloper] = 'developer',
+    [RankConsole] = 'console'
 }
 
 -- Utility Functions
@@ -130,7 +130,7 @@ local function SendUserMessage(executor, prefix, message)
     local output = string.format('[%s] %s: %s', rankStr, name, message)
 
     if prefix then
-        output = string.format('(%s) [%s] %s: %s', prefix, rankStr, name, message)
+        output = string.format('(%s) [%s] %s: %s', prefix, modules.utilities.ToTitle(rankStr), name, message)
     end
 
     rankColour = modules.utilities.GetColour(rankColour)

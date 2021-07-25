@@ -208,6 +208,10 @@ local function IsNumber(sIn)
     return tonumber(sIn) ~= nil
 end
 
+local function ToTitle(str)
+    return (str:gsub("^%l", string.upper))
+end
+
 local function ReloadModules()
     modules = G_ReloadModules(modules, 'utilities.lua')
 end
@@ -230,6 +234,7 @@ M.GetKey = GetKey
 M.EditKey = EditKey
 M.GetColour = GetColour
 M.StartsWith = StartsWith
+M.ToTitle = ToTitle
 M.ReloadModules = ReloadModules
 
 return M

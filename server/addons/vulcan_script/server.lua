@@ -6,12 +6,12 @@ local modules = {
 }
 
 --[[ Colours ]]--
-local ColourSuccess = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Success'))
-local ColourWarning = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Warning'))
-local ColourError = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Error'))
-local ColourDarkweb = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Darkweb'))
-local ColourTwitter = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'Twitter'))
-local ColourPoliceRadio = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'PoliceRadio'))
+local ColourSuccess = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'success'))
+local ColourWarning = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'warning'))
+local ColourError = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'error'))
+local ColourDarkweb = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'darkweb'))
+local ColourTwitter = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'twitter'))
+local ColourPoliceRadio = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'police_radio'))
 
 --[[ Enviroment Variables ]]--
 local environmentTime = {
