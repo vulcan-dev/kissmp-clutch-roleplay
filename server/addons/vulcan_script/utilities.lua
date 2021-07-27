@@ -64,7 +64,7 @@ local function Log(message, ...)
     print('['..GetDateTime()..'] ' .. tostring(string.format(message, ...)))
 end
 
-local function LogDebug(debug, ...) if G_Level == G_LevelDebug then Log('[DEBUG]: ' .. debug, ...) end end
+local function LogDebug(debug, ...) if G_Level == G_LevelDebug then Log('[DEBUG]: ' .. tostring(debug), ...) end end
 local function LogInfo(info, ...) Log('[INFO]: ' .. info, ...) end
 local function LogError(error, ...) Log('[ERRO]: ' .. error, ...) end
 local function LogWarning(warning, ...) Log('[WARN]: ' .. warning, ...) end
@@ -73,7 +73,7 @@ local function LogFatal(fatal, ...) Log('[FATAL]: ' .. fatal, ...) os.execute('p
 local function LogReturn(...) Log('[Return] ' .. ...) end
 
 local function SendAPI(json)
-    print('[API]: ' .. encode_json  (json))
+    print('[API]: ' .. encode_json(json))
 end
 
 --[[ Utility Data ]]--

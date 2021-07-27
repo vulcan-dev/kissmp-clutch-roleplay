@@ -32,6 +32,9 @@ G_API = true
 
 G_TimedEvents = {}
 G_Commands = {}
+G_CommandExecuted = false
+
+G_FirstLoad = true
 
 --[[ Utility Functions ]]--
 function G_Try(f, catch_f)
@@ -65,15 +68,15 @@ function G_ReloadExtensions(extensions, filename)
     local utilities = require('addons.vulcan_script.utilities')
     filename = filename or ''
 
-    for ext, _ in pairs(extensions) do
+    for _, ext in pairs(utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
         if package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] then
+            package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] = nil
             utilities.LogDebug('[Extension] [%s] Reloaded %s', filename, ext)
         else
             utilities.LogDebug('[Extension] [%s] Loaded %s', filename, ext)
         end
 
-        extensions[ext] = nil
-        extensions[ext] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
+        extensions[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
     end
 
     return extensions

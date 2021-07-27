@@ -100,22 +100,18 @@ local function GetUser(user) -- ID, Name, Secret
     for _, client in pairs(G_Clients) do
         if user == client.user:getName() then
             --[[ (In-Game) Client Name was Found ]]--
-            modules.utilities.LogDebug('modules.server.GetUser() Returning Name: %s', user)
             return {data=client, success=true}
         else
             if tonumber(user) == client.mid then
                 --[[ (In-Game) Client MID was Found ]]--
-                modules.utilities.LogDebug('modules.server.GetUser() Returning MID: %d', user)
                 return {data=client, success=true}
             else
                 if tonumber(user) == client.user:getID() then
                     --[[ (In-Game) Client ID was Found ]]--
-                    modules.utilities.LogDebug('modules.server.GetUser() Returning ClientID: %s', user)
                     return {data=client, success=true}
                 else
                     if user == client.user:getSecret() then
                         --[[ (In-Game) Client Secret was Found ]]--
-                        modules.utilities.LogDebug('modules.server.GetUser() Returning Secret: %s', user)
                         return {data=client, success=true}
                     end
                 end
@@ -325,7 +321,9 @@ local function DisplayDialog(error, client, message, time)
 
     time = time or 3
 
-    modules.utilities.LogReturn(message)
+    if G_CommandExecuted then
+        modules.utilities.LogReturn(message)
+    end
 
     if client.user then
         --[[ Send to One Client ]]--
@@ -353,7 +351,9 @@ local function SendChatMessage(client_id, message, colour)
         message = client_id
     end
 
-    modules.utilities.LogReturn(message)
+    if G_CommandExecuted then
+        modules.utilities.LogReturn(message)
+    end
 
     --[[ Check if Colour is Valid ]]--
     if type(colour) ~= 'table' then colour = {} end

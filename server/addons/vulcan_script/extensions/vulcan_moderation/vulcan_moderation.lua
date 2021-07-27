@@ -68,33 +68,33 @@ M.callbacks = {
         local found = false
         local blacklist = modules.utilities.GetKey(G_BlacklistLocation)
         for k, v in pairs(blacklist) do
-            if k == vehicle:getData():getName() then
-                if type(v) == 'boolean' and v then
-                    modules.utilities.LogDebug(v)
-                    modules.server.DisplayDialogError(G_ErrorVehicleBlacklisted, G_Clients[client_id])
-                    vehicle:remove()
+            modules.utilities.LogDebug(k)
+            -- if k == vehicle:getData():getName() then
+            --     if type(v) == 'boolean' then
+            --         modules.utilities.LogDebug(v)
+            --         modules.server.DisplayDialogError(G_ErrorVehicleBlacklisted, G_Clients[client_id])
+            --         vehicle:remove()
 
-                    G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
-                    G_Clients[client_id].user:sendLua('commands.setFreeCamera()')
-                    break
-                elseif type(v) == 'table' then
-                    for _, role in pairs(v) do
-                        if not modules.moderation.HasRole(G_Clients[client_id], role) then
-                            can_drive = false
-                        else
-                            can_drive = true
-                        end
-
-                        found = true
-                    end
-                end
-            end
+            --         if G_Clients[client_id].vehicleCount > 0 then G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1 end
+            --         G_Clients[client_id].user:sendLua('commands.setFreeCamera()')
+            --         break
+            --     elseif type(v) == 'table' then
+            --         for _, role in pairs(v) do
+            --             if not modules.moderation.HasRole(G_Clients[client_id], role) then
+            --                 can_drive = false
+            --             else
+            --                 can_drive = true
+            --             end
+            --         end
+            --     end
+            -- end
         end
 
-        -- if not found then
-        --     modules.server.DisplayDialogError(G_ErrorVehicleBlacklisted, G_Clients[client_id])
-        --     vehicle:remove()
-        -- end
+        if not found then
+            modules.server.DisplayDialogError(G_ErrorVehicleBlacklisted, G_Clients[client_id])
+            vehicle:remove()
+            return
+        end
 
         if can_drive then
             if vehicle then
@@ -125,6 +125,7 @@ M.callbacks = {
 
     VK_OnStdIn = function(message)
         if string.sub(message, 1, 1) == '/' then
+            G_CommandExecuted = true
             local args = modules.utilities.ParseCommand(message, ' ')
             args[1] = args[1]:sub(2)
 
@@ -134,6 +135,7 @@ M.callbacks = {
                 table.remove(args, 1)
                 command.exec(modules.server.GetUser(1337).data, args)
             end
+            G_CommandExecuted = false
         end
     end,
     
@@ -154,15 +156,6 @@ M.callbacks = {
 }
 
 local function ReloadModules()
-    G_RemoveCommandTable(modules.cmd_moderation.commands)
-    G_RemoveCommandTable(modules.cmd_utilities.commands)
-    G_RemoveCommandTable(modules.cmd_fun.commands)
-
-    modules.moderation.ReloadModules()
-
-    modules.cmd_moderation.ReloadModules()
-    modules.cmd_utilities.ReloadModules()
-    modules.cmd_fun.ReloadModules()
     modules = G_ReloadModules(modules, 'vulcan_moderation.lua') -- IMPORTANT! This might have to go after all other modules have been reloaded
 
     G_AddCommandTable(modules.cmd_moderation.commands)

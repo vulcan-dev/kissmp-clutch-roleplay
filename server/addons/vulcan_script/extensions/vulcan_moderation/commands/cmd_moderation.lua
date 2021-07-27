@@ -332,6 +332,17 @@ M.commands["kick"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
         client = client.data
 
+        modules.utilities.SendAPI({
+            Executor = {
+                Name = executor.user:getName(),
+            },
+            Client = {
+                Name = client.user:getName(),
+            },
+            Data = reason,
+            Type = "user_kick"
+        })
+
         -- Check if the executor is able to run the command against the client
         if executor.GetRank() <= client.GetRank() then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
@@ -340,7 +351,6 @@ M.commands["kick"] = {
             return
         end
 
-        -- IMPORTANT! Request will not be sent if the executor is the client. This goes for everything!
         client.user:kick(string.format('You have been kicked by %s\nReason: %s', executor.user:getName(), reason))
 
         modules.server.SendChatMessage(string.format('[Moderation] %s has been kicked by %s', client.user:getName(), executor.user:getName()))

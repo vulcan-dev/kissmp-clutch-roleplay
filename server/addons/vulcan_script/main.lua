@@ -91,6 +91,7 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
 
         --[[ User Help ]]--
         modules.server.SendChatMessage(client.user:getID(), 'Use /help for a list of commands (only show for your rank)', modules.server.ColourSuccess)
+        modules.server.SendChatMessage(client.user:getID(), 'KissMP 0.4.5 is currently buggy, please download the fixed version from /discord or KissMP\'s Github', modules.server.ColourSuccess)
 
         --[[ Load Extension Hook VK_PlayerConnect ]]--
         for _, extension in pairs(extensions) do
@@ -191,7 +192,6 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     local mute_time = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'mute_time')
     if mute_time ~= nil and mute_time > 0 then
         if mute_time <= os.time() then
-            --modules.utilities.LogDebug('You have been unmuted')
             modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'mute_time', 0)
         else
             modules.server.SendChatMessage(executor.user:getID(), 'You are muted', modules.server.ColourError)
@@ -202,6 +202,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     --[[ Check if Command ]]
     modules.utilities.LogInfo('%s said: %s', G_Clients[client_id].user:getName(), message)
     if string.sub(message, 1, 1) == prefix then
+        G_CommandExecuted = true
         local args = modules.utilities.ParseCommand(message, ' ')
         args[1] = string.lower(args[1]:sub(2))
 
@@ -235,6 +236,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
                 end, function(err)
                     modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please post it in bug-reports in /discord ] Message: %s', message, err), modules.server.ColourError)
                     modules.utilities.LogError('Command failed! User: %s\n  Message: %s', executor.user:getName(), err)
+                    G_CommandExecuted = false
                     return ""
                 end)
             end
@@ -276,21 +278,11 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
         G_PlayersLocation = './addons/vulcan_script/settings/players.json'
         G_ColoursLocation = './addons/vulcan_script/settings/colours.json'
 
-        
         --[[ Load all Extensions ]]--
         extensions = G_ReloadExtensions(extensions, 'main.lua')
-        for _, v in pairs(modules.utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
-            extensions[v] = G_Try(function()
-                package.loaded[v] = nil
-                return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
-            end, function()
-                modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
-            end)
-            
-            modules.utilities.LogDebug('[Extension] Reloaded Extension: %s', v)
-        end
+
         modules = G_ReloadModules(modules, 'main.lua')
-        
+
         --[[ Load all Extension Modules ]]--
         for _, v in pairs(extensions) do
             v.ReloadModules()
@@ -310,7 +302,6 @@ hooks.register("Tick", "VK_TICK", function()
     --[[ Garbage Debugging ]]--
     if os.time() > nextUpdate then
         nextUpdate = os.time() + 4
-        --modules.debug.GetMemoryUsage()
         collectgarbage("collect")
     end
 
@@ -332,73 +323,57 @@ end)
 -- [[ ==================== Hooking End ==================== ]] --
 
 local function Initialize()
-    --[[ Make sure to change the log level if you don't want console spam :) ]]--
-    G_Level = G_LevelDebug
-    modules.utilities.LogInfo('[Server] Initialized')
+    if G_FirstLoad then
+        --[[ Make sure to change the log level if you don't want console spam :) ]]--
+        G_Level = G_LevelDebug
+        modules.utilities.LogInfo('[Server] Initialized')
 
-    modules = G_ReloadModules(modules, 'main.lua')
+        modules = G_ReloadModules(modules, 'main.lua')
 
-    --[[ Load all Extensions ]]--
-    for _, v in pairs(modules.utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
-        extensions[v] = G_Try(function()
-            return require(string.format('addons.vulcan_script.extensions.%s.%s', v, v))
-        end, function()
-            modules.utilities.LogFatal('[Extension] Failed Loading Extension: %s', v)
-        end)
-        
-        modules.utilities.LogDebug('[Extension] Loaded Extension: '..v)
+        --[[ Load all Extensions ]]--
+        extensions = G_ReloadExtensions(extensions, 'main.lua')
+
+        --[[ Load all Extension Modules ]]--
+        for _, v in pairs(extensions) do
+            v.ReloadModules()
+        end
+
+        G_Verbose = modules.utilities.GetKey(G_ServerLocation, 'log', 'verbose')
+        G_LogFile = modules.utilities.GetKey(G_ServerLocation, 'log', 'file')
+
+        G_UseDiscord = modules.utilities.GetKey(G_ServerLocation, 'options', 'use_discord')
+
+        G_DiscordLink = modules.utilities.GetKey(G_ServerLocation, 'options', 'discord_link')
+        G_PatreonLink = modules.utilities.GetKey(G_ServerLocation, 'options', 'patreon_link')
+
+        prefix = modules.utilities.GetKey(G_ServerLocation, 'options', 'command_prefix')
+
+        -- modules.utilities.SendAPI({
+        --     Executor = {
+        --         Name = "executor",
+        --         ID = 1,
+        --         MID = 2,
+        --         Secret = "Secret"
+        --     },
+        --     Client = {
+        --         Name = "client",
+        --         ID = 4,
+        --         MID = 3,
+        --         Secret = "Secret2"
+        --     },
+        --     Data = "test data",
+        --     Type = "user_kick"
+        -- })
+
+        --[[ Create Console ]]--
+        G_Clients[1337] = modules.server.consolePlayer
+
+        -- modules.vulcan_debug = require('addons.vulcan_script.extensions.vulcan_debug.vulcan_debug')
+        -- modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
+        -- modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
+
+        G_FirstLoad = false
     end
-    
-    --[[ Load all Extension Modules ]]--
-    for _, v in pairs(extensions) do
-        v.ReloadModules()
-    end
-    
-    G_Verbose = modules.utilities.GetKey(G_ServerLocation, 'log', 'verbose')
-    G_LogFile = modules.utilities.GetKey(G_ServerLocation, 'log', 'file')
-
-    G_UseDiscord = modules.utilities.GetKey(G_ServerLocation, 'options', 'use_discord')
-
-    G_DiscordLink = modules.utilities.GetKey(G_ServerLocation, 'options', 'discord_link')
-    G_PatreonLink = modules.utilities.GetKey(G_ServerLocation, 'options', 'patreon_link')
-
-    prefix = modules.utilities.GetKey(G_ServerLocation, 'options', 'command_prefix')
-
-    -- modules.utilities.SendAPI({
-    --     Executor = {
-    --         Name = "executor",
-    --         ID = 1,
-    --         MID = 2,
-    --         Secret = "Secret"
-    --     },
-    --     Client = {
-    --         Name = "client",
-    --         ID = 4,
-    --         MID = 3,
-    --         Secret = "Secret2"
-    --     },
-    --     Data = "test data",
-    --     Type = "user_ban"
-    -- })
-
-    --[[ Create Console ]]--
-    G_Clients[1337] = modules.server.consolePlayer
-
-    modules.vulcan_debug = require('addons.vulcan_script.extensions.vulcan_debug.vulcan_debug')
-    modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
-    modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
-
-    -- modules.utilities.SendAPI({
-    --     executor = {
-    --         name = "Dan"
-    --     },
-    --     client = {
-    --         name = "User"
-    --     },
-    --     type = 'mod_log',
-    --     reason = 'test',
-    --     data = 'kicked'
-    -- })
 end
 
 Initialize()
