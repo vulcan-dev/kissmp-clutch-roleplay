@@ -430,8 +430,7 @@ M.commands["block"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
         client = client.data
 
-        -- TODO change back to <=
-        if client.rank() >= modules.moderation.RankVIP then
+        if client.rank() <= modules.moderation.RankVIP then
             local blocked = false
             for key, name in pairs(modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'blockList')) do
                 if name == client.user:getName() then
