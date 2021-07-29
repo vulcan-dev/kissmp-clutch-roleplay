@@ -253,8 +253,6 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
             end
         end
 
-        modules.utilities.LogDebug(tostring(canExecuteWithRole))
-
         if command and command.roles and canExecuteWithRole or command and not command.roles and not canExecuteWithRole then
             if executor.rank() >= command.rank then
                 table.remove(args, 1)

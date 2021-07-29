@@ -131,6 +131,55 @@ M.commands["set_wind"] = {
 }
 
 --[[ Set Time ]]--
+M.commands["set_rain"] = {
+    rank = modules.moderation.RankModerator,
+    category = 'Moderation Utilities',
+    description = 'Sets the rain amount',
+    usage = '/set_rain (amount_of_rain)',
+    exec = function(executor, args)
+        local rainAmount = args[1] or 40
+
+        -- Todo: sync it for everyone on join
+
+        for _, client in pairs(G_Clients) do
+            client.user:sendLua(string.format([[
+
+envObjectIdCache = {}
+function getObject(className, preferredObjName)
+    if envObjectIdCache[className] then
+        return scenetree.findObjectById(envObjectIdCache[className])
+    end
+    
+    envObjectIdCache[className] = 0
+    local objNames = scenetree.findClassObjects(className)
+    if objNames and tableSize(objNames) > 0 then
+        for _,name in pairs(objNames) do
+            local obj = scenetree.findObject(name)
+            if obj and (name == preferredObjName or not preferredObjName) then
+                envObjectIdCache[className] = obj:getID()
+                return obj
+            end
+        end
+    end
+
+    return nil
+end
+
+rainObj = getObject("Precipitation", "rain_coverage") or getObject("Precipitation")
+if rainObj then
+    rainObj.numDrops = %d
+    rainObj.dataBlock = scenetree.findObject("rain_medium")
+    rainObj.useLighting = true
+    rainObj.hitPlayers = true
+    rainObj.hitVehicles = true
+end
+
+            ]], tonumber(rainAmount)))
+        end
+    end
+}
+
+--[[ Set Time ]]--
 M.commands["set_time"] = {
     rank = modules.moderation.RankModerator,
     category = 'Moderation Utilities',
