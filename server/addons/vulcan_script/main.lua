@@ -87,6 +87,7 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
 
         --[[ Create Waypoints ]]--
         modules.server.InitializeMarkers(client)
+
         client.user:sendLua('kissui.force_disable_nametags = true')
 
         --[[ User Help ]]--
@@ -206,7 +207,29 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
 
     --[[ Check if Command ]]
     modules.utilities.LogInfo('%s said: %s', G_Clients[client_id].user:getName(), message)
-    if string.sub(message, 1, 1) == prefix then
+    if string.sub(message, 1, 1) == '@' then
+        local args = modules.utilities.ParseCommand(message, ' ')
+        args[1] = string.lower(args[1]:sub(2))
+        string.gsub(args[1], '@', '')
+
+        local client = modules.server.GetUser(args[1])
+
+        -- Check if the client exists
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        client = client.data
+
+        table.remove(args, 1)
+
+        local message = ''
+        for _, v in pairs(args) do
+            message = message .. v .. ' '
+        end
+
+        -- Check if message is valid
+        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+
+        modules.server.SendChatMessage(string.format('%s @%s: %s', executor.user:getName(), client.user:getName(), message), modules.server.ColourMention)
+    else if string.sub(message, 1, 1) == prefix then
         G_CommandExecuted = true
         local args = modules.utilities.ParseCommand(message, ' ')
         args[1] = string.lower(args[1]:sub(2))
@@ -225,7 +248,6 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
         if command and command.roles then
             for _, role in pairs(command.roles) do
                 if modules.rp.HasRole(executor, role) then
-                    modules.utilities.LogDebug(tostring(role))
                     canExecuteWithRole = true
                 end
             end
@@ -237,6 +259,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
             if executor.rank() >= command.rank then
                 table.remove(args, 1)
                 G_Try(function ()
+                    modules.moderation.SendUserMessage(executor, 'Command', message, false)
                     command.exec(executor, args)
                 end, function(err)
                     modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please post it in bug-reports in /discord ] Message: %s', message, err), modules.server.ColourError)
@@ -263,7 +286,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
         })
 
         modules.moderation.SendUserMessage(executor, 'OOC', message)
-    end
+    end end
 
     --[[ Load Extension Hook VK_OnMessageReceive ]]--
     for _, extension in pairs(extensions) do
@@ -285,8 +308,10 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
 
         --[[ Load all Extensions ]]--
         extensions = G_ReloadExtensions(extensions, 'main.lua')
-
         modules = G_ReloadModules(modules, 'main.lua')
+
+        modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
+        modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
 
         --[[ Load all Extension Modules ]]--
         for _, v in pairs(extensions) do

@@ -606,6 +606,32 @@ M.commands["cleanup"] = {
     end
 }
 
+--[[ Enable Nametags ]]--
+M.commands["enable_tags"] = {
+    rank = modules.moderation.RankModerator,
+    category = 'Moderation Utilties',
+    description = 'Enable name tags (should only be used when moderating)',
+    usage = '/enable_tags',
+    alias = 'et',
+    exec = function(executor, args)
+        executor.user:sendLua('kissui.force_disable_nametags = false')
+        modules.server.DisplayDialog(executor, 'Successfully enabled nametags')
+    end
+}
+
+--[[ Disable Nametags ]]--
+M.commands["disable_tags"] = {
+    rank = modules.moderation.RankModerator,
+    category = 'Moderation Utilties',
+    description = 'Disable name tags',
+    usage = '/disable_tags',
+    alias = 'dt',
+    exec = function(executor, args)
+        executor.user:sendLua('kissui.force_disable_nametags = true')
+        modules.server.DisplayDialog(executor, 'Successfully disabled nametags')
+    end
+}
+
 --[[ GP ]]--
 M.commands["gp"] = {
     rank = modules.moderation.RankDeveloper,

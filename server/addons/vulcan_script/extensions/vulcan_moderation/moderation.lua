@@ -123,18 +123,25 @@ local function GetWarns(secret)
 end
 
 --[[ Utilities ]]--
-local function SendUserMessage(executor, prefix, message)
+local function SendUserMessage(executor, prefix, message, all)
+    all = all or true
+
     local rankStr = M.StrRanks[executor.rank()]
     local rankColour = modules.utilities.GetKey(G_ColoursLocation, rankStr)
     local name = G_Clients[executor.user:getID()].user:getName()
-    local output = string.format('[%s] %s: %s', rankStr, name, message)
+    local output = string.format('[%s] %s: %s', modules.utilities.ToTitle(rankStr), name, message)
 
-    if prefix then
+    if prefix ~= nil then
         output = string.format('(%s) [%s] %s: %s', prefix, modules.utilities.ToTitle(rankStr), name, message)
     end
 
     rankColour = modules.utilities.GetColour(rankColour)
-    modules.server.SendChatMessage(output, rankColour)
+
+    if all then
+        modules.server.SendChatMessage(output, rankColour)
+    else
+        modules.server.SendChatMessage(executor.user:getID(), output, rankColour)
+    end
 end
 
 local function ReloadModules()

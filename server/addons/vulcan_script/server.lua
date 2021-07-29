@@ -12,6 +12,7 @@ local ColourError = modules.utilities.GetColour(modules.utilities.GetKey(G_Colou
 local ColourDarkweb = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'darkweb'))
 local ColourTwitter = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'twitter'))
 local ColourPoliceRadio = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'police_radio'))
+local ColourMention = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'mention'))
 
 --[[ Enviroment Variables ]]--
 local environmentTime = {
@@ -485,6 +486,8 @@ M.ColourError = ColourError
 M.ColourTwitter = ColourTwitter
 M.ColourDarkweb = ColourDarkweb
 M.ColourPoliceRadio = ColourPoliceRadio
+
+M.ColourMention = ColourMention
 
 --[[ Enviroment Variables ]]--
 M.environmentTime = environmentTime
