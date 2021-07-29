@@ -62,27 +62,19 @@ M.callbacks = {
     end,
 
     VK_VehicleSpawn = function(vehicle_id, client_id)
-        local client = G_Clients[client_id]
         local vehicle = vehicles[vehicle_id]
 
-        --[[ Check the vehicle limit ]]--
-        if client.vehicles.count > modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'vehicleLimit') then
-            modules.server.DisplayDialog(client, 'You Have Reached Your Vehicle Limit')
-            client.vehicles.remove(client, connections[client_id]:getCurrentVehicle())
-
-            G_Clients[client_id].user:sendLua('commands.setFreeCamera()')
-        end
-
         local can_drive = true
-        for k, v in pairs(modules.utilities.GetKey(G_BlacklistLocation)) do
+        local blacklist = modules.utilities.GetKey(G_BlacklistLocation)
+        for k, v in pairs(blacklist) do
             if k == vehicle:getData():getName() then
                 if type(v) == 'boolean' then
-                    modules.utilities.LogDebug(v)
                     modules.server.DisplayDialogError(G_ErrorVehicleBlacklisted, G_Clients[client_id])
+                    vehicle:remove()
 
-                    G_Clients[client_id].vehicles.remove(G_Clients[client_id], vehicle_id)
+                    G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
                     G_Clients[client_id].user:sendLua('commands.setFreeCamera()')
-                    break
+                    return
                 elseif type(v) == 'table' then
                     for _, role in pairs(v) do
                         if not modules.moderation.HasRole(G_Clients[client_id], role) then
@@ -105,8 +97,9 @@ M.callbacks = {
             end
         else
             modules.server.DisplayDialogError(G_ErrorInvalidVehiclePermissions, G_Clients[client_id])
-            G_Clients[client_id].vehicles.remove(G_Clients[client_id], vehicle_id)
+            vehicle:remove()
 
+            G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
             G_Clients[client_id].user:sendLua('commands.setFreeCamera()')
         end
     end,

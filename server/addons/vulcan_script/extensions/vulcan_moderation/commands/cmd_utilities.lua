@@ -557,6 +557,55 @@ M.commands["dv"] = {
     end
 }
 
+--[[ DVA ]]--
+M.commands["dva"] = {
+    rank = modules.moderation.RankUser,
+    category = 'Moderation Utilities',
+    description = 'Deletes current vehicle',
+    usage = '/dva (user)',
+    exec = function(executor, args)
+        local client = modules.server.GetUser(args[1])
+
+        -- TODO return if client specified and doesn't exist
+
+       --[[ Check if a client has been passed through ]]--
+        if client.success then
+            client = client.data
+            if client.rank() > modules.moderation.RankVIP then
+                --[[ Delete clients vehicle ]]--
+                client.vehicles.clear(client)
+                client.user:sendLua('commands.setFreeCamera()')
+
+                modules.server.DisplayDialog(executor, 'Successfully removed clients vehicle')
+            else
+                modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor)
+            end
+        else
+            --[[ Delete executors vehicle ]]--
+            executor.vehicles.clear(executor)
+            executor.user:sendLua('commands.setFreeCamera()')
+        end
+    end
+}
+
+--[[ DVA ]]--
+M.commands["cleanup"] = {
+    rank = modules.moderation.RankAdmin,
+    category = 'Moderation Utilities',
+    description = 'Cleans up everyone\'s car',
+    usage = '/cleanup',
+    exec = function(executor, args)
+        for _, client in pairs(G_Clients) do
+            if client.user:getID() ~= 1337 then
+                modules.server.DisplayDialog(client, 'Server has been cleaned up')
+                client.vehicles.clear(client)
+                client.user:sendLua('commands.setFreeCamera()')
+            end
+        end
+
+    end
+}
+
 --[[ GP ]]--
 M.commands["gp"] = {
     rank = modules.moderation.RankDeveloper,

@@ -34,9 +34,13 @@ M.callbacks = {
             "ramp",
             "citybus_jato_R",
             "citybus_ramplow",
+            "semi_ramplow",
+            "ramplow",
+            "ramplow_L"
         }
 
         for name, part in pairs(vData.parts) do
+            modules.utilities.LogDebug(part)
             for _, blacklist in pairs(blacklisted) do
                 if (string.find(part, blacklist) and (not modules.rp.IsLeo(client) and name ~= 'van_rollback_lightbar')) or part == blacklist then
                     modules.server.DisplayDialogError(G_ErrorInvalidVehiclePermissions, client)

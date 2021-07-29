@@ -112,31 +112,28 @@ local function AddClient(client_id)
 
     client.vehicles.add = function(player, vehicleID)
         player.vehicles[vehicleID] = vehicles[vehicleID]
-        for k, v in pairs(vehicles) do
-            modules.utilities.LogDebug(k .. ' ' .. tostring(v))
-        end
-
         modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
     end
 
     client.vehicles.remove = function(player, vehicleID)
-        modules.utilities.LogDebug('Vehicle ID: ' .. vehicleID)
-        --modules.utilities.LogDebug('Vehicle: ' .. tostring(vehicles[vehicleID]))
-        if player.vehicles[vehicleID] then
-            vehicles[vehicleID]:remove()
-            player.vehicles[vehicleID] = nil
+        modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+        if type(vehicleID) == 'number' then
+            if player.vehicles[vehicleID] then
+                G_Try(function ()
+                    vehicles[vehicleID]:remove()
+                end)
+                player.vehicles[vehicleID] = nil
 
-            client.vehicles.count = client.vehicles.count - 1
-            modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+                client.vehicles.count = client.vehicles.count - 1
+            end
         end
     end
 
     client.vehicles.clear = function(player)
-        for vehicle, _ in pairs(player.vehicles) do
-            player.vehicles[vehicle]:delete()
-            player.vehicles[vehicle] = nil
-
-            modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+        for id, _ in pairs(player.vehicles) do
+            if type(id) == 'number' then
+                player.vehicles.remove(player, id)
+            end
         end
     end
 
@@ -439,7 +436,6 @@ local function SendChatMessage(client_id, message, colour)
         message = client_id
 
         for _, client in pairs(G_Clients) do
-            modules.utilities.LogDebug(type(client.blockList()))
             for key, name in pairs(client.blockList()) do
                 if key == client.user:getSecret() then
                     canSend = false
@@ -447,17 +443,6 @@ local function SendChatMessage(client_id, message, colour)
                     canSend = true
                 end
             end
-            -- for i = 1, #client.blockList do
-            --     --[[ Loop over the client's block list ]]--
-
-            --     if client.user:getID() == client.blockList[i] then
-            --         --[[ Client has been blocked so don't send ]]--
-            --         canSend = false
-            --     else
-            --         --[[ Client has not been blocked so send ]]--
-            --         canSend = true
-            --     end
-            -- end
 
             --[[ Send Message to All Clients ]]--
             if canSend then
