@@ -68,6 +68,19 @@ local function AddClient(client_id)
 
     client.commandCooldown = false
 
+    client.setHome = function(x, y, z, xr, yr, zr, w)
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home', {x = x, y = y, z = z, xr = xr, yr = yr, zr = zr, w = w})
+    end
+
+    client.getHome = function()
+        local home = modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home')
+        return home
+    end
+
+    if not client.getHome() then
+        client.setHome(100, 100, 100, 0, 0, 0, 10)
+    end
+
     --[[ Client Vehicles ]]--
     client.vehicles = {}
     client.vehicles.count = 0

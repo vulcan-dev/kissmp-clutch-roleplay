@@ -764,13 +764,15 @@ M.commands["set_home"] = {
         local vehicle = vehicles[ply:getCurrentVehicle()]
 
         if vehicle then
-            executor.home.x = vehicle:getTransform():getPosition()[1]
-            executor.home.y = vehicle:getTransform():getPosition()[2]
-            executor.home.z = vehicle:getTransform():getPosition()[3]
-            executor.home.xr = vehicle:getTransform():getRotation()[1]
-            executor.home.yr = vehicle:getTransform():getRotation()[2]
-            executor.home.zr = vehicle:getTransform():getRotation()[3]
-            executor.home.w = vehicle:getTransform():getRotation()[4]
+            local x = vehicle:getTransform():getPosition()[1]
+            local y = vehicle:getTransform():getPosition()[2]
+            local z = vehicle:getTransform():getPosition()[3]
+            local xr = vehicle:getTransform():getRotation()[1]
+            local yr = vehicle:getTransform():getRotation()[2]
+            local zr = vehicle:getTransform():getRotation()[3]
+            local w = vehicle:getTransform():getRotation()[4]
+
+            executor.setHome(x, y, z, xr, yr, zr, w)
 
             modules.server.DisplayDialog(executor, 'Successfully set your home postion. TP back with /home')
         else
@@ -790,7 +792,7 @@ M.commands["home"] = {
         local vehicle = vehicles[ply:getCurrentVehicle()]
 
         if vehicle then
-            vehicle:setPositionRotation(executor.home.x, executor.home.y, executor.home.z, executor.home.xr, executor.home.yr, executor.home.zr, executor.home.w)
+            vehicle:setPositionRotation(executor.getHome().x, executor.getHome().y, executor.getHome().z, executor.getHome().xr, executor.getHome().yr, executor.getHome().zr, executor.getHome().w)
             modules.server.DisplayDialog(executor, 'Successfully teleported you home')
         end
     end
