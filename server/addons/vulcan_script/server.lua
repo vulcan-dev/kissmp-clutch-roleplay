@@ -48,22 +48,52 @@ local consolePlayer = {
 
     --[[ Variables ]]--
     connected = true,
-    blockList = {},
+    blockList = function() return {} end,
     mid = 1337,
 }
 
+local function SetClientDefaults(client)
+    if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'rank', G_LevelError, true, true) then -- Rank
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'rank', 0)
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'alias', G_LevelError, true, true) then -- Alias
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'alias', {client:getName()})
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'warns', G_LevelError, true, true) then -- Warns
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'warns', {})
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'bans', G_LevelError, true, true) then -- bans
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'bans', {})
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'vehicleLimit', G_LevelError, true, true) then -- vehicleLimit
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'vehicleLimit', 2)
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'mute_time', G_LevelError, true, true) then -- mute_time
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'mute_time', 0)
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'playtime', G_LevelError, true, true) then -- playtime
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'playtime', 0)
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'blockList', G_LevelError, true, true) then -- blockList
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'blockList', {})
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'home', G_LevelError, true, true) then -- home
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'home', {x=0.9658128619194032, y=709.3377075195312, z=-0.006330838892608881, xr=-0.7625573873519897, yr=-0.00027202203636989, zr=52.24008560180664, w=-0.25916287302970886})
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'roles', G_LevelError, true, true) then -- roles
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'roles', {})
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'money', G_LevelError, true, true) then -- money
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'money', 240)
+    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'onduty', G_LevelError, true, true) then -- onduty
+        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'onduty', false)
+    end end end end end end end end end end end end
+end
+
 local function AddClient(client_id)
+    -- SetClientDefaults(connections[client_id])
     G_CurrentPlayers = G_CurrentPlayers + 1
 
     G_Clients[client_id] = {}
 
     local client = G_Clients[client_id]
-
     client.user = connections[client_id]
+
     client.rank = function() return tonumber(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank')) end
     client.roles = function() return string.lower(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles')) end
 
-    client.blockList = {}
+    client.blockList = function() return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList') end
+
     client.mid = G_CurrentPlayers
 
     client.commandCooldown = false
@@ -73,12 +103,7 @@ local function AddClient(client_id)
     end
 
     client.getHome = function()
-        local home = modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home')
-        return home
-    end
-
-    if not client.getHome() then
-        client.setHome(100, 100, 100, 0, 0, 0, 10)
+        return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home')
     end
 
     --[[ Client Vehicles ]]--
@@ -178,7 +203,7 @@ local function GetUser(user) -- ID, Name, Secret
                 kick = function() end
             },
 
-            blockList = {},
+            blockList = function() return utilities.GetKey(G_PlayersLocation, user, 'blockList') end,
             rank = function() return utilities.GetKey(G_PlayersLocation, user, 'rank') end,
             roles = function() return utilities.GetKey(G_PlayersLocation, user, 'roles') end,
             mid = -1
@@ -414,17 +439,25 @@ local function SendChatMessage(client_id, message, colour)
         message = client_id
 
         for _, client in pairs(G_Clients) do
-            for i = 1, #client.blockList do
-                --[[ Loop over the client's block list ]]--
-
-                if client.user:getID() == client.blockList[i] then
-                    --[[ Client has been blocked so don't send ]]--
+            modules.utilities.LogDebug(type(client.blockList()))
+            for key, name in pairs(client.blockList()) do
+                if key == client.user:getSecret() then
                     canSend = false
                 else
-                    --[[ Client has not been blocked so send ]]--
                     canSend = true
                 end
             end
+            -- for i = 1, #client.blockList do
+            --     --[[ Loop over the client's block list ]]--
+
+            --     if client.user:getID() == client.blockList[i] then
+            --         --[[ Client has been blocked so don't send ]]--
+            --         canSend = false
+            --     else
+            --         --[[ Client has not been blocked so send ]]--
+            --         canSend = true
+            --     end
+            -- end
 
             --[[ Send Message to All Clients ]]--
             if canSend then
@@ -434,15 +467,10 @@ local function SendChatMessage(client_id, message, colour)
             end
         end
     else
-        --[[ Send to One Because Client is Valid ]]--
-        for i = 1, #G_Clients[client_id].blockList do
-            --[[ Loop over the client's block list ]]--
-
-            if G_Clients[client_id].user:getID() == G_Clients[client_id].blockList[i] then
-                --[[ Client has been blocked so don't send ]]--
+        for key, name in pairs(G_Clients[client_id].blockList()) do
+            if key == G_Clients[client_id].user:getSecret() then
                 canSend = false
             else
-                --[[ Client has not been blocked so send ]]--
                 canSend = true
             end
         end

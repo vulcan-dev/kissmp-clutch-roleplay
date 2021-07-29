@@ -430,20 +430,29 @@ M.commands["block"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
         client = client.data
 
-        if client.rank() <= modules.moderation.RankVIP then
-            for i = 1, #executor.blockList do
-                if client.user:getID() == executor.blockList[i] then
-                    modules.server.DisplayDialog(executor, '[Error] User is already blocked')
+        -- TODO change back to <=
+        if client.rank() >= modules.moderation.RankVIP then
+            local blocked = false
+            for key, name in pairs(modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'blockList')) do
+                if name == client.user:getName() then
+                    blocked = true
                 else
-                    table.insert( executor.blockList, client.user:getID() )
-                    modules.server.DisplayDialog(executor, 'Successfully blocked user')
+                    blocked = false
                 end
             end
 
-            return
+            if blocked then
+                modules.server.DisplayDialog(executor, '[Error] User is already blocked')
+                return
+            else
+                local data = {}
+                data[client.user:getSecret()] = client.user:getName()
+                modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'blockList', data)
+                modules.server.DisplayDialog(executor, 'Successfully blocked ' .. client.user:getName())
+            end
+        else
+            modules.server.DisplayDialog(executor, '[Error] Unable to block a staff member')
         end
-
-        modules.server.DisplayDialog(executor, '[Error] Unable to block a staff member')
     end
 }
 
@@ -460,15 +469,24 @@ M.commands["unblock"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
         client = client.data
 
-        for i = 0, #executor.blockList do
-            if client.user:getID() == executor.blockList[i] then
-                table.remove( executor.blockList, i )
+        local blocked = false
+        for key, name in pairs(modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'blockList')) do
+            if name == client.user:getName() then
+                blocked = true
             else
-                modules.server.DisplayDialog(executor, '[Error] User is not blocked')
+                blocked = false
             end
         end
 
-        modules.server.DisplayDialog(executor, 'Successfully unblocked user')
+        if not blocked then
+            modules.server.DisplayDialog(executor, '[Error] User is not blocked')
+            return
+        else
+            local data = {}
+            data[client.user:getSecret()] = nil
+            modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'blockList', data)
+            modules.server.DisplayDialog(executor, 'Successfully unblocked ' .. client.user:getName())
+        end
     end
 }
 
