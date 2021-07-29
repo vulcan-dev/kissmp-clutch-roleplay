@@ -858,11 +858,30 @@ M.commands["bank"] = {
 }
 
 --[[ Me ]]--
+M.commands["do"] = {
+    rank = modules.moderation.RankUser,
+    category = 'Roleplay Utilities',
+    description = 'Send a message from your character when performing an action',
+    usage = '/do <message>',
+    exec = function(executor, args)
+        --[[ Put all arguments into the message string ]]
+        local message = ''
+        for _, v in pairs(args) do
+            message = message .. v .. ' '
+        end
+
+        for _, client in pairs(G_Clients) do
+            modules.server.SendChatMessage(client.user:getID(), string.format('%s: %s', executor.user:getName(), message))
+        end
+    end
+}
+
+--[[ Me ]]--
 M.commands["me"] = {
     rank = modules.moderation.RankUser,
     category = 'Roleplay Utilities',
     description = 'Send a message from you character. Example: "/me says hi" will output (name): says hi',
-    usage = '/me message',
+    usage = '/me <message>',
     exec = function(executor, args)
         --[[ Put all arguments into the message string ]]
         local message = ''
