@@ -25,16 +25,6 @@ M.callbacks = {
 
     VK_VehicleSpawn = function(vehicle_id, client_id)
         local client = G_Clients[client_id]
-        local vehicle = vehicles[vehicle_id]
-
-        --[[ Check the vehicle limit ]]--
-        client.vehicleCount = client.vehicleCount + 1
-        if client.vehicleCount > modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'vehicleLimit') then
-            modules.server.DisplayDialog(client, 'You Have Reached Your Vehicle Limit')
-            vehicle:remove()
-            G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
-            G_Clients[client_id].user:sendLua('commands.setFreeCamera()')
-        end
 
         --[[ Check if vehicle config is allowed ]]
 
@@ -50,8 +40,7 @@ M.callbacks = {
             for _, blacklist in pairs(blacklisted) do
                 if (string.find(part, blacklist) and (not modules.rp.IsLeo(client) and name ~= 'van_rollback_lightbar')) or part == blacklist then
                     modules.server.DisplayDialogError(G_ErrorInvalidVehiclePermissions, client)
-                    vehicle:remove()
-                    client.vehicleCount = client.vehicleCount - 1
+                    client.vehicles.remove(client, connections[client_id]:getCurrentVehicle())
                     client.user:sendLua('commands.setFreeCamera()')
                     return
                 end

@@ -289,7 +289,7 @@ M.commands["help"] = {
         local count = 0
         if G_Commands[search] ~= nil then
             local command = G_Commands[search]
-            if executor.GetRank() >= command.rank and command.description and command.usage then
+            if executor.rank() >= command.rank and command.description and command.usage then
                 modules.server.SendChatMessage(executor.user:getID(),
                     'Description: ' .. command.description ..
                     '\nUsage: ' .. command.usage .. '\n\n'
@@ -303,7 +303,7 @@ M.commands["help"] = {
         else
             if map[tonumber(search)] then
                 for name, command in pairs(G_Commands) do
-                    if executor.GetRank() >= command.rank then
+                    if executor.rank() >= command.rank then
                         if command.category then
                             if command.category == tostring(map[tonumber(search)]) then
                                 result = result .. string.format('Command: /%s\nDescription: %s\nUsage: %s\n', name, command.description, command.usage)
@@ -430,7 +430,7 @@ M.commands["block"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
         client = client.data
 
-        if client.GetRank() <= modules.moderation.RankVIP then
+        if client.rank() <= modules.moderation.RankVIP then
             for i = 1, #executor.blockList do
                 if client.user:getID() == executor.blockList[i] then
                     modules.server.DisplayDialog(executor, '[Error] User is already blocked')
@@ -515,17 +515,14 @@ M.commands["dv"] = {
     exec = function(executor, args)
         local client = modules.server.GetUser(args[1])
 
+        -- TODO return if client specified and doesn't exist
+
        --[[ Check if a client has been passed through ]]--
         if client.success then
             client = client.data
-            if client.GetRank() > modules.moderation.RankVIP then
+            if client.rank() > modules.moderation.RankVIP then
                 --[[ Delete clients vehicle ]]--
-                local ply = connections[client.user:getID()]
-                local vehicle = vehicles[ply:getCurrentVehicle()]
-
-                vehicle:remove()
-
-                client.vehicleCount = client.vehicleCount - 1
+                client.vehicles.remove(client, connections[client.user:getID()]:getCurrentVehicle())
                 client.user:sendLua('commands.setFreeCamera()')
 
                 modules.server.DisplayDialog(executor, 'Successfully removed clients vehicle')
@@ -534,13 +531,10 @@ M.commands["dv"] = {
             end
         else
             --[[ Delete executors vehicle ]]--
-            local ply = connections[executor.user:getID()]
-            local vehicle = vehicles[ply:getCurrentVehicle()]
-
-            vehicle:remove()
-
-            client.vehicleCount = client.vehicleCount - 1
-            executor.user:sendLua('commands.setFreeCamera()')
+            if executor.vehicles and connections[executor.user:getID()]:getCurrentVehicle() ~= 0 then
+                executor.vehicles.remove(executor, connections[executor.user:getID()]:getCurrentVehicle())
+                executor.user:sendLua('commands.setFreeCamera()')
+            end
         end
     end
 }

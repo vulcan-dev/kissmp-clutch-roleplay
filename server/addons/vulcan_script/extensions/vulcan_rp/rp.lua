@@ -51,7 +51,7 @@ local function HasRole(client, role)
 end
 
 local function IsLeo(client)
-    if HasRole(client, 'Dispatch') or HasRole(client, 'Police') or HasRole(client, 'Fire') or HasRole(client, 'EMS') then
+    if HasRole(client, 'dispatch') or HasRole(client, 'police') or HasRole(client, 'fire') or HasRole(client, 'ems') then
         return true
     end
 

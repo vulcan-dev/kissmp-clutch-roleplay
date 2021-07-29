@@ -44,7 +44,7 @@ local consolePlayer = {
     },
 
     --[[ Functions ]]--
-    GetRank = function() return 7 end,
+    rank = 7,
 
     --[[ Variables ]]--
     connected = true,
@@ -55,35 +55,68 @@ local consolePlayer = {
 local function AddClient(client_id)
     G_CurrentPlayers = G_CurrentPlayers + 1
 
-    G_Clients[client_id] = {
-        --[[ Userdata ]]--
-        user = connections[client_id],
+    G_Clients[client_id] = {}
 
-        --[[ Getters ]]--
-        GetRank = function() return tonumber(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank')) end,
-        GetRoles = function() return string.lower(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles')) end,
+    local client = G_Clients[client_id]
 
+    client.user = connections[client_id]
+    client.rank = function() return tonumber(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank')) end
+    client.roles = function() return string.lower(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles')) end
 
-        --[[ Variables ]]--
-        canExecute = true, -- for refueling, robbing and repairing so they can't run it twice at once
-        vehicleCount = 0,
+    client.blockList = {}
+    client.mid = G_CurrentPlayers
 
-        gps = {
-            enabled = false,
-            position = {x=0, y=0, z=0}
-        },
-        cuffed = {
-            isCuffed = false,
-            isBeingDragged = false,
-            dragPosition = { x = 0, y = 0, z = 0, xr = 0, yr = 0, zr = 0, w = 0 },
-            executor = nil
-        },
+    client.commandCooldown = false
 
-        blockList = {},
-        home = { x = 693.57238769531, y = -44.622077941895, z = 52.016006469727, xr = 0.0019623863045126, yr = 0.0051850276067853, zr = 0.94506084918976, w = -0.32684752345085 },
-        mid = G_CurrentPlayers,
-        connected = false
-    }
+    --[[ Client Vehicles ]]--
+    client.vehicles = {}
+    client.vehicles.count = 0
+
+    client.vehicles.add = function(player, vehicleID)
+        player.vehicles[vehicleID] = vehicles[vehicleID]
+        for k, v in pairs(vehicles) do
+            modules.utilities.LogDebug(k .. ' ' .. tostring(v))
+        end
+
+        modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+    end
+
+    client.vehicles.remove = function(player, vehicleID)
+        modules.utilities.LogDebug('Vehicle ID: ' .. vehicleID)
+        --modules.utilities.LogDebug('Vehicle: ' .. tostring(vehicles[vehicleID]))
+        if player.vehicles[vehicleID] then
+            vehicles[vehicleID]:remove()
+            player.vehicles[vehicleID] = nil
+
+            client.vehicles.count = client.vehicles.count - 1
+            modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+        end
+    end
+
+    client.vehicles.clear = function(player)
+        for vehicle, _ in pairs(player.vehicles) do
+            player.vehicles[vehicle]:delete()
+            player.vehicles[vehicle] = nil
+
+            modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+        end
+    end
+
+    --[[ Client GPS ]]--
+    client.gps = {}
+    client.gps.enabled = false
+    client.gps.position = {}
+
+    client.gps.position.x = 0
+    client.gps.position.y = 0
+    client.gps.position.z = 0
+
+    --[[ Client Cuffed ]]--
+    client.cuffed = {}
+    client.cuffed.isCuffed = false
+    client.cuffed.isBeingDragged = false
+    client.cuffed.dragPosition = { x = 0, y = 0, z = 0, xr = 0, yr = 0, zr = 0, w = 0 }
+    client.cuffed.executor = nil
 
     modules.utilities.LogDebug('Client added: %s', G_Clients[client_id].user:getName())
 end
@@ -133,8 +166,8 @@ local function GetUser(user) -- ID, Name, Secret
             },
 
             blockList = {},
-            GetRank = function() return utilities.GetKey(G_PlayersLocation, user, 'rank') end,
-            GetRoles = function() return utilities.GetKey(G_PlayersLocation, user, 'roles') end,
+            rank = function() return utilities.GetKey(G_PlayersLocation, user, 'rank') end,
+            roles = function() return utilities.GetKey(G_PlayersLocation, user, 'roles') end,
             mid = -1
         }
 
@@ -155,8 +188,8 @@ local function GetUser(user) -- ID, Name, Secret
                             sendLua = function() end
                         },
 
-                        GetRank = function() return utilities.GetKey(G_PlayersLocation, secret, 'rank') end,
-                        GetRoles = function() return utilities.GetKey(G_PlayersLocation, secret, 'roles') end,
+                        rank = function() return utilities.GetKey(G_PlayersLocation, secret, 'rank') end,
+                        roles = function() return utilities.GetKey(G_PlayersLocation, secret, 'roles') end,
                         mid = -1
                     }
 

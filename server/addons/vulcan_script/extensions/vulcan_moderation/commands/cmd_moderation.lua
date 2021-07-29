@@ -31,7 +31,7 @@ M.commands["ban"] = {
         client = client.data
 
         --[[ Compare the Ranks between Executor and Client ]]--
-        if executor.GetRank() <= client.GetRank() then
+        if executor.rank() <= client.rank then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
             return
         end
@@ -118,7 +118,7 @@ M.commands["lock"] = {
         if modules.moderation.locked then
             for _, client in pairs(G_Clients) do
                 --[[ Kick all Users that are < RankVIP ]]--
-                if client.GetRank() < modules.moderation.RankVIP then
+                if client.rank() < modules.moderation.RankVIP then
                     client.user:kick('Server has been locked')
                 end
             end
@@ -145,7 +145,7 @@ M.commands["warn"] = {
         client = client.data
 
         --[[ Compare the Executor's Rank with the Client ]]--
-        if executor.GetRank() <= client.GetRank() then
+        if executor.rank() <= client.rank then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
             return
         end
@@ -344,7 +344,7 @@ M.commands["kick"] = {
         })
 
         -- Check if the executor is able to run the command against the client
-        if executor.GetRank() <= client.GetRank() then
+        if executor.rank() <= client.rank then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
             modules.utilities.LogInfo('[Moderation] %s tried to kick %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
 
@@ -403,7 +403,7 @@ M.commands["set_rank"] = {
         if not found then return end
 
         -- Check if the executor is able to run the command against the client
-        if tonumber(executor.GetRank()) <= tonumber(client.GetRank()) then
+        if tonumber(executor.rank()) <= tonumber(client.rank) then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
             return
         end
@@ -433,7 +433,7 @@ M.commands["mute"] = {
         client = client.data
 
         -- Check if the executor is able to run the command against the client
-        if executor.GetRank() <= client.GetRank() then
+        if executor.rank() <= client.rank then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
             modules.utilities.LogInfo('[Moderation] %s tried to mute %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
 
@@ -518,7 +518,7 @@ M.commands["unmute"] = {
         client = client.data
 
         -- Check if the executor is able to run the command against the client
-        if executor.GetRank() <= client.GetRank() then
+        if executor.rank() <= client.rank then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
             return
         end

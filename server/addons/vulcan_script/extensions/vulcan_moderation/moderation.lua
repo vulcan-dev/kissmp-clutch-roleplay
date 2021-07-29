@@ -124,7 +124,7 @@ end
 
 --[[ Utilities ]]--
 local function SendUserMessage(executor, prefix, message)
-    local rankStr = M.StrRanks[executor.GetRank()]
+    local rankStr = M.StrRanks[executor.rank()]
     local rankColour = modules.utilities.GetKey(G_ColoursLocation, rankStr)
     local name = G_Clients[executor.user:getID()].user:getName()
     local output = string.format('[%s] %s: %s', rankStr, name, message)

@@ -152,9 +152,8 @@ M.commands["cuff"] = {
     category = 'Roleplay Utilities',
     description = 'Handcuff a person, both must be on foot!',
     usage = '/cuff',
+    roles = {'police'},
     exec = function(executor, args)
-        if not modules.rp.HasRole(executor, 'Police') then modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor) return end
-
         --[[ Get my vehicle ]]--
         local my_ply = connections[executor.user:getID()]
         local my_vehicle = vehicles[my_ply:getCurrentVehicle()]
@@ -357,7 +356,7 @@ M.commands["911"] = {
         if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
 
         for _, client in pairs(G_Clients) do
-            if modules.rp.HasRole(client, 'Police') and modules.rp.IsOnDuty(client) then
+            if modules.rp.HasRole(client, 'police') and modules.rp.IsOnDuty(client) then
                 modules.server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.user:getName(), message))
             end
         end
@@ -528,7 +527,7 @@ M.commands["onduty"] = {
         if not onduty then
             modules.server.DisplayDialog(executor, 'You are now on duty!')
             for _, client in pairs(G_Clients) do
-                if modules.rp.HasRole(client, 'Dispatch') and modules.rp.HasRole(client, 'Police') then
+                if modules.rp.HasRole(client, 'Dispatch') and modules.rp.HasRole(client, 'police') then
                     modules.server.SendChatMessage(client.user:getID(), string.format('Dispatch: %s is now on duty', executor.user:getName()), modules.server.ColourSuccess)
                     return
                 end
@@ -536,7 +535,7 @@ M.commands["onduty"] = {
         else
             modules.server.DisplayDialog(executor, 'You are now off duty!')
             for _, client in pairs(G_Clients) do
-                if modules.rp.HasRole(client, 'Dispatch') and modules.rp.HasRole(client, 'Police') then
+                if modules.rp.HasRole(client, 'Dispatch') and modules.rp.HasRole(client, 'police') then
                     modules.server.SendChatMessage(client.user:getID(), string.format('Dispatch: %s is now off duty', executor.user:getName()), modules.server.ColourWarning)
                     return
                 end
@@ -561,7 +560,7 @@ M.commands["rob"] = {
 
         local count = 0
         for _, client in pairs(G_Clients) do
-            if modules.rp.HasRole(client, 'Police') and modules.rp.IsOnDuty(client) then
+            if modules.rp.HasRole(client, 'police') and modules.rp.IsOnDuty(client) then
                 count = count + 1
             end
         end
@@ -624,7 +623,7 @@ M.commands["rob"] = {
 
                     if math.random(0, 100) > 50 then
                         for _, client in pairs(G_Clients) do
-                            if modules.rp.HasRole(client, 'Police') and modules.rp.IsOnDuty(client) then
+                            if modules.rp.HasRole(client, 'police') and modules.rp.IsOnDuty(client) then
                                 modules.server.SendChatMessage(client.user:getID(), string.format('Dispatch: Silent alarm triggered at the %s, get there quickly!', name), modules.server.ColourError)
 
                                 client.gps.enabled = true

@@ -129,6 +129,8 @@ hooks.register('OnPlayerDisconnected', 'VK_PLAYER_DISCONNECT', function(client_i
 end)
 
 hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_id, client_id)
+    local client = G_Clients[client_id]
+    client.vehicles.count = client.vehicles.count + 1
     if vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
         modules.utilities.SendAPI({
             client = {
@@ -138,7 +140,10 @@ hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_i
             data = 'Spawned a ' .. vehicles[vehicle_id]:getData():getName(),
             type = 'vehicle_log'
         })
+
+        client.vehicles.add(client, vehicle_id)
     end
+
 
     --[[ Load Extension Hook VK_VehicleSpawn ]]--
     for _, extension in pairs(extensions) do
@@ -146,12 +151,11 @@ hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_i
             extension.callbacks.VK_VehicleSpawn(vehicle_id, client_id)
         end
     end
-
-    modules.utilities.LogDebug('%s vehicle count: %d', G_Clients[client_id].user:getName(), G_Clients[client_id].vehicleCount)
 end) -- Vehicle Spawned
 
 hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle_id, client_id)
     if vehicles[vehicle_id] and vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
+        --G_Clients[client_id].vehicles.remove(G_Clients[client_id], vehicle_id)
         -- G_Try(function()
         --     modules.utilities.SendAPI({
         --         client = {
@@ -162,11 +166,12 @@ hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle
         --         type = 'vehicle_log'
         --     })
         -- end, function() modules.utilities.LogWarning("Failed to get clientName in hook \"SendAPI\"") end )
-    end
 
-    G_Try(function()
-        G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
-    end)
+        G_Try(function()
+            --[[ If I call vehicles.remove(...) then obviously no client_id is passed through so I just see if that was called or if the user manually deleted it via the ig menu ]]--
+            G_Clients[client_id].vehicles.count = G_Clients[client_id].vehicles.count - 1
+        end)
+    end
 
     --[[ Load Extension Hook VK_VehicleRemoved ]]--
     for _, extension in pairs(extensions) do
@@ -229,7 +234,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
         modules.utilities.LogDebug(tostring(canExecuteWithRole))
 
         if command and command.roles and canExecuteWithRole or command and not command.roles and not canExecuteWithRole then
-            if executor.GetRank() >= command.rank then
+            if executor.rank() >= command.rank then
                 table.remove(args, 1)
                 G_Try(function ()
                     command.exec(executor, args)
@@ -369,8 +374,8 @@ local function Initialize()
         G_Clients[1337] = modules.server.consolePlayer
 
         -- modules.vulcan_debug = require('addons.vulcan_script.extensions.vulcan_debug.vulcan_debug')
-        -- modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
-        -- modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
+        modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
+        modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
 
         G_FirstLoad = false
     end
