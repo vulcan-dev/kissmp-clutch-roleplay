@@ -403,7 +403,7 @@ M.commands["set_rank"] = {
         if not found then return end
 
         -- Check if the executor is able to run the command against the client
-        if tonumber(executor.rank()) <= tonumber(client.rank) then
+        if tonumber(executor.rank()) <= tonumber(client.rank()) then
             modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
             return
         end

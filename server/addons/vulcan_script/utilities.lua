@@ -61,7 +61,11 @@ function table.pack(...)
 end
 
 local function Log(message, ...)
-    print('['..GetDateTime()..'] ' .. tostring(string.format(message, ...)))
+    if type(message) == 'string' then
+        print('['..GetDateTime()..'] ' .. tostring(string.format(message, ...)))
+    else
+        print('['..GetDateTime()..'] [Error] Invalid Message {type: ' .. type(message) .. ', data: ' .. message .. '}')
+    end
 end
 
 local function LogDebug(debug, ...) if G_Level == G_LevelDebug then Log('[DEBUG]: ' .. tostring(debug), ...) end end
