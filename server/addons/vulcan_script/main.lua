@@ -257,7 +257,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
             if executor.rank() >= command.rank then
                 table.remove(args, 1)
                 G_Try(function ()
-                    modules.moderation.SendUserMessage(executor, 'Command', message, false)
+                    if command.rank >= modules.moderation.RankVIP then modules.moderation.SendUserMessage(executor, 'Command', message, false) end
                     command.exec(executor, args)
                 end, function(err)
                     modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please post it in bug-reports in /discord ] Message: %s', message, err), modules.server.ColourError)

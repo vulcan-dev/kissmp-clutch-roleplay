@@ -107,6 +107,15 @@ local function AddClient(client_id)
         return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home')
     end
 
+    --[[ Needed to update players ]]--
+    if not client.getHome() then
+        client.setHome(709.3377075195312, -0.7625573873519897, 52.24008560180664, -0.006330838892608881, -0.00027202203636989, -0.25916287302970886, 0.9658128619194032)
+    end
+
+    if not modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList', G_LevelDebug, true) then
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList', {})
+    end
+
     --[[ Client Vehicles ]]--
     client.vehicles = {}
     client.vehicles.count = 0
