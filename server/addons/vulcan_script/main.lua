@@ -11,8 +11,23 @@ require('addons.vulcan_script.globals')
     TODO Fix /help <cmd> displaying wrong error if command not found
     TODO Fix the discord websockets, need to send the correct data
     TODO Fix /help <cmd> not showing everything such as alias
+    TODO Fix module reloading, don't just look for the key, look for the actual path
+    TODO Use client side lua to handle vehicle things
+    TODO Create a template mod for client side lua to hook the callbacks
 
-    TODO Fix controller.setFreeze(x)
+    Moderation Menu
+        Main Mod:
+            Simple template with draw functions
+            There will be an executor
+
+        Client Side Lua:
+            It will hook the draw function and that's where everything will be
+
+        Addon:
+            It will set that executor in cl_player_join
+
+        Notes:
+            I need to get all players in order to call userdata functions on them
 
     local inputActionFilter = extensions.core_input_actionFilter
     inputActionFilter.setGroup('default_blacklist_exploration', {"switch_next_vehicle", "switch_previous_vehicle", "loadHome", "saveHome", "reload_vehicle", "reload_all_vehicles", "vehicle_selector", "parts_selector", "dropPlayerAtCamera", "toggleWalkingMode"} )  
@@ -23,7 +38,11 @@ require('addons.vulcan_script.globals')
 local modules = {
     utilities = require('addons.vulcan_script.utilities'),
     timed_events = require('addons.vulcan_script.timed_events'),
-    server = require('addons.vulcan_script.server')
+    server = require('addons.vulcan_script.server'),
+
+    cl_environment = require('addons.vulcan_script.client_lua.cl_environment'),
+    cl_player_join = require('addons.vulcan_script.client_lua.cl_player_join'),
+    cl_template_hook = require('addons.vulcan_script.client_lua.cl_template_hook')
 }
 
 local extensions = {}
@@ -77,15 +96,25 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
             client.user:kick('Please join back with a different name')
         end
 
+        client.user:sendLua(modules.cl_template_hook.BeginHook())
+
+        --[[ Set Client Global Variables ]]--
+        client.user:sendLua(modules.cl_player_join.SetGlobals())
+
         --[[ Set Time of Day ]]--
         client.user:sendLua(string.format('extensions.core_environment.setTimeOfDay({dayscale=%s,nightScale=%s,azimuthOverride=%s,dayLength=%s,time=%s,play=%s})',
-            modules.server.environmentTime.dayscale,
-            modules.server.environmentTime.nightScale,
-            modules.server.environmentTime.azimuthOverride,
-            modules.server.environmentTime.dayLength,
-            modules.server.environmentTime.time,
-            modules.server.environmentTime.play
+            G_Environment.time.dayscale,
+            G_Environment.time.nightScale,
+            G_Environment.time.azimuthOverride,
+            G_Environment.time.dayLength,
+            G_Environment.time.time,
+            G_Environment.time.play
         ))
+
+        GDLog('rainAmount = ' .. tostring(G_Environment.weather.rain))
+        if G_Environment.weather.rain ~= 0 then
+            client.user:sendLua(modules.cl_environment.setPrecipitation(G_Environment.weather.rain))
+        end
 
         --[[ Create Waypoints ]]--
         modules.server.InitializeMarkers(client)
@@ -145,7 +174,6 @@ hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_i
         })
 
         client.vehicles.add(client, vehicle_id)
-        print('Added')
     end
 
 

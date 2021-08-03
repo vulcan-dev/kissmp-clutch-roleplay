@@ -2,9 +2,13 @@
     Created by Daniel W (Vitex#1248)
 ]]
 
-package.path = ';?.lua;./addons/vulcan_script/?.lua;./addons/vulcan_script/extensions/vulcan_moderation/?.lua;./addons/vulcan_script/extensions/vulcan_moderation/commands/?.lua;' .. package.path
+package.path = ';?.lua;./addons/vulcan_script/?.lua;' .. package.path
+package.path = './addons/vulcan_script/extensions/vulcan_moderation/?.lua;./addons/vulcan_script/extensions/vulcan_moderation/commands/?.lua;' .. package.path
+package.path = './addons/vulcan_script/client_lua/?.lua;' .. package.path
 package.path = './addons/vulcan_script/extensions/vulcan_rp/?.lua;./addons/vulcan_script/extensions/vulcan_rp/commands/?.lua;' .. package.path
 package.path = './addons/vulcan_script/extensions/vulcan_debug/?.lua;' .. package.path
+
+print(package.path)
 
 --[[ Clients and Player Count ]]--
 G_Clients = {}
@@ -35,6 +39,33 @@ G_Commands = {}
 G_CommandExecuted = false
 
 G_FirstLoad = true
+
+G_Environment = {
+    time = {
+        dayscale = 0.5,
+        nightScale = 0.5,
+        azimuthOverride = 0,
+        dayLength = 1800,
+        time = 0.80599999427795,
+        play = false
+    },
+
+    wind = {
+        x = 0,
+        y = 0,
+        z = 0
+    },
+
+    weather = {
+        rain = 0
+    }
+}
+
+function G_LuaFormat(str)
+    local lua = string.gsub(str, '    ', ' ')
+    lua = string.gsub(lua, '\n', ' ')
+    return lua
+end
 
 --[[ Utility Functions ]]--
 function G_Try(f, catch_f)
@@ -129,8 +160,8 @@ function GLog(message, ...)
     end
 end
 
-function GDLog(debug, ...) if G_Level == G_LevelDebug then GLog('[DEBUG]: ' .. tostring(debug), ...) end end
-function GILog(info, ...) GLog('[INFO]: ' .. tostring(info), ...) end
-function GELog(error, ...) GLog('[ERRO]: ' .. tostring(error), ...) end
-function GWLog(warning, ...) GLog('[WARN]: ' .. tostring(warning), ...) end
-function GFLog(fatal, ...) GLog('[FATAL]: ' .. tostring(fatal), ...) os.execute('pause') os.exit(1) end
+function GDLog(debug, ...) if G_Level == G_LevelDebug then GLog('[DEBUG]: ' .. tostring(debug), ...) end end -- Debug Log
+function GILog(info, ...) GLog('[INFO]: ' .. tostring(info), ...) end -- Information Log
+function GELog(error, ...) GLog('[ERRO]: ' .. tostring(error), ...) end -- Error Log
+function GWLog(warning, ...) GLog('[WARN]: ' .. tostring(warning), ...) end -- Warning Log
+function GFLog(fatal, ...) GLog('[FATAL]: ' .. tostring(fatal), ...) os.execute('pause') os.exit(1) end -- Fatal Log

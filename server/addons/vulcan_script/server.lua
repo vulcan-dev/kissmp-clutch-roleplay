@@ -14,22 +14,6 @@ local ColourTwitter = modules.utilities.GetColour(modules.utilities.GetKey(G_Col
 local ColourPoliceRadio = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'police_radio'))
 local ColourMention = modules.utilities.GetColour(modules.utilities.GetKey(G_ColoursLocation, 'mention'))
 
---[[ Enviroment Variables ]]--
-local environmentTime = {
-    dayscale = 0.5,
-    nightScale = 0.5,
-    azimuthOverride = 0,
-    dayLength = 1800,
-    time = 0.80599999427795,
-    play = false
-}
-
-local environmentWind = {
-    x = 0,
-    y = 0,
-    z = 0
-}
-
 --[[ Player Tables ]]
 local consolePlayer = {
     --[[ User Table ]]--
@@ -524,9 +508,7 @@ end
 
 --[[ Utility Functions ]]--
 local function ReloadModules()
-    GDLog("Reloaded")
     modules = G_ReloadModules(modules, 'server.lua')
-    GDLog("Reloaded")
 end
 
 --[[ Colour Variables ]]--
@@ -541,8 +523,7 @@ M.ColourPoliceRadio = ColourPoliceRadio
 M.ColourMention = ColourMention
 
 --[[ Enviroment Variables ]]--
-M.environmentTime = environmentTime
-M.environmentWind = environmentWind
+M.environment = environment
 
 --[[ Player Functions & Variables ]]--
 M.consolePlayer = consolePlayer

@@ -114,10 +114,12 @@ M.callbacks = {
 }
 
 local function ReloadModules()
-    G_RemoveCommandTable(modules.cmd_utilities_rp.commands)
-
     modules = G_ReloadModules(modules, 'vulcan_rp.lua')
-    modules.cmd_utilities_rp.ReloadModules()
+    for _, module in pairs(modules) do
+        if module.ReloadModules then
+            module.ReloadModules()
+        end
+    end
 
     G_AddCommandTable(modules.cmd_utilities_rp.commands)
 end

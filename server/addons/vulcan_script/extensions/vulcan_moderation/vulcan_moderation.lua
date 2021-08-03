@@ -16,7 +16,9 @@ local modules = {
 
     cmd_moderation = require('addons.vulcan_script.extensions.vulcan_moderation.commands.cmd_moderation'),
     cmd_utilities = require('addons.vulcan_script.extensions.vulcan_moderation.commands.cmd_utilities'),
-    cmd_fun = require('addons.vulcan_script.extensions.vulcan_moderation.commands.cmd_fun')
+    cmd_fun = require('addons.vulcan_script.extensions.vulcan_moderation.commands.cmd_fun'),
+
+    cl_environment = require('addons.vulcan_script.client_lua.cl_environment')
 }
 
 M.callbacks = {
@@ -88,9 +90,7 @@ M.callbacks = {
         end
 
         if can_drive then
-            if vehicle then
-                --vehicle:sendLua(string.format('obj:setWind(%d,%d,%d)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
-            end
+            G_Clients[client_id].user:sendLua(modules.cl_environment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
 
             if (vehicle:getData():getName() ~= 'unicycle') then
                 modules.server.SendChatMessage(string.format('[Vulcan-Moderation] %s has spawned a %s', G_Clients[client_id].user:getName(), vehicle:getData():getName()), modules.server.ColourWarning)
@@ -105,12 +105,7 @@ M.callbacks = {
     end,
 
     VK_VehicleReset = function(vehicle_id, client_id)
-        local ply = connections[client_id]
-        local vehicle = vehicles[ply:getCurrentVehicle()]
-
-        if vehicle then
-            --vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
-        end
+        G_Clients[client_id].user:sendLua(modules.cl_environment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
         return ""
     end,
 
@@ -153,11 +148,12 @@ M.callbacks = {
 }
 
 local function ReloadModules()
-    G_RemoveCommandTable(modules.cmd_moderation.commands)
-    G_RemoveCommandTable(modules.cmd_utilities.commands)
-    G_RemoveCommandTable(modules.cmd_fun.commands)
-
-    modules = G_ReloadModules(modules, 'vulcan_moderation.lua') -- IMPORTANT! This might have to go after all other modules have been reloaded
+    modules = G_ReloadModules(modules, 'vulcan_moderation.lua')
+    for _, module in pairs(modules) do
+        if module.ReloadModules then
+            module.ReloadModules()
+        end
+    end
 
     G_AddCommandTable(modules.cmd_moderation.commands)
     G_AddCommandTable(modules.cmd_utilities.commands)

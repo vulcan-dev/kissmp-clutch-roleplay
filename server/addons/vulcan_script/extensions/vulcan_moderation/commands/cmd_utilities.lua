@@ -9,7 +9,9 @@ local M = {}
 local modules = {
     utilities = require('addons.vulcan_script.utilities'),
     moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation'),
-    server = require('addons.vulcan_script.server')
+    server = require('addons.vulcan_script.server'),
+
+    cl_environment = require('addons.vulcan_script.client_lua.cl_environment')
 }
 
 M.commands = {}
@@ -60,10 +62,10 @@ M.commands["time_play"] = {
     description = 'Plays the time',
     usage = '/time_play',
     exec = function(executor, args)
-        modules.server.environmentTime.play = true
+        G_Environment.time.play = true
 
         for _, client in pairs(G_Clients) do
-            client.user:sendLua('extensions.core_environment.setTimeOfDay({time='..modules.server.environmentTime.time..',play='..tostring(modules.server.environmentTime.play)..'})')
+            client.user:sendLua('extensions.core_environment.setTimeOfDay({time='..G_Environment.time.time..',play='..tostring(G_Environment.time.play)..'})')
             modules.server.DisplayDialog(client, '[Enviroment] Time is playing')
         end
     end
@@ -76,10 +78,10 @@ M.commands["time_stop"] = {
     description = 'Stops the time',
     usage = '/time_stop',
     exec = function(executor, args)
-        modules.server.environmentTime.play = false
+        G_Environment.time.play = false
 
         for _, client in pairs(G_Clients) do
-            client.user:sendLua('extensions.core_environment.setTimeOfDay({time='..modules.server.environmentTime.time..',play='..tostring(modules.server.environmentTime.play)..'})')
+            client.user:sendLua('extensions.core_environment.setTimeOfDay({time=extensions.core_environment.getTimeOfDay(), play=false})')
             modules.server.DisplayDialog(client, '[Enviroment] Time is not playing')
         end
     end
@@ -97,35 +99,24 @@ M.commands["set_wind"] = {
         local speed_y = (not client.success and args[2] or args[3]) or 0
         local speed_z = (not client.success and args[3] or args[4]) or 0
 
-        modules.server.environmentWind.x = speed_x
-        modules.server.environmentWind.y = speed_y
-        modules.server.environmentWind.z = speed_z
-
+        G_Environment.wind.x = speed_x
+        G_Environment.wind.y = speed_y
+        G_Environment.wind.z = speed_z
+        
         if not client.success then
             for _, c in pairs(G_Clients) do
                 if connections[c.user:getID()] then
-                    local ply = connections[c.user:getID()]
-                    local vehicle = vehicles[ply:getCurrentVehicle()]
-
-                    -- if vehicle then
-                        -- vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', speed_x, speed_y, speed_x))
-                    -- end
-
-                    modules.server.DisplayDialog(c.data, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
+                    c.user:sendLua(modules.cl_environment.setWind({x = speed_x, y = speed_y, z = speed_z}))
+                    modules.server.DisplayDialog(c, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
                     return
                 end
             end
         else
             client = client.data
 
-            local ply = connections[client.user:getID()]
-            local vehicle = vehicles[ply:getCurrentVehicle()]
+            client.user:sendLua(modules.cl_environment.setWind({x = speed_x, y = speed_y, z = speed_z}))
 
-            if vehicle then
-                --vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', speed_x, speed_y, speed_x))
-            end
-
-            modules.server.DisplayDialog(client.data, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
+            modules.server.DisplayDialog(client, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
         end
     end
 }
@@ -139,42 +130,10 @@ M.commands["set_rain"] = {
     exec = function(executor, args)
         local rainAmount = args[1] or 40
 
-        -- Todo: sync it for everyone on join
+        G_Environment.weather.rain = rainAmount
 
         for _, client in pairs(G_Clients) do
-            client.user:sendLua(string.format([[
-
-envObjectIdCache = {}
-function getObject(className, preferredObjName)
-    if envObjectIdCache[className] then
-        return scenetree.findObjectById(envObjectIdCache[className])
-    end
-    
-    envObjectIdCache[className] = 0
-    local objNames = scenetree.findClassObjects(className)
-    if objNames and tableSize(objNames) > 0 then
-        for _,name in pairs(objNames) do
-            local obj = scenetree.findObject(name)
-            if obj and (name == preferredObjName or not preferredObjName) then
-                envObjectIdCache[className] = obj:getID()
-                return obj
-            end
-        end
-    end
-
-    return nil
-end
-
-rainObj = getObject("Precipitation", "rain_coverage") or getObject("Precipitation")
-if rainObj then
-    rainObj.numDrops = %d
-    rainObj.dataBlock = scenetree.findObject("rain_medium")
-    rainObj.useLighting = true
-    rainObj.hitPlayers = true
-    rainObj.hitVehicles = true
-end
-
-            ]], tonumber(rainAmount)))
+            client.user:sendLua(modules.cl_environment.setPrecipitation(rainAmount))
         end
     end
 }
@@ -207,10 +166,10 @@ M.commands["set_time"] = {
         time_args[3] = time_args[3] or 0
 
         local time = (((time_args[1] * 3600 + time_args[2] * 60 + time_args[3]) / 86400) + 0.5) % 1
-        modules.server.environmentTime.time = time
+        G_Environment.time.time = time
 
         for _, client in pairs(G_Clients) do
-            client.user:sendLua('extensions.core_environment.setTimeOfDay({time = '..time..'})')
+            client.user:sendLua(modules.cl_environment.setTime(time))
             modules.server.DisplayDialog(client, string.format('[Enviroment] Set time to %s', args[1]))
         end
     end

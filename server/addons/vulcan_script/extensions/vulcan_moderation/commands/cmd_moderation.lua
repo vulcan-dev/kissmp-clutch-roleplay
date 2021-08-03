@@ -10,7 +10,9 @@ local modules = {
     utilities = require('addons.vulcan_script.utilities'),
     moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation'),
     timed_events = require('addons.vulcan_script.timed_events'),
-    server = require('addons.vulcan_script.server')
+    server = require('addons.vulcan_script.server'),
+
+    cl_vehicle = require('addons.vulcan_script.client_lua.cl_vehicle')
 }
 
 M.commands = {}
@@ -558,15 +560,8 @@ M.commands["freeze"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        local ply = connections[client.user:getID()] or nil
-        local vehicle = vehicles[ply:getCurrentVehicle()] or nil
-
-        if vehicle then
-            vehicle:sendLua('controller.setFreeze(1)')
-            modules.server.DisplayDialogWarning(client, 'You have been frozen')
-        else
-            modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
-        end
+        client.user:sendLua(modules.cl_vehicle.setFreeze(1))
+        modules.server.DisplayDialogWarning(client, 'You have been frozen')
     end
 }
 
@@ -583,15 +578,8 @@ M.commands["unfreeze"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        local ply = connections[client.user:getID()]
-        local vehicle = vehicles[ply:getCurrentVehicle()]
-
-        if vehicle then
-            vehicle:sendLua('controller.setFreeze(0)')
-            modules.server.DisplayDialogSuccess(client, 'You have been unfrozen')
-        else
-            modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
-        end
+        client.user:sendLua(modules.cl_vehicle.setFreeze(0))
+        modules.server.DisplayDialogSuccess(client, 'You have been unfrozen')
     end
 }
 
