@@ -69,7 +69,7 @@ end
 
 --[[ Utility Data ]]--
 local function EditKey(filename, object, key, value, log_level)
-    if not object then Log({level=G_LevelError}, 'Invalid object specified in EditKey') return end
+    if not object then GLog({level=G_LevelError}, 'Invalid object specified in EditKey') return end
     log_level = log_level or G_LevelError
 
     -- Read all contents from file
@@ -102,7 +102,7 @@ local function GetKey(filename, object, key, log_level, bypass, create)
     local file = G_Try(function()
         return io.open(filename, 'r');
     end, function()
-        LogError('Error opening "%s"', filename)
+        GELog('Error opening "%s"', filename)
     end)
 
     local json_data = decode_json(file:read('*all'))
@@ -123,7 +123,7 @@ local function GetKey(filename, object, key, log_level, bypass, create)
             end
         end, function()
             if not bypass then
-                Log({level=log_level}, string.format('Failed reading %s.%s from file "%s"', object, key, filename)) 
+                GLog({level=log_level}, string.format('Failed reading %s.%s from file "%s"', object, key, filename)) 
             end
         end)
     else
@@ -131,7 +131,7 @@ local function GetKey(filename, object, key, log_level, bypass, create)
             return G_Try(function()
                 return json_data[object]
             end, function()
-                if not bypass then Log({level=log_level}, string.format('Failed reading %s from file "%s"', object, filename)) end
+                if not bypass then GLog({level=log_level}, string.format('Failed reading %s from file "%s"', object, filename)) end
                 return nil
             end)
         end

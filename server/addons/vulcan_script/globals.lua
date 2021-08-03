@@ -47,7 +47,6 @@ function G_Try(f, catch_f)
 end
 
 function G_ReloadModules(modules, filename)
-    local utilities = require('addons.vulcan_script.utilities')
     filename = filename or ''
 
     for module_name, _ in pairs(modules) do
