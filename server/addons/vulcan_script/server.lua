@@ -183,7 +183,6 @@ end
 local function GetUser(user) -- ID, Name, Secret
     if not user then return {data=nil, success=false} end
 
-    local utilities = require('addons.vulcan_script.utilities')
     local userFoundCount = 0
     local userFound = {}
 
@@ -222,43 +221,43 @@ local function GetUser(user) -- ID, Name, Secret
     end
 
     --[[ (Not In-Game) Get User by Client Secret ]]--
-    if utilities.GetKey(G_PlayersLocation, user) then
+    if modules.sutilities.GetKey(G_PlayersLocation, user) then
         --[[ Secret was found, create fake data and return ]]--
         local data = {
             user = {
                 getSecret = function() return user end,
-                getName = function() return utilities.GetKey(G_PlayersLocation, user, 'alias')[1] end,
+                getName = function() return modules.utilities.GetKey(G_PlayersLocation, user, 'alias')[1] end,
                 sendChatMessage = function() end,
                 getID = function() return nil end,
                 sendLua = function() end,
                 kick = function() end
             },
 
-            blockList = function() return utilities.GetKey(G_PlayersLocation, user, 'blockList') end,
-            rank = function() return utilities.GetKey(G_PlayersLocation, user, 'rank') end,
-            roles = function() return utilities.GetKey(G_PlayersLocation, user, 'roles') end,
+            blockList = function() return modules.utilities.GetKey(G_PlayersLocation, user, 'blockList') end,
+            rank = function() return modules.utilities.GetKey(G_PlayersLocation, user, 'rank') end,
+            roles = function() return modules.utilities.GetKey(G_PlayersLocation, user, 'roles') end,
             mid = -1
         }
 
         return {data=data, success=true}
     else
-        for secret, _ in pairs(utilities.GetKey(G_PlayersLocation)) do
+        for secret, _ in pairs(modules.utilities.GetKey(G_PlayersLocation)) do
             --[[ (Not In-Game) Get Client Alias ]]--
 
             if secret ~= 'secret_console' then
-                if user == utilities.GetKey(G_PlayersLocation, secret, 'alias')[1] then
+                if user == modules.utilities.GetKey(G_PlayersLocation, secret, 'alias')[1] then
                     --[[ Alias has been found, create fake data and return ]]--
                     local data = {
                         user = {
                             getSecret = function() return secret end,
-                            getName = function() return utilities.GetKey(G_PlayersLocation, secret, 'alias')[1] end,
+                            getName = function() return modules.utilities.GetKey(G_PlayersLocation, secret, 'alias')[1] end,
                             sendChatMessage = function() end,
                             getID = function() return nil end,
                             sendLua = function() end
                         },
 
-                        rank = function() return utilities.GetKey(G_PlayersLocation, secret, 'rank') end,
-                        roles = function() return utilities.GetKey(G_PlayersLocation, secret, 'roles') end,
+                        rank = function() return modules.utilities.GetKey(G_PlayersLocation, secret, 'rank') end,
+                        roles = function() return modules.utilities.GetKey(G_PlayersLocation, secret, 'roles') end,
                         mid = -1
                     }
 
@@ -275,20 +274,18 @@ local function GetUserKey(user, key)
     --[[ Check if Key is nil ]]--
     if not key then return end
 
-    local utilities = require('addons.vulcan_script.utilities')
-
     for _, client in pairs(G_Clients) do
         --[[ Iterate Over All Clients ]]--
 
         if user == client.user:getSecret() then
             --[[ (In-Game) Client Secret Was Found ]]--
-            return utilities.GetKey(G_PlayersLocation, client.user:getSecret(), key) -- in-game name
+            return modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), key) -- in-game name
         else
             if tonumber(user) == client.mid then
                 --[[ (In-Game) Client MID Was Found ]]
                 return {data=client, success=true} -- mapped id
             else
-                for secret, _ in pairs(utilities.GetKey(G_PlayersLocation)) do
+                for secret, _ in pairs(modules.utilities.GetKey(G_PlayersLocation)) do
                     --[[ Find an Alias of a Client (In-Game & Not In-Game) ]]--
 
                     for _, name in pairs(_) do
@@ -300,13 +297,13 @@ local function GetUserKey(user, key)
 
                                 if a == 1 and user == b then
                                     --[[ Return Player Data ]]--
-                                    return utilities.GetKey(G_PlayersLocation, secret, key)
+                                    return modules.utilities.GetKey(G_PlayersLocation, secret, key)
                                 end
                             end
                         else
                             if name == user then
                                 --[[ No Alias ]]--
-                                return utilities.GetKey(G_PlayersLocation, secret, key)
+                                return modules.utilities.GetKey(G_PlayersLocation, secret, key)
                             else
                                 --[[ Nothing found?? Idk, returns secret I guess ]]--
                                 return secret
