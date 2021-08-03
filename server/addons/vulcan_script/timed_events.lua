@@ -7,7 +7,7 @@ require('addons.vulcan_script.globals')
 -- }
 
 local function AddEvent(execFunc, name, time, runOnce)
-    -- modules.utilities.LogDebug('Added event "%s"', name))
+    -- GDLog('Added event "%s"', name))
 
     G_TimedEvents[name] = {
         timer = time,
@@ -23,7 +23,7 @@ end
 local function RemoveEvent(name)
     print('RemoveEvent() ' .. name)
     G_TimedEvents[name] = nil
-    -- modules.utilities.LogDebug('Deleted event "%s"', name))
+    -- GDLog('Deleted event "%s"', name))
 end
 
 -- local function Update()
@@ -68,7 +68,7 @@ local function Update()
                     event.firstPass = false
                 else
                     if not event.firstPass then
-                        -- modules.utilities.LogDebug('Executed event "%s"', event.name))
+                        -- GDLog('Executed event "%s"', event.name))
                         G_Try(function ()
                             event.execFunc()
                         end, function ()

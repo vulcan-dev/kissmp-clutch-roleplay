@@ -36,7 +36,7 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
     modules.server.AddClient(client_id)
     local client = G_Clients[client_id]
 
-    modules.utilities.LogInfo('%s is connecting [ %s ]', client.user:getName(), client.user:getSecret())
+    GILog('%s is connecting [ %s ]', client.user:getName(), client.user:getSecret())
 
     --[[ Create new User Object if it doesn't exist ]]--
     if not modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'rank', G_LevelError, true, true) then
@@ -54,12 +54,12 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', 240)
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'onduty', false)
 
-        modules.utilities.LogInfo('Creating new user object for %s', client.user:getName())
+        GILog('Creating new user object for %s', client.user:getName())
     end
 
     modules.server.IsConnected(client, client.user:getName(), function()
         --[[ Connected ]]--
-        modules.utilities.LogInfo("%s has connected", client.user:getName())
+        GILog("%s has connected", client.user:getName())
         modules.server.DisplayDialog(client, string.format('%s has joined!', client.user:getName()), 3)
 
         --[[ Send Webhook ]]--
@@ -110,7 +110,7 @@ hooks.register('OnPlayerDisconnected', 'VK_PLAYER_DISCONNECT', function(client_i
     G_Clients[client_id].connected = false
     modules.server.RemoveClient(client_id)
 
-    modules.utilities.LogInfo("%s has Disconnected [ %s ]", oldClient.user:getName(), oldClient.user:getSecret())
+    GILog("%s has Disconnected [ %s ]", oldClient.user:getName(), oldClient.user:getSecret())
 
     modules.utilities.SendAPI({
         client = {
@@ -169,7 +169,7 @@ hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle
         --         data = 'Removed a ' .. vehicles[vehicle_id]:getData():getName(),
         --         type = 'vehicle_log'
         --     })
-        -- end, function() modules.utilities.LogWarning("Failed to get clientName in hook \"SendAPI\"") end )
+        -- end, function() GWLog("Failed to get clientName in hook \"SendAPI\"") end )
 
         G_Try(function()
             --[[ If I call vehicles.remove(...) then obviously no client_id is passed through so I just see if that was called or if the user manually deleted it via the ig menu ]]--
@@ -264,7 +264,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
                     command.exec(executor, args)
                 end, function(err)
                     modules.server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please post it in bug-reports in /discord ] Message: %s', message, err), modules.server.ColourError)
-                    modules.utilities.LogError('Command failed! User: %s\n  Message: %s', executor.user:getName(), err)
+                    GELog('Command failed! User: %s\n  Message: %s', executor.user:getName(), err)
                     G_CommandExecuted = false
                     return ""
                 end)
@@ -352,7 +352,7 @@ local function Initialize()
     if G_FirstLoad then
         --[[ Make sure to change the log level if you don't want console spam :) ]]--
         G_Level = G_LevelDebug
-        modules.utilities.LogInfo('[Server] Initialized')
+        GILog('[Server] Initialized')
 
         modules = G_ReloadModules(modules, 'main.lua')
 

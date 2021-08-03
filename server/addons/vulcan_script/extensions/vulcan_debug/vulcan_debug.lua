@@ -20,11 +20,11 @@ Rank: %s
 ]], commandTable.category, commandName, commandTable.usage, modules.moderation.StrRanks[commandTable.rank])
     end
 
-    modules.utilities.LogDebug(output)
+    GDLog(output)
 end
 
 local function GetMemoryUsage()
-    modules.utilities.LogDebug('Memory Usage: %.3f KB', collectgarbage('count'))
+    GDLog('Memory Usage: %.3f KB', collectgarbage('count'))
 end
 
 local function ReloadModules()

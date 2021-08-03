@@ -53,9 +53,9 @@ function G_ReloadModules(modules, filename)
     for module_name, _ in pairs(modules) do
         if package.loaded[module_name] then
             package.loaded[module_name] = nil
-            utilities.LogDebug('[Module] [%s] Reloaded %s', filename, module_name)
+            GDLog('[Module] [%s] Reloaded %s', filename, module_name)
         else
-            utilities.LogDebug('[Module] [%s] Loaded %s', filename, module_name)
+            GDLog('[Module] [%s] Loaded %s', filename, module_name)
         end
 
         modules[module_name] = require(module_name)
@@ -71,9 +71,9 @@ function G_ReloadExtensions(extensions, filename)
     for _, ext in pairs(utilities.GetKey(G_ServerLocation, 'options', 'extensions')) do
         if package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] then
             package.loaded[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] = nil
-            utilities.LogDebug('[Extension] [%s] Reloaded %s', filename, ext)
+            GDLog('[Extension] [%s] Reloaded %s', filename, ext)
         else
-            utilities.LogDebug('[Extension] [%s] Loaded %s', filename, ext)
+            GDLog('[Extension] [%s] Loaded %s', filename, ext)
         end
 
         extensions[string.format('addons.vulcan_script.extensions.%s.%s', ext, ext)] = require(string.format('addons.vulcan_script.extensions.%s.%s', ext, ext))
@@ -117,14 +117,21 @@ function G_RemoveCommandTable(table)
 end
 
 --[[ Logging Utilities ]]--
-function ELog(message)
+function GLog(message, ...)
+    local utilities = require('addons.vulcan_script.utilities')
 
+    if type(message) == 'string' then
+        print('['..utilities.GetDateTime()..'] ' .. tostring(string.format(message, ...)))
+    else
+        print('['..utilities.GetDateTime()..'] [Error] Invalid Message {type: ' .. tostring(type(message)) .. ', data: ' .. tostring(message) .. '}')
+        for k, v in pairs(message) do
+            print('-> ' .. k .. ' : ' .. tostring(v))
+        end
+    end
 end
 
-function DLog(message)
-
-end
-
-function WLog(message)
-
-end
+function GDLog(debug, ...) if G_Level == G_LevelDebug then GLog('[DEBUG]: ' .. tostring(debug), ...) end end
+function GILog(info, ...) GLog('[INFO]: ' .. tostring(info), ...) end
+function GELog(error, ...) GLog('[ERRO]: ' .. tostring(error), ...) end
+function GWLog(warning, ...) GLog('[WARN]: ' .. tostring(warning), ...) end
+function GFLog(fatal, ...) GLog('[FATAL]: ' .. tostring(fatal), ...) os.execute('pause') os.exit(1) end

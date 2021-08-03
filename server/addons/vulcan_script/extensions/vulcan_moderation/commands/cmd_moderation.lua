@@ -346,7 +346,7 @@ M.commands["kick"] = {
         -- Check if the executor is able to run the command against the client
         if executor.rank() <= client.rank() then
             modules.server.DisplayDialogError(executor, G_ErrorCannotPerformUser)
-            modules.utilities.LogInfo('[Moderation] %s tried to kick %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
+            GILog('[Moderation] %s tried to kick %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
 
             return
         end
@@ -435,7 +435,7 @@ M.commands["mute"] = {
         -- Check if the executor is able to run the command against the client
         if executor.rank() <= client.rank() then
             modules.server.DisplayDialogError(executor, G_ErrorCannotPerformUser)
-            modules.utilities.LogInfo('[Moderation] %s tried to mute %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
+            GILog('[Moderation] %s tried to mute %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
 
             return
         end

@@ -122,7 +122,7 @@ local function AddClient(client_id)
 
     client.vehicles.add = function(player, vehicleID)
         player.vehicles[vehicleID] = vehicles[vehicleID]
-        modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+        GDLog('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
 
         -- modules.timed_events.AddEvent(function()
         --     local ply = connections[player.user:getID()]
@@ -132,7 +132,7 @@ local function AddClient(client_id)
     end
 
     client.vehicles.remove = function(player, vehicleID)
-        modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+        GDLog('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
         if type(vehicleID) == 'number' then
             if player.vehicles[vehicleID] then
                 G_Try(function ()
@@ -173,7 +173,7 @@ local function AddClient(client_id)
     client.cuffed.dragPosition = { x = 0, y = 0, z = 0, xr = 0, yr = 0, zr = 0, w = 0 }
     client.cuffed.executor = nil
 
-    modules.utilities.LogDebug('Client added: %s', G_Clients[client_id].user:getName())
+    GDLog('Client added: %s', G_Clients[client_id].user:getName())
 end
 
 local function RemoveClient(client_id)
@@ -202,9 +202,9 @@ local function GetUser(user) -- ID, Name, Secret
             return {data=client, success=true}
         else
             if type(user) == 'table' or type(client.user:getName()) == 'table' then
-                modules.utilities.LogWarning('GetUser(user) is a table')
+                GWLog('GetUser(user) is a table')
                 for k, v in pairs(user) do
-                    modules.utilities.LogWarning('-> ' .. tostring(k) .. ' ' .. tostring(v))
+                    GWLog('-> ' .. tostring(k) .. ' ' .. tostring(v))
                 end
             else
                 if string.match(string.lower(client.user:getName()), string.lower(user)) ~= nil then
@@ -350,13 +350,13 @@ local function IsInRadius(location, radius, x, y)
     for _, v in pairs(data) do
         if type(v.x) == 'number' and type(v.y) == 'number' and type(v.z) == 'number' then
             if (x > v.x - radius and x < v.x + radius) and (y > v.y - radius and y < v.y + radius) then
-                modules.utilities.LogDebug('[Number] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, v.x, v.y)
+                GDLog('[Number] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, v.x, v.y)
                 return {true, _}
             end
         else
             for k, j in pairs(v) do
                 if (x > j.x - radius and x < j.x + radius) and (y > j.y - radius and y < j.y + radius) then
-                    modules.utilities.LogDebug('[Table] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, j.x, j.y)
+                    GDLog('[Table] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, j.x, j.y)
                     return {true, k}
                 end
             end
@@ -424,7 +424,7 @@ local function DisplayDialog(error, client, message, time)
     time = time or 3
 
     if G_CommandExecuted then
-        modules.utilities.LogReturn(message)
+        --modules.utilities.LogReturn(message)
     end
 
     if client.user then
@@ -467,7 +467,7 @@ end
 
 local function SendChatMessage(client_id, message, colour)
     --if G_CurrentPlayers == 1 then return end --[[ Don't Send Anything to Prevent Spam ]]--
-    --modules.utilities.LogDebug('Sending Message (client_id, msg, colour): %s %s %s', client_id or nil, message or nil, colour or nil)
+    --GDLog('Sending Message (client_id, msg, colour): %s %s %s', client_id or nil, message or nil, colour or nil)
     --[[ Check if Client is Valid ]]--
     if not G_Clients[client_id] then
         colour = message
@@ -475,7 +475,7 @@ local function SendChatMessage(client_id, message, colour)
     end
 
     if G_CommandExecuted then
-        modules.utilities.LogReturn(message)
+        --modules.utilities.LogReturn(message)
     end
 
     --[[ Check if Colour is Valid ]]--
@@ -527,9 +527,9 @@ end
 
 --[[ Utility Functions ]]--
 local function ReloadModules()
-    modules.utilities.LogDebug("Reloaded")
+    GDLog("Reloaded")
     modules = G_ReloadModules(modules, 'server.lua')
-    modules.utilities.LogDebug("Reloaded")
+    GDLog("Reloaded")
 end
 
 --[[ Colour Variables ]]--
