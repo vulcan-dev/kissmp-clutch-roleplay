@@ -27,7 +27,7 @@ M.commands["advertise"] = {
         end
 
         -- Check if message is valid
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         modules.server.SendChatMessage('[Advertisement] ' .. tostring(message))
     end
@@ -46,9 +46,9 @@ M.commands["say"] = {
         end
 
         -- Check if message is valid
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
-        if not message then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
         modules.server.SendChatMessage('[Console]: ' .. tostring(message))
     end
 }
@@ -122,7 +122,7 @@ M.commands["set_wind"] = {
             local vehicle = vehicles[ply:getCurrentVehicle()]
 
             if vehicle then
-                vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', speed_x, speed_y, speed_x))
+                --vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', speed_x, speed_y, speed_x))
             end
 
             modules.server.DisplayDialog(client.data, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
@@ -187,7 +187,7 @@ M.commands["set_time"] = {
     description = 'Sets the time for everyone',
     usage = '/set_time <hh:mm:ss>',
     exec = function(executor, args)
-        if not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor) return end
+        if not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
         local time_args = {}
 
         local i = 1
@@ -197,7 +197,7 @@ M.commands["set_time"] = {
             i = i + 1
         end
 
-        if not modules.utilities.IsNumber(time_args[1]) then modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor) return end
+        if not modules.utilities.IsNumber(time_args[1]) then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
 
         time_args[1] = time_args[1] or 0
 
@@ -226,7 +226,7 @@ M.commands["set_fog"] = {
         local client = modules.server.GetUser(args[1])
         local fog = (not client.success and args[1] or args[2]) or 0
 
-        if not tonumber(fog) then modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor) return end
+        if not tonumber(fog) then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
 
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then
             fog = args[1] / 10
@@ -254,20 +254,20 @@ M.commands["tp"] = {
         local client2 = modules.server.GetUser(args[2]) or nil
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         -- TODO: When user is TP'd send lua to recover their car to avoid going inside eachother
 
         if not client2.success then
-            local ply = connections[executor.user:getID()]
-            local my_vehicle = vehicles[ply:getCurrentVehicle()]
+            local my_ply = connections[executor.user:getID()]
+            local my_vehicle = vehicles[my_ply:getCurrentVehicle()]
 
             local their_ply = connections[client.user:getID()]
             local their_vehicle = vehicles[their_ply:getCurrentVehicle()]
 
             if not their_vehicle then
-                modules.server.DisplayDialogError(G_ErrorNotInVehicle, client)
+                modules.server.DisplayDialogError(client, G_ErrorNotInVehicle)
                 return
             end
 
@@ -275,7 +275,7 @@ M.commands["tp"] = {
             local rotation = their_vehicle:getTransform():getRotation()
             my_vehicle:setPositionRotation(position[1]+3, position[2], position[3], rotation[1], rotation[2], rotation[3], rotation[4])
 
-            modules.server.DisplayDialog(executor, 'Successfully teleported to ' .. client.user:getName())
+            modules.server.DisplayDialogSuccess(executor, 'Successfully teleported to ' .. client.user:getName())
         else
             -- Teleport client to client2
             client2 = client2.data
@@ -287,7 +287,7 @@ M.commands["tp"] = {
             local vehicle2 = vehicles[ply2:getCurrentVehicle()]
 
             if not vehicle1 or not vehicle2 then
-                modules.server.DisplayDialogError(G_ErrorNotInVehicle, executor)
+                modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
                 return
             end
 
@@ -295,7 +295,7 @@ M.commands["tp"] = {
             local rotation = vehicle2:getTransform():getRotation()
             vehicle1:setPositionRotation(position[1]+3, position[2], position[3], rotation[1], rotation[2], rotation[3], rotation[4])
 
-            modules.server.DisplayDialog(executor, string.format('Successfully teleported %s to %s', client.user:getName(), client2.user:getName()))
+            modules.server.DisplayDialogSuccess(executor, string.format('Successfully teleported %s to %s', client.user:getName(), client2.user:getName()))
         end
 
         client.user:sendLua('recovery.startRecovering() recovery.stopRecovering()')
@@ -448,7 +448,7 @@ M.commands["pm"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         table.remove(args, 1)
@@ -459,7 +459,7 @@ M.commands["pm"] = {
         end
 
         -- Check if message is valid
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         modules.server.SendChatMessage(executor.user:getID(), string.format('you -> %s: %s', client.user:getName(), message))
         modules.server.SendChatMessage(client.user:getID(), string.format('%s -> you: %s', executor.user:getName(), message))
@@ -476,7 +476,7 @@ M.commands["block"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         if client.rank() <= modules.moderation.RankVIP then
@@ -490,16 +490,16 @@ M.commands["block"] = {
             end
 
             if blocked then
-                modules.server.DisplayDialog(executor, '[Error] User is already blocked')
+                modules.server.DisplayDialogWarning(executor, 'User is already blocked')
                 return
             else
                 local data = {}
                 data[client.user:getSecret()] = client.user:getName()
                 modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'blockList', data)
-                modules.server.DisplayDialog(executor, 'Successfully blocked ' .. client.user:getName())
+                modules.server.DisplayDialogSuccess(executor, 'Successfully blocked ' .. client.user:getName())
             end
         else
-            modules.server.DisplayDialog(executor, '[Error] Unable to block a staff member')
+            modules.server.DisplayDialogWarning(executor, 'Unable to block a staff member')
         end
     end
 }
@@ -514,7 +514,7 @@ M.commands["unblock"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         local blocked = false
@@ -527,13 +527,13 @@ M.commands["unblock"] = {
         end
 
         if not blocked then
-            modules.server.DisplayDialog(executor, '[Error] User is not blocked')
+            modules.server.DisplayDialogWarning(executor, 'User is not blocked')
             return
         else
             local data = {}
             data[client.user:getSecret()] = nil
             modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'blockList', data)
-            modules.server.DisplayDialog(executor, 'Successfully unblocked ' .. client.user:getName())
+            modules.server.DisplayDialogSuccess(executor, 'Successfully unblocked ' .. client.user:getName())
         end
     end
 }
@@ -591,9 +591,9 @@ M.commands["dv"] = {
                 client.vehicles.remove(client, connections[client.user:getID()]:getCurrentVehicle())
                 client.user:sendLua('commands.setFreeCamera()')
 
-                modules.server.DisplayDialog(executor, 'Successfully removed clients vehicle')
+                modules.server.DisplayDialogSuccess(executor, 'Successfully removed clients vehicle')
             else
-                modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor)
+                modules.server.DisplayDialogError(executor, G_ErrorInsufficentPermissions)
             end
         else
             --[[ Delete executors vehicle ]]--
@@ -624,9 +624,9 @@ M.commands["dva"] = {
                 client.vehicles.clear(client)
                 client.user:sendLua('commands.setFreeCamera()')
 
-                modules.server.DisplayDialog(executor, 'Successfully removed clients vehicle')
+                modules.server.DisplayDialogSuccess(executor, 'Successfully removed clients vehicle')
             else
-                modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor)
+                modules.server.DisplayDialogError(executor, G_ErrorInsufficentPermissions)
             end
         else
             --[[ Delete executors vehicle ]]--

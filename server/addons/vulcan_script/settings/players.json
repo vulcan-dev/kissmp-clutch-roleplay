@@ -1,7 +1,8 @@
 {
   "6376d4494bd9bcc21a7793c205fe3937e850eca9": {
     "alias": [
-      "Daniel W"
+      "Daniel W",
+      "Console2"
     ],
     "bans": [],
     "blockList": [],
@@ -14,10 +15,10 @@
       "z": 52.24008560180664,
       "zr": -0.25916287302970886
     },
-    "money": 24464.0,
+    "money": 41330.0,
     "mute_time": 0.0,
     "onduty": false,
-    "playtime": 29330.0,
+    "playtime": 34345.0,
     "rank": 6.0,
     "roles": [
       "police"

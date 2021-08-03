@@ -42,7 +42,7 @@ M.callbacks = {
         for name, part in pairs(vData.parts) do
             for _, blacklist in pairs(blacklisted) do
                 if (string.find(part, blacklist) and (not modules.rp.IsLeo(client) and name ~= 'van_rollback_lightbar')) or part == blacklist then
-                    modules.server.DisplayDialogError(G_ErrorInvalidVehiclePermissions, client)
+                    modules.server.DisplayDialogError(client, G_ErrorInvalidVehiclePermissions)
                     client.vehicles.remove(client, connections[client_id]:getCurrentVehicle())
                     client.user:sendLua('commands.setFreeCamera()')
                     return

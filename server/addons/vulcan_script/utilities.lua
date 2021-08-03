@@ -64,17 +64,21 @@ local function Log(message, ...)
     if type(message) == 'string' then
         print('['..GetDateTime()..'] ' .. tostring(string.format(message, ...)))
     else
-        print('['..GetDateTime()..'] [Error] Invalid Message {type: ' .. type(message) .. ', data: ' .. message .. '}')
+        print('['..GetDateTime()..'] [Error] Invalid Message {type: ' .. tostring(type(message)) .. ', data: ' .. tostring(message) .. '}')
+        for k, v in pairs(message) do
+            print('-> ' .. k .. ' : ' .. tostring(v))
+        end
     end
 end
 
 local function LogDebug(debug, ...) if G_Level == G_LevelDebug then Log('[DEBUG]: ' .. tostring(debug), ...) end end
-local function LogInfo(info, ...) Log('[INFO]: ' .. info, ...) end
-local function LogError(error, ...) Log('[ERRO]: ' .. error, ...) end
-local function LogWarning(warning, ...) Log('[WARN]: ' .. warning, ...) end
-local function LogFatal(fatal, ...) Log('[FATAL]: ' .. fatal, ...) os.execute('pause') os.exit(1) end
+local function LogInfo(info, ...) Log('[INFO]: ' .. tostring(info), ...) end
+local function LogError(error, ...) Log('[ERRO]: ' .. tostring(error), ...) end
+local function LogWarning(warning, ...) Log('[WARN]: ' .. tostring(warning), ...) end
+local function LogFatal(fatal, ...) Log('[FATAL]: ' .. tostring(fatal), ...) os.execute('pause') os.exit(1) end
 
-local function LogReturn(...) Log('[Return] ' .. ...) end
+local function LogReturn(...) --Log('[Return] ' .. ...)
+end
 
 local function SendAPI(json)
     print('[API]: ' .. encode_json(json))

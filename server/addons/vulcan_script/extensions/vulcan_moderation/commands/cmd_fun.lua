@@ -24,19 +24,17 @@ M.commands["imitate"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        table.remove(args, 1)
+        if not args[2] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
-        print('Oi mate')
+        table.remove(args, 1)
 
         local message = ''
         for _, v in pairs(args) do
             message = message .. v .. ' '
         end
-
-        if not message then G_DiscordLink(executor.data, '[Error] No message specified') return end
 
         modules.moderation.SendUserMessage(client, nil, message)
     end
@@ -62,7 +60,7 @@ M.commands["set_gravity"] = {
             client.user:sendLua('core_environment.setGravity('..gravity..')')
             modules.server.DisplayDialog(client, '[Enviroment] Gravity set to ' .. gravity)
         else
-            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
         end
     end
 }

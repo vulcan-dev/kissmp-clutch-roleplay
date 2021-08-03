@@ -27,7 +27,7 @@ M.commands["view_bal"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         modules.server.SendChatMessage(executor.user:getID(), string.format("%s's balance: $%d", client.user:getName(), modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'money')), modules.server.ColourSuccess)
@@ -45,7 +45,7 @@ M.commands["set_bal"] = {
         local balance = tonumber(args[2])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', balance)
@@ -65,7 +65,7 @@ M.commands["add_role"] = {
         local role = args[2]
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         role = tostring(string.lower(args[2]))
@@ -77,7 +77,7 @@ M.commands["add_role"] = {
         end
 
         if not found then
-            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
             return
         end
 
@@ -91,15 +91,15 @@ M.commands["add_role"] = {
             table.insert(roles, role)
             data = roles
             modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'roles', data)
-            modules.server.DisplayDialog(client, string.format('%s Has Assigned You the Role: %s', executor.user:getName(), role))
-            modules.server.DisplayDialog(executor, 'Successfully added role to user')
+            modules.server.DisplayDialogSuccess(client, string.format('%s Has Assigned You the Role: %s', executor.user:getName(), role))
+            modules.server.DisplayDialogSuccess(executor, 'Successfully added role to user')
 
             --[[ Check if role is LEO, if so then increase the vehicle limit ]]--
             if modules.rp.IsLeo(client) then
                 modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'vehicleLimit', 11) --[[ 10 cones for example ]]--
             end
         else
-            modules.server.DisplayDialog(executor, '[Error] This User has Already Been Assigned This Role')
+            modules.server.DisplayDialogWarning(executor, 'This User has Already Been Assigned This Role')
         end
     end
 }
@@ -115,7 +115,7 @@ M.commands["remove_role"] = {
         local role = string.lower(args[2])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         if modules.rp.HasRole(client, role) then
@@ -157,6 +157,7 @@ M.commands["cuff"] = {
         --[[ Get my vehicle ]]--
         local my_ply = connections[executor.user:getID()]
         local my_vehicle = vehicles[my_ply:getCurrentVehicle()]
+
         local found = false
 
         if tostring(my_vehicle:getData():getName()) == 'unicycle' then
@@ -169,7 +170,7 @@ M.commands["cuff"] = {
                 --[[ Loop over all clients and get their person ]]
                 if client.user ~= executor.user and client.user:getSecret() ~= 'secret_console' then
                     local their_ply = connections[client.user:getID()]
-                    local their_vehicle = vehicles[their_ply:getCurrentVehicle()] or nil
+                    local their_vehicle = vehicles[their_ply:getCurrentVehicle()]
 
                     if their_vehicle and their_vehicle:getData():getName() == 'unicycle' then
                         found = true
@@ -198,11 +199,11 @@ M.commands["cuff"] = {
                 end
             end
         else
-            modules.server.DisplayDialog(executor, 'You cannot cuff/uncuff someone whilst in a vehicle')
+            modules.server.DisplayDialogWarning(executor, 'You cannot cuff/uncuff someone whilst in a vehicle')
         end
 
         if not found then
-            modules.server.DisplayDialog(executor, 'You cannot cuff/uncuff someone whilst they are in a vehicle')
+            modules.server.DisplayDialogWarning(executor, 'You cannot cuff/uncuff someone whilst they are in a vehicle')
         end
     end
 }
@@ -212,10 +213,9 @@ M.commands["drag"] = {
     rank = modules.moderation.RankUser,
     category = 'Roleplay Utilities',
     description = 'Drag a handcuffed person',
+    roles = {'police'},
     usage = '/drag',
     exec = function(executor, args)
-        if not modules.rp.HasRole(executor, 'Police') then modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor) return end
-
         --[[ Get my vehicle ]]--
         local my_ply = connections[executor.user:getID()]
         local my_vehicle = vehicles[my_ply:getCurrentVehicle()]
@@ -273,11 +273,11 @@ M.commands["drag"] = {
                 end
             end
         else
-            modules.server.DisplayDialog(executor, 'You cannot drag/undrag someone whilst in a vehicle')
+            modules.server.DisplayDialogWarning(executor, 'You cannot drag/undrag someone whilst in a vehicle')
         end
 
         if not found then
-            modules.server.DisplayDialog(executor, 'You cannot drag/undrag someone whilst they are in a vehicle')
+            modules.server.DisplayDialogWarning(executor, 'You cannot drag/undrag someone whilst they are in a vehicle')
         end
     end
 }
@@ -335,7 +335,7 @@ M.commands["transfer"] = {
             modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'money') + amount)
             modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money') - amount)
         else
-            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
         end
     end
 }
@@ -353,13 +353,15 @@ M.commands["911"] = {
             message = message .. v .. ' '
         end
 
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         for _, client in pairs(G_Clients) do
             if modules.rp.HasRole(client, 'police') and modules.rp.IsOnDuty(client) then
                 modules.server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.user:getName(), message))
             end
         end
+
+        modules.server.SendChatMessage(executor.user:getID(), 'Successfully phoned police, they should be with you shortly')
     end
 }
 
@@ -376,7 +378,7 @@ M.commands["ems"] = {
             message = message .. str .. ' '
         end
 
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         for _, client in pairs(G_Clients) do
             if modules.rp.HasRole(client, 'EMS') then
@@ -400,7 +402,7 @@ M.commands["fire"] = {
             message = message .. str .. ' '
         end
 
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         for _, client in pairs(G_Clients) do
             if modules.rp.HasRole(client, 'Fire') then
@@ -425,7 +427,7 @@ M.commands["dispatch"] = {
             message = message .. v .. ' '
         end
 
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         for _, client in pairs(G_Clients) do
             if modules.rp.IsLeo(client) then
@@ -458,7 +460,7 @@ M.commands["pd"] = {
 
             vehicle:setPositionRotation(x, y, z, xr, yr, zr, w)
         else
-            modules.server.DisplayDialogError(G_ErrorNotInVehicle, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
         end
     end
 }
@@ -486,7 +488,7 @@ M.commands["fd"] = {
 
             vehicle:setPositionRotation(x, y, z, xr, yr, zr, w)
         else
-            modules.server.DisplayDialogError(G_ErrorNotInVehicle, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
         end
     end
 }
@@ -505,7 +507,7 @@ M.commands["twitter"] = {
             message = message .. v .. ' '
         end
 
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         for _, client in pairs(G_Clients) do
             modules.server.SendChatMessage(client.user:getID(), string.format('[Twitter @%s]: %s', executor.user:getName(), message), modules.server.ColourTwitter)
@@ -586,7 +588,7 @@ M.commands["rob"] = {
             return
         end
 
-        if executor.canExecute then
+        if not executor.commandCooldown then
             local ply = connections[executor.user:getID()]
             local vehicle = vehicles[ply:getCurrentVehicle()]
 
@@ -605,7 +607,7 @@ M.commands["rob"] = {
                 local time = 20
                 local isInRadius = modules.server.IsInRadius('robbable_shops', 4, x, y)
                 if isInRadius[1] then
-                    executor.canExecute = false
+                    executor.commandCooldown = true
                     if isInRadius[2] == 'convenience_store_town' then
                         cash = math.random(320, 1950)
                         name = 'Convenience store in the town'
@@ -643,18 +645,20 @@ M.commands["rob"] = {
                         vehicle:sendLua('controller.setFreeze(0)')
                         modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money') + cash)
                         modules.server.DisplayDialog(executor)
-                        executor.canExecute = true
+                        executor.commandCooldown = false
                     end, 'rob_'..executor.user:getID(), time, true)
+
+                    modules.server.DisplayDialog(executor, message, 4)
 
                     date.min = date.min + 20
                     local exp_sec = os.time{ year = date.year, month = date.month, day = date.day, hour = date.hour, min = date.min, sec = date.sec }
 
                     cooldownTime = exp_sec
                 else
-                    modules.server.DisplayDialog(executor, 'You cannot rob this location')
+                    modules.server.DisplayDialogW(executor, 'You cannot rob this location')
                 end
             else
-                modules.server.DisplayDialogError(G_ErrorNotInVehicle, executor)
+                modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
             end
         else
             modules.server.DisplayDialog(executor, 'You are already doing this')
@@ -674,7 +678,7 @@ M.commands["darkweb"] = {
             message = message .. v .. ' '
         end
 
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         for _, client in pairs(G_Clients) do
             if not modules.rp.IsLeo(client) then
@@ -697,7 +701,7 @@ M.commands["pr"] = {
             message = message .. v .. ' '
         end
 
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         for _, client in pairs(G_Clients) do
             if modules.rp.IsLeo(client) then
@@ -716,7 +720,7 @@ M.commands["repair"] = {
     exec = function(executor, args)
         if executor.user:getSecret() == 'secret_console' then return end
 
-        if executor.canExecute then
+        if not executor.commandCooldown then
             local ply = connections[executor.user:getID()]
             local vehicle = vehicles[ply:getCurrentVehicle()]
 
@@ -730,7 +734,7 @@ M.commands["repair"] = {
                 local isInRadius = modules.server.IsInRadius('repair_stations', 5, x, y)
                 if isInRadius[1] then
 
-                    executor.canExecute = false
+                    executor.commandCooldown = true
                     modules.server.DisplayDialog(executor, 'Reparing, please wait 5 seconds')
                     vehicle:sendLua('controller.setFreeze(1)')
                     modules.timed_events.AddEvent(function()
@@ -739,13 +743,13 @@ M.commands["repair"] = {
 
                         modules.server.DisplayDialog(executor, 'Vehicle repaired! That has costed you $' .. total)
                         modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money') - total)
-                        executor.canExecute = true
+                        executor.commandCooldown = false
                     end, 'repair_'..executor.user:getID(), 5, true)
                 else
                     modules.server.DisplayDialog(executor, 'No repair station found')
                 end
             else
-                modules.server.DisplayDialog(executor, 'You are not in a vehicle')
+                modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
             end
         else
             modules.server.DisplayDialog(executor, 'You are already doing this')
@@ -776,7 +780,7 @@ M.commands["set_home"] = {
 
             modules.server.DisplayDialog(executor, 'Successfully set your home postion. TP back with /home')
         else
-            modules.server.DisplayDialog(executor, 'It appears you are not in a vehicle')
+            modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
         end
     end
 }
@@ -805,10 +809,8 @@ M.commands["refuel"] = {
     description = 'Refuels a vehicle (must be near a fuel station)',
     usage = '/refuel',
     exec = function(executor, args)
-        if executor.user:getSecret() == 'secret_console' then return end
-
         --[[ Check if not already performing this action ]]--
-        if executor.canExecute then
+        if not executor.commandCooldown then
             local ply = connections[executor.user:getID()]
             local vehicle = vehicles[ply:getCurrentVehicle()]
 
@@ -821,7 +823,7 @@ M.commands["refuel"] = {
 
                 local isInRadius = modules.server.IsInRadius('fuel_pumps', 2, x, y)
                 if isInRadius[1] then
-                    executor.canExecute = false
+                    executor.commandCooldown = true
 
                     modules.server.DisplayDialog(executor, 'Refueling, please wait 5 seconds')
                     vehicle:sendLua('controller.setFreeze(1)')
@@ -830,14 +832,14 @@ M.commands["refuel"] = {
                         vehicle:sendLua('energyStorage.reset()')
                         modules.server.DisplayDialog(executor, 'Vehicle refueled! That has costed you $' .. total)
                         modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money') - total)
-                        executor.canExecute = true
+                        executor.commandCooldown = false
                     end, 'refuel_'..executor.user:getID(), 5, true)
                     return
                 else
                     modules.server.DisplayDialog(executor, 'No fuel station found')
                 end
             else
-                modules.server.DisplayDialogError(G_ErrorNotInVehicle, executor)
+                modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
             end
         else
             modules.server.DisplayDialog(executor, 'You are already doing this')
@@ -890,7 +892,7 @@ M.commands["me"] = {
         end
 
         --[[ Check if message is valid ]]--
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         --[[ Get my vehicle ]]--
         local my_ply = connections[executor.user:getID()]
@@ -931,7 +933,7 @@ M.commands["gps"] = {
         local y = tonumber(args[2]) or nil
         local z = tonumber(args[3]) or nil
 
-        if not x or not y or not z then modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor) end
+        if not x or not y or not z then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) end
 
         executor.gps.enabled = true
         executor.gps.position.x = x
@@ -965,7 +967,7 @@ M.commands["send_gps"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         local ply = connections[executor.user:getID()]

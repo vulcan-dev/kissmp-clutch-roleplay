@@ -27,26 +27,26 @@ M.commands["ban"] = {
         local time = args[3] or '1y'
 
         --[[ Check if Client Exists ]]--
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         --[[ Compare the Ranks between Executor and Client ]]--
-        if executor.rank() <= client.rank then
-            modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
+        if executor.rank() <= client.rank() then
+            modules.server.DisplayDialogError(executor, G_ErrorCannotPerformUser)
             return
         end
 
         --[[ Get the first number variable ]]--
         local time_fmt = time:sub(-1)
         if modules.utilities.IsNumber(time_fmt) then
-            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
             return
         end
 
         --[[ Get the full time ]]--
         time = time:sub(1, -2)
         if not modules.utilities.IsNumber(time) then
-            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
             return
         end
 
@@ -74,7 +74,7 @@ M.commands["ban"] = {
             elseif time_fmt == 'm' then
                 date.min = date.min + time
             else
-                modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+                modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
                 return
             end
 
@@ -141,20 +141,20 @@ M.commands["warn"] = {
         local reason = args[2] or 'No reason specified'
 
         --[[ Check if the Client Exists ]]--
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         --[[ Compare the Executor's Rank with the Client ]]--
-        if executor.rank() <= client.rank then
-            modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
+        if executor.rank() <= client.rank() then
+            modules.server.DisplayDialogError(executor, G_ErrorCannotPerformUser)
             return
         end
 
         --[[ Warn the user ]]--
         modules.moderation.AddWarn(client.user:getSecret(), reason, os.date('%Y-%m-%d %H:%M:%S', os.time()), executor.user:getName())
-        modules.server.DisplayDialog(client, string.format('You have been warned by %s for: %s', executor.user:getName(), reason))
+        modules.server.DisplayDialogWarning(client, string.format('You have been warned by %s for: %s', executor.user:getName(), reason))
 
-        modules.server.DisplayDialog(executor, string.format('Successfully warned %s', client.user:getName()))
+        modules.server.DisplayDialogSuccess(executor, string.format('Successfully warned %s', client.user:getName()))
 
         modules.utilities.SendAPI({
             executor = {
@@ -170,7 +170,7 @@ M.commands["warn"] = {
 
         --[[ Check if the Client is In-Game, if so send them a dialog ]]--
         if G_Clients[client.user:getID()] then
-            modules.server.DisplayDialog(client, string.format('%s has warned you for: %s', client.user:getName(), reason))
+            modules.server.DisplayDialogWarning(client, string.format('%s has warned you for: %s', client.user:getName(), reason))
         end
     end
 }
@@ -185,15 +185,15 @@ M.commands["unban"] = {
         local client = modules.server.GetUser(args[1])
         local ban_name = args[2]
 
-        if not ban_name then modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor) return end
+        if not ban_name then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         -- Check if they're already banned
         if not modules.moderation.IsBanned(client.user:getSecret()) then
-            modules.server.DisplayDialog(executor, client.user:getName()..' is not banned')
+            modules.server.DisplayDialogWarning(executor, client.user:getName()..' is not banned')
             return
         end
 
@@ -209,9 +209,9 @@ M.commands["unban"] = {
         })
 
         if modules.moderation.removeBan(client.user:getSecret(), ban_name) then
-            modules.server.DisplayDialog(executor, 'Successfully unbanned '..client.user:getName())
+            modules.server.DisplayDialogSuccess(executor, 'Successfully unbanned '..client.user:getName())
         else
-            modules.server.DisplayDialog(executor, '[Error] Ban not found')
+            modules.server.DisplayDialogWarning(executor, 'Ban not found')
         end
     end
 }
@@ -225,7 +225,7 @@ M.commands["get_bans"] = {
     exec = function(executor, args)
         local client = modules.server.GetUser(args[1])
         
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
         
         local ban_data = modules.moderation.GetBans(client.user:getSecret())
@@ -242,7 +242,7 @@ M.commands["get_bans"] = {
         end
 
         if count == 0 then
-            modules.server.DisplayDialog(executor, 'This user has no bans')
+            modules.server.DisplayDialogWarning(executor, 'This user has no bans')
         end
     end
 }
@@ -256,7 +256,7 @@ M.commands["get_warns"] = {
     exec = function(executor, args)
         local client = modules.server.GetUser(args[1])
         
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
         
         local warn_data = modules.moderation.getWarns(client.user:getSecret())
@@ -268,7 +268,7 @@ M.commands["get_warns"] = {
         end
 
         if count == 0 then
-            modules.server.DisplayDialog(executor, 'This user has no warns')
+            modules.server.DisplayDialogWarning(executor, 'This user has no warns')
         end
     end
 }
@@ -283,9 +283,9 @@ M.commands["remove_warn"] = {
         local client = modules.server.GetUser(args[1])
         local warn = args[2]
 
-        if not warn then modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor) return end
+        if not warn then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
         
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
         
         local warn_data = modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'warns')
@@ -294,7 +294,7 @@ M.commands["remove_warn"] = {
             if k == warn then
                 warn_data[k] = nil
                 modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'warns', warn_data)
-                modules.server.DisplayDialog(executor, 'Successfully removed warn from user')
+                modules.server.DisplayDialogSuccess(executor, 'Successfully removed warn from user')
                 count = count + 1
 
                 modules.utilities.SendAPI({
@@ -313,7 +313,7 @@ M.commands["remove_warn"] = {
 
 
         if count == 0 then
-            modules.server.DisplayDialog(executor, '[Error] The specified reason has not been found')
+            modules.server.DisplayDialogWarning(executor, 'The specified reason has not been found')
         end
     end
 }
@@ -329,7 +329,7 @@ M.commands["kick"] = {
         local reason = args[2] or 'No reason specified'
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         modules.utilities.SendAPI({
@@ -344,8 +344,8 @@ M.commands["kick"] = {
         })
 
         -- Check if the executor is able to run the command against the client
-        if executor.rank() <= client.rank then
-            modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
+        if executor.rank() <= client.rank() then
+            modules.server.DisplayDialogError(executor, G_ErrorCannotPerformUser)
             modules.utilities.LogInfo('[Moderation] %s tried to kick %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
 
             return
@@ -372,7 +372,7 @@ M.commands["set_rank"] = {
         client = client.data
 
         if not rank then
-            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
             return
         end
 
@@ -391,7 +391,7 @@ M.commands["set_rank"] = {
 
 
         if not found and not modules.moderation.StrRanks[tonumber(rank)] then
-            modules.server.DisplayDialog(executor, '[Error] Invalid rank specified')
+            modules.server.DisplayDialogError(executor, 'Invalid rank specified')
         else
             if not found and modules.moderation.StrRanks[tonumber(rank)] then
                 outStr = modules.moderation.StrRanks[tonumber(rank)]
@@ -404,7 +404,7 @@ M.commands["set_rank"] = {
 
         -- Check if the executor is able to run the command against the client
         if tonumber(executor.rank()) <= tonumber(client.rank()) then
-            modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorCannotPerformUser)
             return
         end
 
@@ -429,12 +429,12 @@ M.commands["mute"] = {
         local time = args[3] or '10m'
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         -- Check if the executor is able to run the command against the client
-        if executor.rank() <= client.rank then
-            modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
+        if executor.rank() <= client.rank() then
+            modules.server.DisplayDialogError(executor, G_ErrorCannotPerformUser)
             modules.utilities.LogInfo('[Moderation] %s tried to mute %s. Reason: %s', executor.user:getName(), client.user:getName(), reason)
 
             return
@@ -442,13 +442,13 @@ M.commands["mute"] = {
 
         local time_fmt = time:sub(-1) -- Get the prefix (for year, month, days, hours, etc...)
         if modules.utilities.IsNumber(time_fmt) then
-            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
             return
         end
 
         time = time:sub(1, -2) -- Get the actual time
         if not modules.utilities.IsNumber(time) then
-            modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+            modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
             return
         end
 
@@ -475,7 +475,7 @@ M.commands["mute"] = {
             elseif time_fmt == 'm' then
                 date.min = date.min + time
             else
-                modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor)
+                modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
                 return
             end
             
@@ -514,12 +514,12 @@ M.commands["unmute"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         -- Check if the executor is able to run the command against the client
-        if executor.rank() <= client.rank then
-            modules.server.DisplayDialogError(G_ErrorCannotPerformUser, executor)
+        if executor.rank() <= client.rank() then
+            modules.server.DisplayDialogError(executor, G_ErrorCannotPerformUser)
             return
         end
 
@@ -527,7 +527,7 @@ M.commands["unmute"] = {
 
         if G_Clients[client.user:getID()] then
             modules.server.SendChatMessage(client.user:getID(), string.format('You have been unmuted by %s', executor.user:getName()))
-            modules.server.DisplayDialog(executor, '[Error] User it not muted')
+            modules.server.DisplayDialogWarning(executor, 'User it not muted')
         end
 
         modules.utilities.SendAPI({
@@ -555,18 +555,17 @@ M.commands["freeze"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        local ply = connections[executor.user:getID()]
-        local vehicle = vehicles[ply:getCurrentVehicle()]
+        local ply = connections[client.user:getID()] or nil
+        local vehicle = vehicles[ply:getCurrentVehicle()] or nil
 
         if vehicle then
-            --obj:setWind(1, 1, 1)
             vehicle:sendLua('controller.setFreeze(1)')
-            modules.server.DisplayDialog(client, 'You have been frozen')
+            modules.server.DisplayDialogWarning(client, 'You have been frozen')
         else
-            modules.server.DisplayDialog(executor, 'User is not in a vehicle')
+            modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
         end
     end
 }
@@ -581,17 +580,17 @@ M.commands["unfreeze"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        local ply = connections[executor.user:getID()]
+        local ply = connections[client.user:getID()]
         local vehicle = vehicles[ply:getCurrentVehicle()]
 
         if vehicle then
             vehicle:sendLua('controller.setFreeze(0)')
-            modules.server.DisplayDialog(client, 'You have been unfrozen')
+            modules.server.DisplayDialogSuccess(client, 'You have been unfrozen')
         else
-            modules.server.DisplayDialog(executor, 'User is not in a vehicle')
+            modules.server.DisplayDialogError(executor, G_ErrorNotInVehicle)
         end
     end
 }
@@ -606,7 +605,7 @@ M.commands["send_message"] = {
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         table.remove(args, 1)
@@ -617,17 +616,17 @@ M.commands["send_message"] = {
         end
 
         -- Check if message is valid
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         client.user:sendLua("extensions.core_gamestate.setGameState(nil, 'proceduralScenario', nil, nil)")
 
         modules.timed_events.AddEvent(function()
             client.user:sendLua("guihooks.trigger('ScenarioFlashMessage', {{'"..message.."'  , 5, 0, true}})")
-        end, 'send_message', 1, true)
+        end, '_set_message_ui_'..client.user:getID(), 1, true)
 
-        modules.timed_events.add_event(function()
+        modules.timed_events.AddEvent(function()
             client.user:sendLua("extensions.core_gamestate.setGameState(nil, 'freeroam', nil, nil)")
-        end, '_set_normal_ui_', 6, true)
+        end, '_set_normal_ui_'..client.user:getID(), 6, true)
     end
 }
 
@@ -641,16 +640,26 @@ M.commands["report"] = {
         local client = modules.server.GetUser(args[1])
         local reason = args[2] or nil
 
+        table.remove(args, 1)
+
+        print('Oi mate')
+
+        local message = ''
+        for _, v in pairs(args) do
+            message = message .. v .. ' '
+        end
+        reason = message
+
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        if not reason then modules.server.DisplayDialogError(G_ErrorInvalidArguments, executor) return end
+        if not reason then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
         
         -- Send report to all moderators
         for _, c in pairs(G_Clients) do
-            if modules.utilities.GetKey(G_PlayersLocation, c.user:getSecret(), 'rank') > modules.moderation.RankVIP then
-                modules.server.DisplayDialog(c, string.format('%s reported %s for: %s', executor.user:getName(), client.user:getName(), reason), 6)
+            if c.rank() > modules.moderation.RankVIP then
+                modules.server.DisplayDialogWarning(c, string.format('%s reported %s for: %s', executor.user:getName(), client.user:getName(), reason), 6)
             end
         end
     end
@@ -667,7 +676,7 @@ M.commands["get_ids"] = {
 
         -- Check if the client exists
         if args[1] then
-            if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+            if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
 
             if client.success then
                 modules.server.SendChatMessage(executor.user:getID(), client.data.user:getName() .. ' - ' .. client.data.mid)

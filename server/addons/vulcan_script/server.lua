@@ -45,7 +45,7 @@ local consolePlayer = {
     },
 
     --[[ Functions ]]--
-    rank = 7,
+    rank = function() return 7 end,
 
     --[[ Variables ]]--
     connected = true,
@@ -82,7 +82,7 @@ local function SetClientDefaults(client)
 end
 
 local function AddClient(client_id)
-    -- SetClientDefaults(connections[client_id])
+    SetClientDefaults(connections[client_id])
     G_CurrentPlayers = G_CurrentPlayers + 1
 
     G_Clients[client_id] = {}
@@ -123,6 +123,12 @@ local function AddClient(client_id)
     client.vehicles.add = function(player, vehicleID)
         player.vehicles[vehicleID] = vehicles[vehicleID]
         modules.utilities.LogDebug('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
+
+        -- modules.timed_events.AddEvent(function()
+        --     local ply = connections[player.user:getID()]
+        --     local vehicle = vehicles[ply:getCurrentVehicle()]
+        --     player.vehicles.current = vehicle
+        -- end, 'add_current_vehicle_'..player.user:getID()..'_'..vehicleID, 2, true)
     end
 
     client.vehicles.remove = function(player, vehicleID)
@@ -134,7 +140,9 @@ local function AddClient(client_id)
                 end)
                 player.vehicles[vehicleID] = nil
 
-                client.vehicles.count = client.vehicles.count - 1
+                if client.vehicles.count -1 >= 0 then
+                    client.vehicles.count = client.vehicles.count - 1
+                end
             end
         end
     end
@@ -142,7 +150,9 @@ local function AddClient(client_id)
     client.vehicles.clear = function(player)
         for id, _ in pairs(player.vehicles) do
             if type(id) == 'number' then
-                player.vehicles.remove(player, id)
+                if player.vehicles[id] then
+                    player.vehicles.remove(player, id)
+                end
             end
         end
     end
@@ -174,27 +184,41 @@ local function GetUser(user) -- ID, Name, Secret
     if not user then return {data=nil, success=false} end
 
     local utilities = require('addons.vulcan_script.utilities')
+    local userFoundCount = 0
+    local userFound = {}
 
     for _, client in pairs(G_Clients) do
         if user == client.user:getName() then
             --[[ (In-Game) Client Name was Found ]]--
             return {data=client, success=true}
+        else if tonumber(user) == client.mid then
+            --[[ (In-Game) Client MID was Found ]]--
+            return {data=client, success=true}
+        else if tonumber(user) == client.user:getID() then
+            --[[ (In-Game) Client ID was Found ]]--
+            return {data=client, success=true}
+        else if user == client.user:getSecret() then
+            --[[ (In-Game) Client Secret was Found ]]--
+            return {data=client, success=true}
         else
-            if tonumber(user) == client.mid then
-                --[[ (In-Game) Client MID was Found ]]--
-                return {data=client, success=true}
+            if type(user) == 'table' or type(client.user:getName()) == 'table' then
+                modules.utilities.LogWarning('GetUser(user) is a table')
+                for k, v in pairs(user) do
+                    modules.utilities.LogWarning('-> ' .. tostring(k) .. ' ' .. tostring(v))
+                end
             else
-                if tonumber(user) == client.user:getID() then
-                    --[[ (In-Game) Client ID was Found ]]--
-                    return {data=client, success=true}
-                else
-                    if user == client.user:getSecret() then
-                        --[[ (In-Game) Client Secret was Found ]]--
-                        return {data=client, success=true}
-                    end
+                if string.match(string.lower(client.user:getName()), string.lower(user)) ~= nil then
+                    userFoundCount = userFoundCount + 1
+                    userFound = client
                 end
             end
-        end
+        end end end end
+    end
+
+    if userFoundCount == 1 then
+        return {data=userFound, success=true}
+    else
+        return {data=nil, success=false}
     end
 
     --[[ (Not In-Game) Get User by Client Secret ]]--
@@ -414,9 +438,30 @@ local function DisplayDialog(error, client, message, time)
     end
 end
 
-local function DisplayDialogError(error, client, time)
+local function DisplayDialogError(client, error)
     if G_Errors[error] then
-        DisplayDialog(error, client, G_Errors[error], time)
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='error', title='%s', config = {timeOut = 3000}})", G_Errors[error]))
+        --DisplayDialog(error, client, G_Errors[error], time)
+    else
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='error', title='%s', config = {timeOut = 3000}})", tostring(error)))
+    end
+end
+
+local function DisplayDialogWarning(client, error)
+    if G_Errors[error] then
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='warning', title='%s', config = {timeOut = 3000}})", G_Errors[error]))
+        --DisplayDialog(error, client, G_Errors[error], time)
+    else
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='warning', title='%s', config = {timeOut = 3000}})", tostring(error)))
+    end
+end
+
+local function DisplayDialogSuccess(client, error)
+    if G_Errors[error] then
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", G_Errors[error]))
+        --DisplayDialog(error, client, G_Errors[error], time)
+    else
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", tostring(error)))
     end
 end
 
@@ -514,6 +559,8 @@ M.IsInRadius = IsInRadius
 M.SendChatMessage = SendChatMessage
 M.DisplayDialog = DisplayDialog
 M.DisplayDialogError = DisplayDialogError
+M.DisplayDialogWarning = DisplayDialogWarning
+M.DisplayDialogSuccess = DisplayDialogSuccess
 
 --[[ Utility Functions ]]--
 M.InitializeMarkers = InitializeMarkers

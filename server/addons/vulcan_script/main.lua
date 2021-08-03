@@ -6,12 +6,13 @@ require('addons.vulcan_script.globals')
 
 --[[ My TODO List
     TODO Invalid command args return the args if it's easy to do
-    TODO Ban on 3 warns
-    TODO Add check for /gps x y z (check if the person puts a comma)
     TODO add /arrest (freeze user for x time (15sec))
-    TODO Make veh spawn and edit different (on spawn set var in user to veh and check in spawn)
 
-    TODO Add input to bufio
+    TODO Fix /help <cmd> displaying wrong error if command not found
+    TODO Fix the discord websockets, need to send the correct data
+    TODO Fix /help <cmd> not showing everything such as alias
+
+    TODO Fix controller.setFreeze(x)
 
     local inputActionFilter = extensions.core_input_actionFilter
     inputActionFilter.setGroup('default_blacklist_exploration', {"switch_next_vehicle", "switch_previous_vehicle", "loadHome", "saveHome", "reload_vehicle", "reload_all_vehicles", "vehicle_selector", "parts_selector", "dropPlayerAtCamera", "toggleWalkingMode"} )  
@@ -27,7 +28,6 @@ local modules = {
 
 local extensions = {}
 local nextUpdate = 0
-local nextUpdate2 = 0
 local prefix = '/'
 
 -- [[ ==================== Hooking Start ==================== ]] --
@@ -47,6 +47,8 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'vehicleLimit', 2)
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'mute_time', 0)
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'playtime', 0)
+        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'blockList', {})
+        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'home', {x=709.3377075195312, y=-0.7625573873519897, z=52.24008560180664, xr=-0.006330838892608881, yr=-0.00027202203636989, zr=-0.25916287302970886, w=0.9658128619194032})
 
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'roles', {})
         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', 240)
@@ -131,8 +133,8 @@ end)
 
 hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_id, client_id)
     local client = G_Clients[client_id]
-    client.vehicles.count = client.vehicles.count + 1
     if vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
+        client.vehicles.count = client.vehicles.count + 1
         modules.utilities.SendAPI({
             client = {
                 name = G_Clients[client_id].user:getName()
@@ -143,6 +145,7 @@ hooks.register('OnVehicleSpawned', 'VK_PLAYER_VEHICLE_SPAWN', function(vehicle_i
         })
 
         client.vehicles.add(client, vehicle_id)
+        print('Added')
     end
 
 
@@ -206,7 +209,6 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     end
 
     --[[ Check if Command ]]
-    modules.utilities.LogInfo('%s said: %s', G_Clients[client_id].user:getName(), message)
     if string.sub(message, 1, 1) == '@' then
         local args = modules.utilities.ParseCommand(message, ' ')
         args[1] = string.lower(args[1]:sub(2))
@@ -215,7 +217,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
         local client = modules.server.GetUser(args[1])
 
         -- Check if the client exists
-        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(G_ErrorInvalidUser, executor) return end
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
         table.remove(args, 1)
@@ -226,7 +228,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
         end
 
         -- Check if message is valid
-        if not message or not args[1] then modules.server.DisplayDialogError(G_ErrorInvalidMessage, executor) return end
+        if not message or not args[1] then modules.server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         modules.server.SendChatMessage(string.format('%s @%s: %s', executor.user:getName(), client.user:getName(), message), modules.server.ColourMention)
     else if string.sub(message, 1, 1) == prefix then
@@ -255,6 +257,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
 
         if command and command.roles and canExecuteWithRole or command and not command.roles and not canExecuteWithRole then
             if executor.rank() >= command.rank then
+                --[[ Check current vehicle ]]--
                 table.remove(args, 1)
                 G_Try(function ()
                     if command.rank >= modules.moderation.RankVIP then modules.moderation.SendUserMessage(executor, 'Command', message, false) end
@@ -268,7 +271,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
             end
         else
             if command and command.roles and not canExecuteWithRole then
-                modules.server.DisplayDialogError(G_ErrorInsufficentPermissions, executor)
+                modules.server.DisplayDialogError(executor, G_ErrorInsufficentPermissions)
             else
                 modules.server.SendChatMessage(executor.user:getID(), 'Invalid Command, please use /help', modules.server.ColourWarning)
             end
@@ -283,7 +286,7 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
             type = 'user_message'
         })
 
-        modules.moderation.SendUserMessage(executor, 'OOC', message)
+        modules.moderation.SendUserMessage(executor, 'OOC', message, true)
     end end
 
     --[[ Load Extension Hook VK_OnMessageReceive ]]--
@@ -305,11 +308,11 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
         G_ColoursLocation = './addons/vulcan_script/settings/colours.json'
 
         --[[ Load all Extensions ]]--
+        modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
+        modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
         extensions = G_ReloadExtensions(extensions, 'main.lua')
         modules = G_ReloadModules(modules, 'main.lua')
 
-        modules.moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation')
-        modules.rp = require('addons.vulcan_script.extensions.vulcan_rp.rp')
 
         --[[ Load all Extension Modules ]]--
         for _, v in pairs(extensions) do
@@ -331,11 +334,6 @@ hooks.register("Tick", "VK_TICK", function()
     if os.time() > nextUpdate then
         nextUpdate = os.time() + 4
         collectgarbage("collect")
-    end
-
-    if os.time() > nextUpdate2 then
-        nextUpdate2 = os.time() + 1200
-        modules.server.SendChatMessage('[This server is using Vulcan-Moderation by Vitex#1248]', modules.server.ColourWarning)
     end
 
     -- Server uptime

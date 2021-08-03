@@ -69,7 +69,7 @@ M.callbacks = {
         for k, v in pairs(blacklist) do
             if k == vehicle:getData():getName() then
                 if type(v) == 'boolean' then
-                    modules.server.DisplayDialogError(G_ErrorVehicleBlacklisted, G_Clients[client_id])
+                    modules.server.DisplayDialogError(G_Clients[client_id], G_ErrorVehicleBlacklisted)
                     vehicle:remove()
 
                     G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
@@ -89,14 +89,14 @@ M.callbacks = {
 
         if can_drive then
             if vehicle then
-                vehicle:sendLua(string.format('obj:setWind(%d,%d,%d)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
+                --vehicle:sendLua(string.format('obj:setWind(%d,%d,%d)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
             end
 
             if (vehicle:getData():getName() ~= 'unicycle') then
                 modules.server.SendChatMessage(string.format('[Vulcan-Moderation] %s has spawned a %s', G_Clients[client_id].user:getName(), vehicle:getData():getName()), modules.server.ColourWarning)
             end
         else
-            modules.server.DisplayDialogError(G_ErrorInvalidVehiclePermissions, G_Clients[client_id])
+            modules.server.DisplayDialogError(G_Clients[client_id], G_ErrorInvalidVehiclePermissions)
             vehicle:remove()
 
             G_Clients[client_id].vehicleCount = G_Clients[client_id].vehicleCount - 1
@@ -109,7 +109,7 @@ M.callbacks = {
         local vehicle = vehicles[ply:getCurrentVehicle()]
 
         if vehicle then
-            vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
+            --vehicle:sendLua(string.format('obj:setWind(%s,%s,%s)', modules.server.environmentWind.x, modules.server.environmentWind.y, modules.server.environmentWind.z))
         end
         return ""
     end,
@@ -139,6 +139,12 @@ M.callbacks = {
                     -- Playtime & Rules
                     if client.user:getID() ~= 1337 then
                         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'playtime', modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'playtime') + 5)
+                        if modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'playtime') >= 240 * 60 then
+                            if client.rank() == modules.moderation.RankUser then
+                                modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'rank', modules.moderation.RankTrusted)
+                                modules.server.SendChatMessage(string.format('%s is now a trusted member, thanks for playing.', client.user:getName()), modules.server.ColourSuccess)
+                            end
+                        end
                     end
                 end
             end
@@ -147,6 +153,10 @@ M.callbacks = {
 }
 
 local function ReloadModules()
+    G_RemoveCommandTable(modules.cmd_moderation.commands)
+    G_RemoveCommandTable(modules.cmd_utilities.commands)
+    G_RemoveCommandTable(modules.cmd_fun.commands)
+
     modules = G_ReloadModules(modules, 'vulcan_moderation.lua') -- IMPORTANT! This might have to go after all other modules have been reloaded
 
     G_AddCommandTable(modules.cmd_moderation.commands)

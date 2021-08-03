@@ -24,27 +24,16 @@ local function HasRole(client, role)
     local found = false
     local data = modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'roles')
 
-    if type(role) == 'string' then
-        for _, v in pairs(data) do
-            if v == role then
-                found = true
-                return true
-            else
-                found = false
-            end
+    local count = 0
+    for _, v in ipairs(data) do
+        if tostring(role) == tostring(v) then
+            found = true
+            break
+        else
+            found = false
         end
-    elseif type(role) == 'table' then
-        local count = 1
-        for _, v in pairs(data) do
-            if v == role[count] then
-                found = true
-                return true
-            else
-                found = false
-            end
 
-            count = count + 1
-        end
+        count = count + 1
     end
 
     return found

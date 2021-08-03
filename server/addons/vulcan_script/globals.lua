@@ -115,3 +115,16 @@ function G_RemoveCommandTable(table)
         G_Commands[key] = nil
     end
 end
+
+--[[ Logging Utilities ]]--
+function ELog(message)
+
+end
+
+function DLog(message)
+
+end
+
+function WLog(message)
+
+end

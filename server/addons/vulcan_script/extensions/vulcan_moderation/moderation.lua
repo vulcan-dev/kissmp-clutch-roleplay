@@ -123,9 +123,7 @@ local function GetWarns(secret)
 end
 
 --[[ Utilities ]]--
-local function SendUserMessage(executor, prefix, message, all)
-    all = all or true
-
+local function SendUserMessage(executor, prefix, message)
     local rankStr = M.StrRanks[executor.rank()]
     local rankColour = modules.utilities.GetKey(G_ColoursLocation, rankStr)
     local name = G_Clients[executor.user:getID()].user:getName()
@@ -137,7 +135,7 @@ local function SendUserMessage(executor, prefix, message, all)
 
     rankColour = modules.utilities.GetColour(rankColour)
 
-    if all then
+    if executor and type(executor) == 'table' and G_Clients[executor.user:getID()] then
         modules.server.SendChatMessage(output, rankColour)
     else
         modules.server.SendChatMessage(executor.user:getID(), output, rankColour)
