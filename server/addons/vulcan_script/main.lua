@@ -42,7 +42,7 @@ local modules = {
 
     cl_environment = require('addons.vulcan_script.client_lua.cl_environment'),
     cl_player_join = require('addons.vulcan_script.client_lua.cl_player_join'),
-    cl_template_hook = require('addons.vulcan_script.client_lua.cl_template_hook')
+    -- cl_menu = require('addons.vulcan_script.client_lua.cl_menu')
 }
 
 local extensions = {}
@@ -95,8 +95,6 @@ hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
         if modules.utilities.GetKey(G_ServerLocation, 'options', 'kick_unknown') and client.user:getName() == 'Unknown' then
             client.user:kick('Please join back with a different name')
         end
-
-        client.user:sendLua(modules.cl_template_hook.BeginHook())
 
         --[[ Set Client Global Variables ]]--
         client.user:sendLua(modules.cl_player_join.SetGlobals())
@@ -341,6 +339,13 @@ hooks.register('OnStdIn', 'VK_PLAYER_STDIN', function(input);
         extensions = G_ReloadExtensions(extensions, 'main.lua')
         modules = G_ReloadModules(modules, 'main.lua')
 
+        -- for _, client in pairs(G_Clients) do
+        --     if client.rank() >= modules.moderation.RankModerator then
+        --         if client.renderMenu then
+        --             client.user:sendLua(modules.cl_menu.ToggleMenu(client))
+        --         end
+        --     end
+        -- end
 
         --[[ Load all Extension Modules ]]--
         for _, v in pairs(extensions) do

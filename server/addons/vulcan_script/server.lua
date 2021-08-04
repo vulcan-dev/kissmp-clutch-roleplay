@@ -75,13 +75,20 @@ local function AddClient(client_id)
     client.user = connections[client_id]
 
     client.rank = function() return tonumber(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank')) end
-    client.roles = function() return string.lower(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles')) end
+    client.roles = function()
+        local roles = {}
+        for role, _ in pairs(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles')) do
+            table.insert( roles, string.lower(role) )
+        end
+        return roles
+    end
 
     client.blockList = function() return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList') end
 
     client.mid = G_CurrentPlayers
 
     client.commandCooldown = false
+    client.renderMenu = false
 
     client.setHome = function(x, y, z, xr, yr, zr, w)
         modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home', {x = x, y = y, z = z, xr = xr, yr = yr, zr = zr, w = w})
@@ -107,12 +114,6 @@ local function AddClient(client_id)
     client.vehicles.add = function(player, vehicleID)
         player.vehicles[vehicleID] = vehicles[vehicleID]
         GDLog('%s vehicle count: %d', player.user:getName(), player.vehicles.count)
-
-        -- modules.timed_events.AddEvent(function()
-        --     local ply = connections[player.user:getID()]
-        --     local vehicle = vehicles[ply:getCurrentVehicle()]
-        --     player.vehicles.current = vehicle
-        -- end, 'add_current_vehicle_'..player.user:getID()..'_'..vehicleID, 2, true)
     end
 
     client.vehicles.remove = function(player, vehicleID)

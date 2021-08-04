@@ -10,9 +10,10 @@ local modules = {
     utilities = require('addons.vulcan_script.utilities'),
     moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation'),
     timed_events = require('addons.vulcan_script.timed_events'),
-    server = require('addons.vulcan_script.server'),
+    server = require('addons.vulcan_script.server')
 
-    cl_vehicle = require('addons.vulcan_script.client_lua.cl_vehicle')
+    -- cl_vehicle = require('addons.vulcan_script.client_lua.cl_vehicle'),
+    -- cl_menu = require('addons.vulcan_script.client_lua.cl_menu')
 }
 
 M.commands = {}
@@ -643,7 +644,7 @@ M.commands["report"] = {
         client = client.data
 
         if not reason then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
-        
+
         -- Send report to all moderators
         for _, c in pairs(G_Clients) do
             if c.rank() > modules.moderation.RankVIP then
@@ -677,8 +678,20 @@ M.commands["get_ids"] = {
     end
 }
 
+-- M.commands["tmenu"] = {
+--     rank = modules.moderation.RankDeveloper,
+--     category = 'Development Testing',
+--     description = 'Toggle Menu',
+--     usage = '/tmenu',
+--     exec = function(executor, args)
+--         executor.renderMenu = not executor.renderMenu
+--         executor.user:sendLua(modules.cl_menu.ToggleMenu(executor))
+--     end
+-- }
+
 local function ReloadModules()
     modules = G_ReloadModules(modules, 'cmd_moderation.lua')
+    -- modules.cl_menu.ReloadModules()
 end
 
 M.ReloadModules = ReloadModules

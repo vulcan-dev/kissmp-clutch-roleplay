@@ -6,7 +6,7 @@ require('addons.vulcan_script.globals')
 
 -- Local Variables --
 local M = {}
-local next_update = 0 -- used for events
+local nextUpdate = 0
 
 local modules = {
     utilities = require('addons.vulcan_script.utilities'),
@@ -19,6 +19,7 @@ local modules = {
     cmd_fun = require('addons.vulcan_script.extensions.vulcan_moderation.commands.cmd_fun'),
 
     cl_environment = require('addons.vulcan_script.client_lua.cl_environment')
+    -- cl_menu = require('addons.vulcan_script.client_lua.cl_menu')
 }
 
 M.callbacks = {
@@ -126,13 +127,13 @@ M.callbacks = {
     end,
     
     VK_Tick = function()
-        if os.time() >= next_update then
-            next_update = os.time() + 5
+        if os.time() >= nextUpdate then
+            nextUpdate = os.time() + 5
             
             for _, client in pairs(G_Clients) do
                 if client.connected then
-                    -- Playtime & Rules
                     if client.user:getID() ~= 1337 then
+                        --[[ Update Playtime ]]
                         modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'playtime', modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'playtime') + 5)
                         if modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'playtime') >= 240 * 60 then
                             if client.rank() == modules.moderation.RankUser then
@@ -140,6 +141,11 @@ M.callbacks = {
                                 modules.server.SendChatMessage(string.format('%s is now a trusted member, thanks for playing.', client.user:getName()), modules.server.ColourSuccess)
                             end
                         end
+
+                        --[[ Update Players ]]--
+                        -- if client.renderMenu and client.rank() >= modules.moderation.RankModerator then
+                        --     modules.cl_menu.UpdateClients(client)
+                        -- end
                     end
                 end
             end

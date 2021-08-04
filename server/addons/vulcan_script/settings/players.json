@@ -15,13 +15,13 @@
       "z": 52.24008560180664,
       "zr": -0.25916287302970886
     },
-    "money": 54514.0,
+    "money": 174878.0,
     "mute_time": 0.0,
     "onduty": false,
-    "playtime": 38950.0,
+    "playtime": 73445.0,
     "rank": 6.0,
     "roles": [
-      "police"
+      "ems"
     ],
     "vehicleLimit": 11.0,
     "warns": []
