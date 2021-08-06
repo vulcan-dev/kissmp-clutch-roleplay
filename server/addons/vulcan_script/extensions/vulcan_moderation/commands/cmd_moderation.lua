@@ -262,7 +262,7 @@ M.commands["get_warns"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
         
-        local warn_data = modules.moderation.getWarns(client.user:getSecret())
+        local warn_data = modules.moderation.GetWarns(client.user:getSecret())
 
         local count = 0
         for reason, warn in pairs(warn_data) do

@@ -1,10 +1,15 @@
-local M = {}
+local config = {}
 
-M.disabledActions = {
+config.reset = {}
+config.restrictActions = true
+
+config.disabledActions = {
     "switch_next_vehicle", -- switches focus to next vehicle
     "switch_previous_vehicle", -- switches focus to previous vehicle
     "loadHome", -- moves the vehicle to its home position
     "saveHome", -- stores current vehicle position for quick access
+    "nodegrabberGrab",
+    "nodegrabberRender",
     --"recover_vehicle", -- rewinds vehicle position
     --"reload_vehicle", -- reloads vehicle files from disk
     --"reload_all_vehicles", -- reloads all vehicles files from disk
@@ -17,10 +22,10 @@ M.disabledActions = {
     --"dropPlayerAtCamera", -- puts the player at the camera
 }
 
-M.reset.enabled = true -- enables or disables the ability to reset vehicles
-M.reset.timeout = 60 -- how often a vehicle can be reset, -1 for no limit
-M.reset.title = "Vehicle Reset Limiter" -- title shown when resetting is limited or disabled
-M.reset.message = "You can reset your vehicle in {secondsLeft} seconds." -- message shown when resetting is limited
-M.reset.disabledMessage = "Vehicle resetting is disabled on this server." -- message shown when resetting is completely disabled
+config.reset.enabled = true -- enables or disables the ability to reset vehicles
+config.reset.timeout = 60 -- how often a vehicle can be reset, -1 for no limit
+config.reset.title = "Vehicle Reset Limiter" -- title shown when resetting is limited or disabled
+config.reset.message = "You can reset your vehicle in {secondsLeft} seconds." -- message shown when resetting is limited
+config.reset.disabledMessage = "Vehicle resetting is disabled on this server." -- message shown when resetting is completely disabled
 
-return M
+return config
