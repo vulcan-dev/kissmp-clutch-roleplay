@@ -8,18 +8,24 @@ local M = {}
 M.imgui = ui_imgui
 
 M.commands = {}
-
 M.buttonSize = M.imgui.ImVec2(100, 30)
-
 M.windowSize = {
     x = 700,
     y = 500
 }
-
 M.windowStyles = bit.bor(
     M.imgui.WindowFlags_NoScrollbar, M.imgui.WindowFlags_NoDocking, M.imgui.WindowFlags_NoTitleBar, 
     M.imgui.WindowFlags_NoResize, M.imgui.WindowFlags_NoMove, M.imgui.WindowFlags_NoScrollWithMouse, M.imgui.WindowFlags_NoCollapse
 )
+
+local showOther = false
+
+local reason = M.imgui.ArrayChar(128, "no reason specified")
+local time = M.imgui.ArrayChar(128, "Time (1d, 20m, 1y): ")
+local clientSecret = M.imgui.ArrayChar(128, "Client Secret")
+local warnName = M.imgui.ArrayChar(128, 'Warn Name')
+local messageToSend = M.imgui.ArrayChar(128, 'Message to Send')
+local amountToSend = M.imgui.ArrayChar(128, 'Amount to Send')
 
 local function Execute(command)
     if network and network.connection.connected and string.find(network.connection.server_info.name, 'Clutch Roleplay') then
@@ -63,7 +69,6 @@ local function Draw(data)
     if canDraw and M.drawData.shouldDraw then
         --[[ Window Title ]]--
         M.imgui.SetNextWindowSize(M.drawData.window.sizeTitle)
-
         M.imgui.SetNextWindowPos(M.drawData.window.posTitle)
         if M.imgui.Begin(M.drawData.window.title .. '_title', M.imgui.BoolPtr(true), M.drawData.window.style) then
             M.imgui.SetCursorPosX((M.drawData.window.sizeTitle.x - M.imgui.CalcTextSize(M.drawData.window.title).x) * 0.5)
@@ -90,27 +95,23 @@ local function Draw(data)
 end
 
 local buffer = M.imgui.ArrayChar(512)
-local buffer2 = M.imgui.ArrayChar(512)
-local buffer3 = M.imgui.ArrayChar(512)
 
 M.commands['911'] = function()
     M.imgui.PushItemWidth(M.drawData.window.size.x - 2)
     M.imgui.SetCursorPosY(M.drawData.window.size.y / 2 - 10)
-    if M.imgui.InputText('##crp_police', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-        Execute('/911 ' .. ffi.string(buffer))
-        buffer = M.imgui.ArrayChar(512)
+    if M.imgui.InputText('##crp_police', messageToSend, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+        Execute('/911 ' .. ffi.string(messageToSend))
+        messageToSend = M.imgui.ArrayChar(127, 'Message to Send')
     end
     M.imgui.PopItemWidth()
 end
-
-local buttonSize = M.imgui.ImVec2(100, 30)
 
 M.commands['get_roles'] = function()
     M.imgui.Columns(4, 'player_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             Execute('/get_roles ' .. id)
         end
 
@@ -121,7 +122,7 @@ end
 M.commands['ui_same'] = function()
     M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
     M.imgui.SetCursorPosY(M.drawData.window.size.y / 2 - 10)
-    if M.imgui.InputText('##crp_set_time', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+    if M.imgui.InputText('##ui_same', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
         if M.drawData.command then
             Execute('/' .. M.drawData.command .. ' ' .. ffi.string(buffer)) 
             buffer = M.imgui.ArrayChar(512)
@@ -152,21 +153,21 @@ local testPlayers = {
     [7] = {
         name = 'Name3'
     },
-    [8] = {
-        name = 'Name4'
-    },
-    [9] = {
-        name = 'Name5'
-    },
-    [10] = {
-        name = 'Name6'
-    },
-    [11] = {
-        name = 'Name7'
-    },
-    [12] = {
-        name = 'Name8'
-    }
+    -- [8] = {
+    --     name = 'Name4'
+    -- },
+    -- [9] = {
+    --     name = 'Name5'
+    -- },
+    -- [10] = {
+    --     name = 'Name6'
+    -- },
+    -- [11] = {
+    --     name = 'Name7'
+    -- },
+    -- [12] = {
+    --     name = 'Name8'
+    -- }
 }
 
 if not network then
@@ -180,8 +181,8 @@ M.commands['teleport_to'] = function()
     M.imgui.Columns(4, 'player_column_tp_to', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - buttonSize.x / 2)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             Execute('/tp ' .. id)
         end
 
@@ -195,8 +196,8 @@ M.commands['teleport_user_to'] = function()
     M.imgui.Columns(4, 'player_column_tp_user_to', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - buttonSize.x / 2)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             if client1 and client2 then client1 = nil client2 = nil end
 
             if not client1 then
@@ -217,8 +218,8 @@ M.commands['delete_vehicle'] = function()
     M.imgui.Columns(4, 'player_column_dv', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - buttonSize.x / 2)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             Execute('/dv ' .. id)
         end
 
@@ -230,8 +231,8 @@ M.commands['delete_all_user_vehicles'] = function()
     M.imgui.Columns(4, 'player_column_dva', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - buttonSize.x / 2)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             Execute('/dva ' .. id)
         end
 
@@ -239,14 +240,13 @@ M.commands['delete_all_user_vehicles'] = function()
     end
 end
 
-local showOther = false
-
 M.commands['ban'] = function()
     M.imgui.Columns(4, 'player_ban_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
+            client1 = id
             showOther = not showOther
         end
 
@@ -257,15 +257,17 @@ M.commands['ban'] = function()
         M.imgui.Columns(1)
         M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x / 2 - 50)
         M.imgui.SetCursorPos(M.imgui.ImVec2(5, M.drawData.window.size.y - 30))
-        if M.imgui.InputText('##reason', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-
-        end
+        M.imgui.InputText('##reason', reason, nil, M.imgui.InputTextFlags_EnterReturnsTrue)
         M.imgui.PopItemWidth()
 
         M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x / 2 - 50)
         M.imgui.SetCursorPos(M.imgui.ImVec2(M.drawData.window.sizeTitle.x / 2 + 50, M.drawData.window.size.y - 30))
-        if M.imgui.InputText('##time', buffer2, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-
+        if M.imgui.InputText('##time', time, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+            if ffi.string(reason) then
+                Execute('/ban ' .. client1 .. ' ' .. ffi.string(reason) .. ' ' .. ffi.string(time))
+                reason = M.imgui.ArrayChar(128, "no reason specified")
+                time = M.imgui.ArrayChar(128, "Time (1d, 20m, 1y): ")
+            end
         end
         M.imgui.PopItemWidth()
     end
@@ -274,9 +276,9 @@ end
 M.commands['unban'] = function()
     M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
     M.imgui.SetCursorPosY(M.drawData.window.size.y / 2 - 10)
-    if M.imgui.InputText('##crp_unban', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-        Execute('/unban ' .. ffi.string(buffer))
-        buffer = M.imgui.ArrayChar(512)
+    if M.imgui.InputText('##client_secret', clientSecret, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+        Execute('/unban ' .. ffi.string(clientSecret))
+        clientSecret = M.imgui.ArrayChar(128, "Client Secret")
     end
     M.imgui.PopItemWidth()
 end
@@ -285,8 +287,8 @@ M.commands['kick'] = function()
     M.imgui.Columns(4, 'player_kick_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             client1 = id -- will need to rework all this because client1 will stay
             showOther = not showOther
         end
@@ -298,11 +300,37 @@ M.commands['kick'] = function()
         M.imgui.Columns(1)
         M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
         M.imgui.SetCursorPosY(M.drawData.window.size.y - 30)
-        if M.imgui.InputText('##crp_kick', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-            Execute('/kick ' .. client1 .. ' ' .. ffi.string(buffer))
-            buffer = M.imgui.ArrayChar(512)
+        if M.imgui.InputText('##kick', reason, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+            Execute('/kick ' .. client1 .. ' ' .. ffi.string(reason))
+            reason = M.imgui.ArrayChar(128, "no reason specified")
         end
         M.imgui.PopItemWidth()
+    end
+end
+
+M.commands['freeze'] = function()
+    M.imgui.Columns(4, 'player_freeze_column', false)
+
+    for id, client in pairs(network.players) do
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
+            Execute('/freeze ' .. id)
+        end
+
+        M.imgui.NextColumn()
+    end
+end
+
+M.commands['unfreeze'] = function()
+    M.imgui.Columns(4, 'player_unfreeze_column', false)
+
+    for id, client in pairs(network.players) do
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
+            Execute('/unfreeze ' .. id)
+        end
+
+        M.imgui.NextColumn()
     end
 end
 
@@ -310,8 +338,8 @@ M.commands['warn'] = function()
     M.imgui.Columns(4, 'player_warn_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             client1 = id -- will need to rework all this because client1 will stay
             showOther = not showOther
         end
@@ -323,9 +351,9 @@ M.commands['warn'] = function()
         M.imgui.Columns(1)
         M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
         M.imgui.SetCursorPosY(M.drawData.window.size.y - 30)
-        if M.imgui.InputText('##crp_warn', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-            Execute('/warn ' .. client1 .. ' ' .. ffi.string(buffer))
-            buffer = M.imgui.ArrayChar(512)
+        if M.imgui.InputText('##warn', reason, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+            Execute('/warn ' .. client1 .. ' ' .. ffi.string(reason))
+            reason = M.imgui.ArrayChar(128, "no reason specified")
         end
         M.imgui.PopItemWidth()
     end
@@ -335,8 +363,8 @@ M.commands['remove_warn'] = function()
     M.imgui.Columns(4, 'player_remove_warn_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             client1 = id -- will need to rework all this because client1 will stay
             showOther = not showOther
         end
@@ -348,11 +376,100 @@ M.commands['remove_warn'] = function()
         M.imgui.Columns(1)
         M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
         M.imgui.SetCursorPosY(M.drawData.window.size.y - 30)
-        if M.imgui.InputText('##crp_remove_warn', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-            Execute('/remove_warn ' .. client1 .. ' ' .. ffi.string(buffer))
-            buffer = M.imgui.ArrayChar(512)
+        if M.imgui.InputText('##remove_warn', warnName, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+            Execute('/remove_warn ' .. client1 .. ' ' .. ffi.string(warnName))
+            warnName = M.imgui.ArrayChar(128, "Warn Name")
         end
         M.imgui.PopItemWidth()
+    end
+end
+
+M.commands['get_roles'] = function()
+    M.imgui.Columns(4, 'player_get_roles_column', false)
+
+    for id, client in pairs(network.players) do
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
+            Execute('/get_roles ' .. id)
+        end
+
+        M.imgui.NextColumn()
+    end
+end
+
+M.commands['add_role'] = function()
+    M.imgui.Columns(4, 'player_add_role_player_column', true)
+
+    for id, client in pairs(network.players) do
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
+            client1 = id -- will need to rework all this because client1 will stay
+            showOther = not showOther
+        end
+
+        M.imgui.NextColumn()
+    end
+
+    if showOther then
+        M.imgui.Columns(1)
+        M.imgui.SetCursorPosY(105)
+        M.imgui.Columns(4, 'player_add_role_column', true)
+        M.imgui.Spacing(0.5)
+        if M.imgui.Button('Police', M.buttonSize) then
+            Execute('/add_role ' .. client1 .. ' police')
+        end
+        M.imgui.NextColumn()
+        if M.imgui.Button('Dispatch', M.buttonSize) then
+            Execute('/add_role ' .. client1 .. ' dispatch')
+        end
+        M.imgui.NextColumn()
+        if M.imgui.Button('Fire', M.buttonSize) then
+            Execute('/add_role ' .. client1 .. ' fire')
+        end
+        M.imgui.NextColumn()
+        if M.imgui.Button('EMS', M.buttonSize) then
+            Execute('/add_role ' .. client1 .. ' ems')
+        end
+        M.imgui.NextColumn()
+        M.imgui.Columns(1)
+    end
+end
+
+M.commands['remove_role'] = function()
+    M.imgui.Columns(4, 'player_remove_role_player_column', true)
+
+    for id, client in pairs(network.players) do
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
+            client1 = id -- will need to rework all this because client1 will stay
+            showOther = not showOther
+        end
+
+        M.imgui.NextColumn()
+    end
+
+    if showOther then
+        M.imgui.Columns(1)
+        M.imgui.SetCursorPosY(105)
+        M.imgui.Columns(4, 'player_remove_role_column', true)
+        M.imgui.Spacing(0.5)
+        if M.imgui.Button('Police', M.buttonSize) then
+            Execute('/remove_role ' .. client1 .. ' police')
+        end
+        M.imgui.NextColumn()
+        if M.imgui.Button('Dispatch', M.buttonSize) then
+            Execute('/remove_role ' .. client1 .. ' dispatch')
+        end
+        M.imgui.NextColumn()
+        if M.imgui.Button('Fire', M.buttonSize) then
+            Execute('/remove_role ' .. client1 .. ' fire')
+        end
+        M.imgui.NextColumn()
+        if M.imgui.Button('EMS', M.buttonSize) then
+            Execute('/remove_role ' .. client1 .. ' ems')
+        end
+        M.imgui.NextColumn()
+        M.imgui.Columns(1)
     end
 end
 
@@ -360,8 +477,8 @@ M.commands['set_rank'] = function()
     M.imgui.Columns(4, 'player_set_rank_player_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             client1 = id -- will need to rework all this because client1 will stay
             showOther = not showOther
         end
@@ -370,30 +487,30 @@ M.commands['set_rank'] = function()
     end
 
     if showOther then
-        M.imgui.Columns(4, 'player_set_rank_column', false)
-        M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
-        M.imgui.SetCursorPosY(M.drawData.window.size.y - 30)
-        if M.imgui.Button('User', buttonSize) then
+        M.imgui.SetCursorPosY(105)
+        M.imgui.Columns(5, 'player_set_rank_ranks_column', false)
+        M.imgui.Spacing(0.5)
+        if M.imgui.Button('User', M.buttonSize) then
             Execute('/set_rank ' .. client1 .. ' 0')
         end
         M.imgui.NextColumn()
-        if M.imgui.Button('Trusted', buttonSize) then
+        if M.imgui.Button('Trusted', M.buttonSize) then
             Execute('/set_rank ' .. client1 .. ' 1')
         end
         M.imgui.NextColumn()
-        if M.imgui.Button('VIP', buttonSize) then
+        if M.imgui.Button('VIP', M.buttonSize) then
             Execute('/set_rank ' .. client1 .. ' 2')
         end
         M.imgui.NextColumn()
-        if M.imgui.Button('Moderator', buttonSize) then
+        if M.imgui.Button('Moderator', M.buttonSize) then
             Execute('/set_rank ' .. client1 .. ' 3')
         end
         M.imgui.NextColumn()
-        if M.imgui.Button('Admin', buttonSize) then
+        if M.imgui.Button('Admin', M.buttonSize) then
             Execute('/set_rank ' .. client1 .. ' 4')
         end
         M.imgui.NextColumn()
-        M.imgui.PopItemWidth()
+        M.imgui.Columns(1)
     end
 end
 
@@ -401,8 +518,8 @@ M.commands['mute'] = function()
     M.imgui.Columns(4, 'player_mute_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             client1 = id -- will need to rework all this because client1 will stay
             showOther = not showOther
         end
@@ -412,11 +529,19 @@ M.commands['mute'] = function()
 
     if showOther then
         M.imgui.Columns(1)
-        M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
-        M.imgui.SetCursorPosY(M.drawData.window.size.y - 30)
-        if M.imgui.InputText('##crp_mute', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-            Execute('/mute ' .. client1 .. ' ' .. ffi.string(buffer))
-            buffer = M.imgui.ArrayChar(512)
+        M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x / 2 - 50)
+        M.imgui.SetCursorPos(M.imgui.ImVec2(5, M.drawData.window.size.y - 30))
+        M.imgui.InputText('##reason', reason, nil, M.imgui.InputTextFlags_EnterReturnsTrue)
+        M.imgui.PopItemWidth()
+
+        M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x / 2 - 50)
+        M.imgui.SetCursorPos(M.imgui.ImVec2(M.drawData.window.sizeTitle.x / 2 + 50, M.drawData.window.size.y - 30))
+        if M.imgui.InputText('##time', time, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+            if ffi.string(reason) then
+                Execute('/mute ' .. client1 .. ' ' .. ffi.string(reason) .. ' ' .. ffi.string(time))
+                reason = M.imgui.ArrayChar(128, "no reason specified")
+                time = M.imgui.ArrayChar(128, "Time (1d, 20m, 1y): ")
+            end
         end
         M.imgui.PopItemWidth()
     end
@@ -426,8 +551,8 @@ M.commands['unmute'] = function()
     M.imgui.Columns(4, 'player_unmute_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             Execute('/unmute ' .. id)
         end
 
@@ -439,8 +564,8 @@ M.commands['display_message'] = function()
     M.imgui.Columns(4, 'player_send_message_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             client1 = id -- will need to rework all this because client1 will stay
             showOther = not showOther
         end
@@ -452,9 +577,9 @@ M.commands['display_message'] = function()
         M.imgui.Columns(1)
         M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
         M.imgui.SetCursorPosY(M.drawData.window.size.y - 30)
-        if M.imgui.InputText('##crp_send_message', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-            Execute('/send_message ' .. client1 .. ' ' .. ffi.string(buffer))
-            buffer = M.imgui.ArrayChar(512)
+        if M.imgui.InputText('##send_message', messageToSend, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+            Execute('/send_message ' .. client1 .. ' ' .. ffi.string(messageToSend))
+            messageToSend = M.imgui.ArrayChar(127, 'Message to Send')
         end
         M.imgui.PopItemWidth()
     end
@@ -464,8 +589,8 @@ M.commands['imitate'] = function()
     M.imgui.Columns(4, 'player_imitate_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             client1 = id -- will need to rework all this because client1 will stay
             showOther = not showOther
         end
@@ -477,9 +602,9 @@ M.commands['imitate'] = function()
         M.imgui.Columns(1)
         M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
         M.imgui.SetCursorPosY(M.drawData.window.size.y - 30)
-        if M.imgui.InputText('##crp_imitate', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-            Execute('/imitate ' .. client1 .. ' ' .. ffi.string(buffer))
-            buffer = M.imgui.ArrayChar(512)
+        if M.imgui.InputText('##crp_imitate', messageToSend, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+            Execute('/imitate ' .. client1 .. ' ' .. ffi.string(messageToSend))
+            messageToSend = M.imgui.ArrayChar(127, 'Message to Send')
         end
         M.imgui.PopItemWidth()
     end
@@ -489,16 +614,16 @@ M.commands['transfer'] = function()
     M.imgui.Columns(4, 'player_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - buttonSize.x) - 15)
-        if M.imgui.Button(client.name, buttonSize) then
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
             M.drawData.shouldDraw2 = not M.drawData.shouldDraw2
             M.drawData.drawFunction2 = function()
                 if M.imgui.Begin('Bank Transfer', M.imgui.BoolPtr(true), M.drawData.window.style) then
                     M.imgui.PushItemWidth(M.drawData.window.size.x / 2)
                     M.imgui.SetCursorPos(M.imgui.ImVec2(M.drawData.window.size.x / 4, M.drawData.window.size.y - 30))
-                    if M.imgui.InputText('##crp_police', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-                        Execute('/transfer ' .. id .. ' ' .. ffi.string(buffer))
-                        buffer = M.imgui.ArrayChar(512)
+                    if M.imgui.InputText('##crp_police', amountToSend, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+                        Execute('/transfer ' .. id .. ' ' .. ffi.string(amountToSend))
+                        amountToSend = M.imgui.ArrayChar(128, 'Amount to Send')
                     end
                     M.imgui.PopItemWidth()
                 end
@@ -507,6 +632,69 @@ M.commands['transfer'] = function()
 
         M.imgui.NextColumn()
     end
+end
+
+-- local time = M.imgui.FloatPtr(12.0)
+-- local previewTime = M.imgui.BoolPtr(false)
+
+local hour = 12
+local minute = 30
+M.commands['set_time'] = function()
+    -- Hour Decrease
+    M.imgui.SetCursorPosX(M.windowSize.x / 4 - 50 / 2)
+    if M.imgui.Button('<##hour_decrease', M.imgui.ImVec2(50, 30)) then
+        if hour > 0 then
+            hour = hour - 1
+        end
+    end
+
+    -- Hour Text
+    M.imgui.SameLine()
+    M.imgui.SetCursorPosX(M.windowSize.x / 4 + 50 - M.imgui.CalcTextSize(tostring(hour)).x * 0.5)
+    M.imgui.SetCursorPosY(7)
+    M.imgui.Text(tostring(hour))
+    M.imgui.SameLine()
+
+    -- Hour Increase
+    M.imgui.SetCursorPosX(M.windowSize.x / 2 - 100)
+    if M.imgui.Button('>##hour_increase', M.imgui.ImVec2(50, 30)) then
+        if hour < 24 then
+            hour = hour + 1
+        end
+    end
+
+    M.imgui.SameLine()
+
+    -- Set Time
+    M.imgui.SetCursorPosX(M.windowSize.x / 2 - 45)
+    if M.imgui.Button('Set Time', M.imgui.ImVec2(90, 30)) then
+        Execute('/set_time ' .. hour .. ':' .. minute)
+    end
+    M.imgui.SameLine()
+
+    -- Minute Increase
+    M.imgui.SetCursorPosX(M.windowSize.x - M.windowSize.x / 4 - 50 / 2)
+    if M.imgui.Button('>##minute_increase', M.imgui.ImVec2(50, 30)) then
+        if minute < 60 then
+            minute = minute + 1
+        end
+    end
+
+    M.imgui.SameLine()
+
+    -- Minute Decrease
+    M.imgui.SetCursorPosX(M.windowSize.x / 2 + 50)
+    if M.imgui.Button('<##minute_decrease', M.imgui.ImVec2(50, 30)) then
+        if minute > 0 then
+            minute = minute - 1
+        end
+    end
+
+    -- Minute Text
+    M.imgui.SameLine()
+    M.imgui.SetCursorPosX(M.windowSize.x - M.windowSize.x / 4 - 50 - M.imgui.CalcTextSize(tostring(minute)).x * 0.5)
+    M.imgui.SetCursorPosY(7)
+    M.imgui.Text(tostring(minute))
 end
 
 M.Set = Set

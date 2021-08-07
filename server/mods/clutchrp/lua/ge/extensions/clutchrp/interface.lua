@@ -9,6 +9,7 @@ local command = require('clutchrp.command')
 
 local function ToggleInterfaceRP()
     interface_roleplay.shouldDraw = not interface_roleplay.shouldDraw
+    interface_roleplay.shouldDrawCommnad = false
     log('I', 'interface', 'interface_roleplay: ' .. tostring(interface_roleplay.shouldDraw))
 end
 
@@ -19,6 +20,8 @@ end
 
 local function ToggleInterfaceModeration()
     interface_moderation.shouldDraw = not interface_moderation.shouldDraw
+    interface_moderation.shouldDrawCommand = false
+
     log('I', 'interface', 'interface_moderation: ' .. tostring(interface_moderation.shouldDraw))
 end
 
@@ -35,7 +38,9 @@ local function Update(dt)
         interface_phone.Draw(dt)
     end
 
-    command.Draw(dt)
+    if interface_moderation.shouldDraw or interface_roleplay.shouldDraw then
+        command.Draw(dt)
+    end
 end
 
 local function OnExtensionLoaded()
@@ -50,3 +55,26 @@ M.Update = Update
 M.onExtensionLoaded = OnExtensionLoaded
 
 return M
+
+--[[
+        "clutchrp":{
+      "active":false,
+      "dateAdded":1.62785068e+09,
+      "dirname":"/mods/unpacked/clutchrp/",
+      "filename":"",
+      "fullpath":"/mods/unpacked/clutchrp/",
+      "hash":"wip",
+      "modType":"unknown",
+      "modname":"clutchrp",
+      "orgZipFilename":"/mods/clutchrp.zip",
+      "stat":{
+        "accesstime":1.6278627e+09,
+        "createtime":1.62786239e+09,
+        "filesize":4096,
+        "filetype":"dir",
+        "modtime":1.62786251e+09,
+        "readonly":false
+      },
+      "unpackedPath":"/mods/unpacked/clutchrp/"
+    },
+]]

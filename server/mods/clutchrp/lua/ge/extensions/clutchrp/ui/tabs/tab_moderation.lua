@@ -2,18 +2,21 @@ local M = {}
 
 local command  = require('clutchrp.command')
 
+local buttonSize = command.imgui.ImVec2(120, 30) -- need to set column size
+
 local function Draw(dt)
     if command.imgui.BeginTabItem('Moderation', command.imgui.BoolPtr(true)) then
         command.viewport = command.imgui.GetMainViewport()
         command.imgui.Columns(6, 'moderation_tab', false)
+        command.imgui.SetColumnWidth(0, 140)
 
         --[[ Environment ]]--
-        command.imgui.BeginChild1('user', command.imgui.ImVec2(100, 440), true)
+        command.imgui.BeginChild1('user', command.imgui.ImVec2(140, 440), true)
         command.imgui.Separator()
-        command.imgui.SetCursorPosX((100 - command.imgui.CalcTextSize('User').x) * 0.5)
+        command.imgui.SetCursorPosX((140 - command.imgui.CalcTextSize('User').x) * 0.5)
         command.imgui.Text('User')
         command.imgui.Separator()
-        if command.imgui.Button('Ban', command.buttonSize) then
+        if command.imgui.Button('Ban', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -26,7 +29,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['ban']
             })
-        else if command.imgui.Button('Unban', command.buttonSize) then
+        else if command.imgui.Button('Unban', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -39,7 +42,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['unban']
             })
-        else if command.imgui.Button('Kick', command.buttonSize) then
+        else if command.imgui.Button('Kick', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -52,7 +55,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['kick']
             })
-        else if command.imgui.Button('Warn', command.buttonSize) then
+        else if command.imgui.Button('Warn', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -65,7 +68,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['warn']
             })
-        else if command.imgui.Button('Remove Warn', command.buttonSize) then
+        else if command.imgui.Button('Remove Warn', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -78,7 +81,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['remove_warn']
             })
-        else if command.imgui.Button('Set Rank', command.buttonSize) then
+        else if command.imgui.Button('Set Rank', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -91,7 +94,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['set_rank']
             })
-        else if command.imgui.Button('Mute', command.buttonSize) then
+        else if command.imgui.Button('Mute', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -104,7 +107,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['mute']
             })
-        else if command.imgui.Button('Unmute', command.buttonSize) then
+        else if command.imgui.Button('Unmute', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -117,7 +120,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['unmute']
             })
-        else if command.imgui.Button('Freeze', command.buttonSize) then
+        else if command.imgui.Button('Freeze', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -130,7 +133,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['freeze']
             })
-        else if command.imgui.Button('Unfreeze', command.buttonSize) then
+        else if command.imgui.Button('Unfreeze', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -143,7 +146,7 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['unfreeze']
             })
-        else if command.imgui.Button('Display Message', command.buttonSize) then
+        else if command.imgui.Button('Display Message', buttonSize) then
             command.shouldDrawCommand = not command.shouldDrawCommand
             command.Set({
                 shouldDraw = command.shouldDrawCommand,
@@ -157,11 +160,8 @@ local function Draw(dt)
                 drawFunction = command.commands['display_message']
             })
         end end end end end end end end end end end
-
         command.imgui.EndChild()
-
         command.imgui.Columns(1)
-
         command.imgui.EndTabItem()
     end
 end

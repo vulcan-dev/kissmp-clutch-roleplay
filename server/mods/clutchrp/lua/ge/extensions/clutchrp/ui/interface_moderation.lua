@@ -3,7 +3,7 @@ local M = {}
 local imgui = ui_imgui
 
 M.shouldDraw = false
-M.shouldDrawCommnad = false
+M.shouldDrawCommand = false
 
 local viewport = imgui.GetMainViewport()
 local windowSize = {

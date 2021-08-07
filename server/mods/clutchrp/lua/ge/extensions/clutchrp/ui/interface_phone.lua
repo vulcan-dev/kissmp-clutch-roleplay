@@ -33,28 +33,25 @@ local function SetupStyle()
 end
 
 local function PopStyle()
-    -- imgui.PopStyleVar(1)
+    imgui.PopStyleColor(3)
     imgui.SetNextWindowBgAlpha(1)
 end
 
 local function OnExtensionLoaded()
     if FS:fileExists("lua/ge/extensions/clutchrp/assets/iphone/iphone2.png") then
         M.phoneTexture = imu.texObj("lua/ge/extensions/clutchrp/assets/iphone/iphone2.png")
-        log('I', 'phone', 'found image')
     else
         log('I', 'phone', 'unable to find image')
     end
 
     if FS:fileExists("lua/ge/extensions/clutchrp/assets/icons/twitter1.png") then
         M.twitterTexture = imu.texObj("lua/ge/extensions/clutchrp/assets/icons/twitter1.png")
-        log('I', 'twitter', 'found image')
     else
         log('I', 'twitter', 'unable to find image')
     end
 
     if FS:fileExists("lua/ge/extensions/clutchrp/assets/icons/charge.png") then
         M.chargeTexture = imu.texObj("lua/ge/extensions/clutchrp/assets/icons/charge.png")
-        log('I', 'charge', 'found image')
     else
         log('I', 'charge', 'unable to find image')
     end
@@ -219,8 +216,9 @@ local function Draw(dt)
             end
 
             imgui.End()
-            PopStyle()
         end
+
+        PopStyle()
     end
 end
 

@@ -10,9 +10,9 @@ local modules = {
     utilities = require('addons.vulcan_script.utilities'),
     moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation'),
     timed_events = require('addons.vulcan_script.timed_events'),
-    server = require('addons.vulcan_script.server')
+    server = require('addons.vulcan_script.server'),
 
-    -- cl_vehicle = require('addons.vulcan_script.client_lua.cl_vehicle'),
+    cl_vehicle = require('addons.vulcan_script.client_lua.cl_vehicle'),
     -- cl_menu = require('addons.vulcan_script.client_lua.cl_menu')
 }
 

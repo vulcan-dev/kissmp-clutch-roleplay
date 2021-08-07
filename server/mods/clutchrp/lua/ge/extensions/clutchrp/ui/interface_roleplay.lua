@@ -4,6 +4,7 @@ local imgui = ui_imgui
 local command  = require('clutchrp.command')
 
 M.shouldDraw = false
+M.shouldDrawCommand = false
 
 local viewport = imgui.GetMainViewport()
 local windowSize = {
