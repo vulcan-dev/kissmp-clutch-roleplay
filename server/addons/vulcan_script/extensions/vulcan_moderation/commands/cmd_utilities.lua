@@ -175,6 +175,36 @@ M.commands["set_time"] = {
     end
 }
 
+--[[ Set Weather ]]--
+M.commands["set_weather"] = {
+    rank = modules.moderation.RankModerator,
+    category = 'Moderation Utilities',
+    description = 'Sets the weather',
+    usage = '/set_weather (sunny, thunder, rain)',
+    exec = function(executor, args)
+
+    end
+}
+
+--[[ Force Recover ]]--
+M.commands["force_recover"] = {
+    rank = modules.moderation.RankUser,
+    category = 'Utilities',
+    alias = 'fr',
+    description = 'Recovers your vehicle but also notifies staff members',
+    usage = '/force_recover',
+    exec = function(executor, args)
+        local ply = connections[executor.user:getID()]
+        local vehicle = vehicles[ply:getCurrentVehicle()]
+        vehicle:sendLua('recovery.saveHome() recovery.startRecovering() recovery.stopRecovering()')
+        for _, client in pairs(G_Clients) do
+            if client.rank() >= modules.moderation.RankModerator then
+                modules.server.SendChatMessage(client.user:getID(), '[Recover] ' .. executor.user:getName() .. ' Used /force_recover', modules.server.ColourWarning)
+            end
+        end
+    end
+}
+
 --[[ Set Fog ]]--
 M.commands["set_fog"] = {
     rank = modules.moderation.RankModerator,
@@ -275,7 +305,8 @@ M.commands["help"] = {
             [1] = "Moderation",
             [2] = "Moderation Fun",
             [3] = "Moderation Utilities",
-            [4] = "Roleplay Utilities"
+            [4] = "Roleplay Utilities",
+            [5] = "Utilities"
         }
 
         local sorted = {}
@@ -351,7 +382,7 @@ M.commands["uptime"] = {
 --[[ Playime ]]--
 M.commands["playtime"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilities',
+    category = 'Utilities',
     description = 'Displays playtime',
     usage = '/playtime (user)',
     exec = function(executor, args)
@@ -372,13 +403,13 @@ M.commands["playtime"] = {
 --[[ Mods ]]--
 M.commands["mods"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilities',
+    category = 'Utilities',
     description = 'Displays active moderators',
     usage = '/mods',
     exec = function(executor, args)
         for _, client in pairs(G_Clients) do
-            if modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'rank') > modules.moderation.RankVIP then
-                if executor.user:getSecret() ~= 'secret_console' then
+            if client.rank() >= modules.moderation.RankModerator then
+                if client.user:getSecret() ~= 'secret_console' then
                     modules.server.SendChatMessage(executor.user:getID(), client.user:getName())
                 end
             end
@@ -389,7 +420,7 @@ M.commands["mods"] = {
 --[[ Discord ]]--
 M.commands["discord"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilities',
+    category = 'Utilities',
     description = 'Displays the discord server',
     usage = '/discord',
     exec = function(executor, args)
@@ -400,7 +431,7 @@ M.commands["discord"] = {
 --[[ PM ]]--
 M.commands["pm"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilities',
+    category = 'Utilities',
     description = 'Send a user a private message',
     usage = '/pm <user> <message>',
     exec = function(executor, args)
@@ -428,7 +459,7 @@ M.commands["pm"] = {
 --[[ Block ]]--
 M.commands["block"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilities',
+    category = 'Utilities',
     description = 'Blocks a user',
     usage = '/block <user>',
     exec = function(executor, args)
@@ -466,7 +497,7 @@ M.commands["block"] = {
 --[[ Unblock ]]--
 M.commands["unblock"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilities',
+    category = 'Utilities',
     description = 'Unblocks a user',
     usage = '/unblock <user>',
     exec = function(executor, args)
@@ -500,7 +531,7 @@ M.commands["unblock"] = {
 --[[ Get Blocks ]]--
 M.commands["get_blocks"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilties',
+    category = 'Utilties',
     description = 'Lists all blocked users',
     usage = '/get_blocks',
     exec = function(executor, args)
@@ -523,7 +554,7 @@ M.commands["get_blocks"] = {
 --[[ Donate ]]--
 M.commands["donate"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilities',
+    category = 'Utilities',
     description = 'Displays patreon link',
     usage = '/donate',
     exec = function(executor, args)
@@ -534,7 +565,7 @@ M.commands["donate"] = {
 --[[ DV ]]--
 M.commands["dv"] = {
     rank = modules.moderation.RankUser,
-    category = 'Moderation Utilities',
+    category = 'Utilities',
     description = 'Deletes current vehicle',
     usage = '/dv (user)',
     exec = function(executor, args)
@@ -609,7 +640,6 @@ M.commands["cleanup"] = {
                 client.user:sendLua('commands.setFreeCamera()')
             end
         end
-
     end
 }
 
