@@ -332,13 +332,13 @@ local function IsInRadius(location, radius, x, y)
     for _, v in pairs(data) do
         if type(v.x) == 'number' and type(v.y) == 'number' and type(v.z) == 'number' then
             if (x > v.x - radius and x < v.x + radius) and (y > v.y - radius and y < v.y + radius) then
-                GDLog('[Number] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, v.x, v.y)
+                -- GDLog('[Number] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, v.x, v.y)
                 return {true, _}
             end
         else
             for k, j in pairs(v) do
                 if (x > j.x - radius and x < j.x + radius) and (y > j.y - radius and y < j.y + radius) then
-                    GDLog('[Table] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, j.x, j.y)
+                    -- GDLog('[Table] Location Found\nYour coords: %s, %s\nRequired Coords: %s, %s', x, y, j.x, j.y)
                     return {true, k}
                 end
             end

@@ -6,8 +6,10 @@ require('addons.vulcan_script.globals')
 
 local M = {}
 
-local next_update = 0
+local nextUpdatePaycheckRules = 0
+local nextUpdateTooltip = 0
 local money = 60
+local canDrawTooltip = false
 
 local modules = {
     cmd_utilities_rp = require('addons.vulcan_script.extensions.vulcan_rp.commands.cmd_utilities_rp'),
@@ -15,7 +17,9 @@ local modules = {
     timed_events = require('addons.vulcan_script.timed_events'),
     moderation = require('addons.vulcan_script.extensions.vulcan_moderation.moderation'),
     rp = require('addons.vulcan_script.extensions.vulcan_rp.rp'),
-    server = require('addons.vulcan_script.server')
+    server = require('addons.vulcan_script.server'),
+
+    cl_tooltip = require('addons.vulcan_script.client_lua.cl_tooltip')
 }
 
 M.callbacks = {
@@ -52,11 +56,11 @@ M.callbacks = {
     end,
 
     VK_Tick = function()
-        if os.time() >= next_update then
-            next_update = os.time() + 1200
+        if os.time() >= nextUpdatePaycheckRules then
+            nextUpdatePaycheckRules = os.time() + 1200
 
             for _, client in pairs(G_Clients) do
-                if client.user:getID() ~= 1337 then
+                if client.user:getID() ~= 1337 and client.connected then
                     -- [[ Send Money ]]
                     if modules.rp.IsLeo(client) then money = math.random( 200, 400 )
                     else money = math.random( 60, 140 ) end
@@ -69,15 +73,59 @@ M.callbacks = {
             end
         end
 
+        if os.time() >= nextUpdateTooltip then
+            nextUpdateTooltip = os.time() + 1
+            for _, client in pairs(G_Clients) do
+                if client.user:getID() ~= 1337 and client.connected then
+                    local my_ply = connections[client.user:getID()]
+                    local my_vehicle = vehicles[my_ply:getCurrentVehicle()]
+                    if my_vehicle then
+                        local mx = my_vehicle:getTransform():getPosition()[1]
+                        local my = my_vehicle:getTransform():getPosition()[2]
+                        if my_vehicle:getData():getName() ~= 'unicycle' then
+                            local inRadiusPump = modules.server.IsInRadius('fuel_pumps', 2, mx, my)
+                            local inInRadiusRepair = modules.server.IsInRadius('repair_stations', 2, mx, my)
+                            if inRadiusPump[1] then
+                                modules.cl_tooltip.canDraw = true
+                                modules.cl_tooltip.message = 'Open the Roleplay Menu or do /refuel to refuel'
+                            else if inInRadiusRepair[1] then
+                                modules.cl_tooltip.canDraw = true
+                                modules.cl_tooltip.message = 'Open the Roleplay Menu or do /repair to repair'
+                            else
+                                modules.cl_tooltip.canDraw = false
+                            end end
+                        end
+
+                        local inInRadiusRob = modules.server.IsInRadius('robbable_shops', 2, mx, my)
+                        if inInRadiusRob[1] then
+                            canDrawTooltip = true
+                            modules.cl_tooltip.canDraw = true
+                            modules.cl_tooltip.message = 'Open the Roleplay Menu or do /rob to rob this place'
+                        else
+                            -- Otherwise this will override everything else and stop it from drawing
+                            if not modules.cl_tooltip.canDraw then
+                                modules.cl_tooltip.canDraw = false
+                            end
+                        end
+                    else
+                        -- KissMP doesn't like it when you get out and in a car so if you were already drawing a tooltip then it will stay forever
+                        if not modules.cl_tooltip.canDraw then
+                            modules.cl_tooltip.canDraw = false
+                        end
+                    end
+                end
+            end
+        end
+
         for _, client in pairs(G_Clients) do
             if client.user:getID() ~= 1337 and client.connected then
                 --[[ Dragging ]]--
                 if client.cuffed.isBeingDragged then
                     local my_ply = connections[client.cuffed.executor.user:getID()]
                     local my_vehicle = vehicles[my_ply:getCurrentVehicle()]
-
                     local mx = my_vehicle:getTransform():getPosition()[1]
                     local my = my_vehicle:getTransform():getPosition()[2]
+
                     local mz = my_vehicle:getTransform():getPosition()[3]
                     local mxr = my_vehicle:getTransform():getRotation()[1]
                     local myr = my_vehicle:getTransform():getRotation()[2]
@@ -108,6 +156,8 @@ M.callbacks = {
                         end
                     end
                 end
+
+                modules.cl_tooltip.Update(client)
             end
         end
     end
