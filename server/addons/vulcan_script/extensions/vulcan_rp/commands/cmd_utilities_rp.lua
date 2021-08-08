@@ -949,6 +949,7 @@ M.commands["gps_clear"] = {
     rank = modules.moderation.RankUser,
     category = 'Roleplay Utilities',
     description = 'Clear your GPS location',
+    alias = 'clear_gps',
     usage = '/gps_clear',
     exec = function(executor, args)
         if executor.gps.enabled then
@@ -980,6 +981,22 @@ M.commands["send_gps"] = {
 
             modules.server.DisplayDialog(executor, 'Successfully Send Your Location to '..client.user:getName())
             modules.server.SendChatMessage(client.user:getID(), string.format('%s send to their GPS coords: %s, %s, %s', executor.user:getName(), math.floor(x), math.floor(y), math.floor(z)))
+        end
+    end
+}
+
+--[[ Add Twitter Message (For Phone) ]]--
+M.commands["addtm"] = {
+    rank = modules.moderation.RankUser,
+    exec = function(executor, args) -- executor will be user. run this command from the mod!
+        -- TODO: Save all messages in json and load them in for the user when they join, I might make a seperate function in the mod so I'm not calling it a ton. I can simply just load the json data into it
+        local message = executor.user:getName() .. ': ' .. args[1]
+        if args and message then
+            for _, client in pairs(G_Clients) do
+                client.user:sendLua(G_LuaFormat(string.format([[
+                    extensions.clutchrp.phone.addMessage('%s')
+                ]], message)))
+            end
         end
     end
 }
