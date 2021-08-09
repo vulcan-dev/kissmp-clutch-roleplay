@@ -990,8 +990,14 @@ M.commands["addtm"] = {
     rank = modules.moderation.RankUser,
     exec = function(executor, args) -- executor will be user. run this command from the mod!
         -- TODO: Save all messages in json and load them in for the user when they join, I might make a seperate function in the mod so I'm not calling it a ton. I can simply just load the json data into it
-        local message = executor.user:getName() .. ': ' .. args[1]
-        if args and message then
+        if args[1] then
+            local message = ''
+            for _, v in pairs(args) do
+                message = message .. v .. ' '
+            end
+
+            message = executor.user:getName() .. ': ' .. message
+
             for _, client in pairs(G_Clients) do
                 client.user:sendLua(G_LuaFormat(string.format([[
                     extensions.clutchrp.phone.addMessage('%s')
