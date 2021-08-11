@@ -70,24 +70,21 @@ local function Draw(data)
         --[[ Window Title ]]--
         M.imgui.SetNextWindowSize(M.drawData.window.sizeTitle)
         M.imgui.SetNextWindowPos(M.drawData.window.posTitle)
+        M.imgui.PushStyleVar1(M.imgui.StyleVar_WindowRounding, 0)
         if M.imgui.Begin(M.drawData.window.title .. '_title', M.imgui.BoolPtr(true), M.drawData.window.style) then
             M.imgui.SetCursorPosX((M.drawData.window.sizeTitle.x - M.imgui.CalcTextSize(M.drawData.window.title).x) * 0.5)
             M.imgui.Text(M.drawData.window.title)
             M.imgui.End()
         end
+        M.imgui.PopStyleVar(1)
 
         --[[ Actual Window ]]--
         M.imgui.SetNextWindowBgAlpha(0.5)
         M.imgui.SetNextWindowSize(M.imgui.ImVec2(M.drawData.window.sizeTitle.x, M.drawData.window.size.y))
         M.imgui.SetNextWindowPos(M.imgui.ImVec2(M.drawData.window.posTitle.x, M.drawData.window.posTitle.y + 30))
-
         if M.imgui.Begin(M.drawData.window.title, M.imgui.BoolPtr(true), M.drawData.window.style) then
             M.drawData.drawFunction()
             M.imgui.End()
-        end
-
-        if M.drawData.shouldDraw2 and M.drawData.drawFunction2 then
-            M.drawData.drawFunction2()
         end
 
         M.imgui.SetNextWindowBgAlpha(1)
@@ -110,7 +107,7 @@ M.commands['get_roles'] = function()
     M.imgui.Columns(4, 'player_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 4 * 0.5)
         if M.imgui.Button(client.name, M.buttonSize) then
             Execute('/get_roles ' .. id)
         end
@@ -384,11 +381,26 @@ M.commands['remove_warn'] = function()
     end
 end
 
+M.commands['send_gps'] = function()
+    M.imgui.Columns(4, 'player_get_roles_column', false)
+
+    for id, client in pairs(network.players) do
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 4 * 0.5)
+        if M.imgui.Button(client.name, M.buttonSize) then
+            local vehicle = be:getPlayerVehicle(0)
+            local location = tostring(vehicle:getPosition().x .. ' ' .. vehicle:getPosition().y .. ' ' .. vehicle:getPosition().z)
+            Execute('/send_gps ' .. id .. ' ' .. location)
+        end
+
+        M.imgui.NextColumn()
+    end
+end
+
 M.commands['get_roles'] = function()
     M.imgui.Columns(4, 'player_get_roles_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 4 * 0.5)
         if M.imgui.Button(client.name, M.buttonSize) then
             Execute('/get_roles ' .. id)
         end
@@ -614,23 +626,26 @@ M.commands['transfer'] = function()
     M.imgui.Columns(4, 'player_column', false)
 
     for id, client in pairs(network.players) do
-        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 4 * 0.5)
         if M.imgui.Button(client.name, M.buttonSize) then
-            M.drawData.shouldDraw2 = not M.drawData.shouldDraw2
-            M.drawData.drawFunction2 = function()
-                if M.imgui.Begin('Bank Transfer', M.imgui.BoolPtr(true), M.drawData.window.style) then
-                    M.imgui.PushItemWidth(M.drawData.window.size.x / 2)
-                    M.imgui.SetCursorPos(M.imgui.ImVec2(M.drawData.window.size.x / 4, M.drawData.window.size.y - 30))
-                    if M.imgui.InputText('##crp_police', amountToSend, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
-                        Execute('/transfer ' .. id .. ' ' .. ffi.string(amountToSend))
-                        amountToSend = M.imgui.ArrayChar(128, 'Amount to Send')
-                    end
-                    M.imgui.PopItemWidth()
-                end
-            end
+            client1 = id -- will need to rework all this because client1 will stay
+            showOther = not showOther
         end
 
         M.imgui.NextColumn()
+    end
+
+    if showOther then
+        if M.imgui.Begin('Bank Transfer', M.imgui.BoolPtr(true), M.drawData.window.style) then
+            M.imgui.Columns(1)
+            M.imgui.PushItemWidth(M.drawData.window.size.x / 2)
+            M.imgui.SetCursorPos(M.imgui.ImVec2(M.drawData.window.size.x / 4, M.drawData.window.size.y - 30))
+            if M.imgui.InputText('##crp_police', amountToSend, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+                Execute('/transfer ' .. client1 .. ' ' .. ffi.string(amountToSend))
+                amountToSend = M.imgui.ArrayChar(128, 'Amount to Send')
+            end
+            M.imgui.PopItemWidth()
+        end
     end
 end
 

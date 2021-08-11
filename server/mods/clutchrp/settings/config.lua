@@ -10,7 +10,7 @@ config.disabledActions = {
     "saveHome", -- stores current vehicle position for quick access
     "nodegrabberGrab",
     "nodegrabberRender",
-    --"recover_vehicle", -- rewinds vehicle position
+    "recover_vehicle", -- rewinds vehicle position
     --"reload_vehicle", -- reloads vehicle files from disk
     --"reload_all_vehicles", -- reloads all vehicles files from disk
     --"vehicle_selector", -- opens the vehicle selection screen

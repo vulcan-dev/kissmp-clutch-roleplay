@@ -1,26 +1,34 @@
 --[[ This module is not needed but I'll keep it for now, might need to keep stuff seperated in the future ]]--
 
+--[[
+    TODO Make a weather system with custom presets
+]]
+
 local M = {}
 
 local interface_roleplay = require('clutchrp.ui.interface_roleplay')
 local interface_moderation = require('clutchrp.ui.interface_moderation')
 local interface_phone = require('clutchrp.ui.interface_phone')
+local tooltip = require('clutchrp.ui.tooltip')
 local command = require('clutchrp.command')
 
 local function ToggleInterfaceRP()
     interface_roleplay.shouldDraw = not interface_roleplay.shouldDraw
     interface_roleplay.shouldDrawCommnad = false
+    command.drawData.shouldDraw = false
     log('I', 'interface', 'interface_roleplay: ' .. tostring(interface_roleplay.shouldDraw))
 end
 
 local function ToggleInterfacePhone()
     interface_phone.shouldDraw = not interface_phone.shouldDraw
+    command.drawData.shouldDraw = false
     log('I', 'interface', 'interface_phone: ' .. tostring(interface_phone.shouldDraw))
 end
 
 local function ToggleInterfaceModeration()
     interface_moderation.shouldDraw = not interface_moderation.shouldDraw
     interface_moderation.shouldDrawCommand = false
+    command.drawData.shouldDraw = false
 
     log('I', 'interface', 'interface_moderation: ' .. tostring(interface_moderation.shouldDraw))
 end
@@ -38,6 +46,10 @@ local function Update(dt)
         interface_phone.Draw(dt)
     end
 
+    if tooltip.shouldDraw then
+        tooltip.Draw(dt)
+    end
+
     if interface_moderation.shouldDraw or interface_roleplay.shouldDraw then
         command.Draw(dt)
     end
@@ -47,6 +59,7 @@ local function OnExtensionLoaded()
     interface_phone.OnExtensionLoaded()
 end
 
+M.tooltip = tooltip
 M.interface_phone = interface_phone
 M.ToggleInterfaceRP = ToggleInterfaceRP
 M.ToggleInterfaceModeration = ToggleInterfaceModeration

@@ -5,6 +5,14 @@ local shouldDraw = false
 local imgui = ui_imgui
 local imu = require('ui/imguiUtils') -- hehe, found it
 local viewport = imgui.GetMainViewport()
+local command  = require('clutchrp.command')
+
+M.messages = {}
+
+--[[
+    On return, execute a command in the server which adds that data
+    Once received, the server will sendLua to all clients with that data. There will be a function that adds the message and takes data as an arg
+]]
 
 local window = {
     size = {
@@ -129,33 +137,44 @@ end
 local message = imgui.ArrayChar(128)
 
 -- message, time sent
-
-local messages = {
-    ['Daniel W'] = {
-        messages = {
-            ['abc'] = 1,
-            ['nein'] = 2,
-            ['dawniofdfwa'] = 3
-        }
-    },
-
-    ['Verb'] = {
-        messages = {
-            ['Oi mate, guess what'] = 4
-        }
-    },
-
-    ['System'] = {
-        messages = {
-            ['This is WIP, shoo'] = 5
-        }
-    }
-}
+-- local messages = {
+--     ['Daniel W: a'] = 1,
+--     ['Verb: b'] = 2,
+--     ['Daniel W: c'] = 3,
+--     ['Verb: d'] = 4,
+--     ['Daniel W: e'] = 5,
+--     ['Verb: f'] = 6
+-- }
 
 local twitterStyle = bit.bor(
     imgui.WindowFlags_NoDocking, imgui.WindowFlags_NoTitleBar,
     imgui.WindowFlags_NoResize, imgui.WindowFlags_NoMove, imgui.WindowFlags_NoCollapse, imgui.WindowFlags_NoBackground
 )
+
+M.t = {}
+
+-- for k, v in pairs(messages) do
+--     table.insert(t, {k, v})
+-- end
+
+-- table.sort( t, function (a, b)
+--     return a[2] < b[2]
+-- end )
+
+-- for k, v in pairs(messages) do
+--     print(k .. ' ' .. tostring(v))
+-- end
+
+-- for k, v in pairs(t) do
+--     print(k)
+-- end
+
+M.addMessage = function(message)
+    table.insert(M.t, {message, os.time()})
+    table.sort(M.t, function (a, b)
+        return a[2] < b[2]
+    end)
+end
 
 states['twitter'].draw = function(dt)
     imgui.SetNextWindowSize(imgui.ImVec2(phoneSize.width, phoneSize.height))
@@ -163,14 +182,17 @@ states['twitter'].draw = function(dt)
     imgui.SetCursorPosY(40)
     if imgui.Begin('Phone', imgui.BoolPtr(true), twitterStyle) then
         imgui.Columns(1, 'twitter_column', true)
-        for user, tbl in pairs(messages) do
-            for _, messageTable in pairs(tbl) do
-                for message, time in pairs(messageTable) do
-                    imgui.NextColumn()
-                    imgui.SetCursorPosX(phoneSize.width / 2 - imgui.CalcTextSize('@' .. user .. ': ' .. message).x / 2)
-                    imgui.Text('@' .. user .. ': ' .. message)
-                end
-            end
+        for user, _ in pairs(M.t) do
+            imgui.NextColumn()
+            imgui.SetCursorPosX(phoneSize.width / 2 - imgui.CalcTextSize('@' .. user .. ': ' .. M.t[user][1]).x / 2)
+            imgui.Text('@' .. M.t[user][1])
+            -- for _, messageTable in pairs(tbl) do
+                -- for message, time in pairs(messageTable) do
+                    -- imgui.NextColumn()
+                    -- imgui.SetCursorPosX(phoneSize.width / 2 - imgui.CalcTextSize('@' .. user .. ': ' .. message).x / 2)
+                    -- imgui.Text('@' .. user .. ': ' .. message)
+                -- end
+            -- end
         end
 
         imgui.End()
@@ -179,8 +201,8 @@ states['twitter'].draw = function(dt)
     imgui.PushItemWidth(phoneSize.width - 2)
     imgui.SetCursorPosY(phoneSize.height - 80)
     if imgui.InputText('##crp_twitter', message, nil, imgui.InputTextFlags_EnterReturnsTrue) then
-        
-        -- buffer = imgui.ArrayChar(512)
+        command.Execute('/addtm ' .. ffi.string(message))
+        message = imgui.ArrayChar(512)
     end
     imgui.PopItemWidth()
 end

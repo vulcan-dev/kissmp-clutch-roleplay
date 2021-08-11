@@ -184,7 +184,9 @@ local function Draw(dt)
                 },
                 drawFunction = command.commands['delete_all_user_vehicles']
             })
-        end end end end
+        else if command.imgui.Button('Toggle Priority', buttonSize) then
+            command.Execute('/tprio')
+        end end end end end
 
         -- need a get_roles
 

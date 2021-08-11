@@ -124,12 +124,14 @@ local function Draw(dt)
                     shouldDraw = not M.shouldDrawCommand,
                     window = {
                         title = 'Get Roles',
-                        size = imgui.ImVec2(500, 110),
+                        size = imgui.ImVec2(480, 110),
                         style = windowStyles,
                     },
                     drawFunction = command.commands['get_roles']
                 })
             end end
+
+            imgui.NextColumn()
 
             if imgui.Button('Transfer', buttonSize) then
                 M.shouldDrawCommand = not M.shouldDrawCommand
@@ -137,12 +139,31 @@ local function Draw(dt)
                     shouldDraw = not M.shouldDrawCommand,
                     window = {
                         title = 'Bank Transfer',
-                        size = imgui.ImVec2(500, 140),
+                        size = imgui.ImVec2(480, 140),
                         style = windowStyles,
                     },
                     drawFunction = command.commands['transfer']
                 })
-            end
+            else if imgui.Button('Send Location', buttonSize) then
+                M.shouldDrawCommand = not M.shouldDrawCommand
+                command.Set({
+                    shouldDraw = not M.shouldDrawCommand,
+                    window = {
+                        title = 'Send GPS Location',
+                        size = imgui.ImVec2(480, 110),
+                        style = windowStyles,
+                    },
+                    drawFunction = command.commands['send_gps']
+                })
+            end end
+
+            imgui.NextColumn()
+
+            if imgui.Button('On Duty', buttonSize) then
+                command.Execute('/onduty')
+            else if imgui.Button('Clear GPS', buttonSize) then
+                command.Execute('/gps_clear')
+            end end
 
             PopStyle()
             imgui.End()
