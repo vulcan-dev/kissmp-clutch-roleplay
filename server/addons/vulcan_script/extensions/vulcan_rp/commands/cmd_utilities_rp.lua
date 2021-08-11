@@ -30,7 +30,7 @@ M.commands["view_bal"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        modules.server.SendChatMessage(executor.user:getID(), string.format("%s's balance: $%d", client.user:getName(), modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'money')), modules.server.ColourSuccess)
+        modules.server.SendChatMessage(executor.user:getID(), string.format("%s's balance: $%d", client.user:getName(), client.getKey('money')), modules.server.ColourSuccess)
     end
 }
 
@@ -48,7 +48,7 @@ M.commands["set_bal"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', balance)
+        client.editKey('money', balance)
         modules.server.SendChatMessage(executor.user:getID(), string.format('You set %s balance to $%s', client.user:getName(), balance), modules.server.ColourSuccess)
         modules.server.SendChatMessage(client.user:getID(), string.format('%s set your balance to $%s', executor.user:getName(), balance), modules.server.ColourSuccess)
     end
@@ -82,7 +82,7 @@ M.commands["add_role"] = {
         end
 
         if not modules.rp.HasRole(client, role) then
-            local data = modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'roles')
+            local data = client.getKey('roles')
             local roles = {}
             for _, v in pairs(data) do
                 table.insert( roles, v )
@@ -90,13 +90,13 @@ M.commands["add_role"] = {
 
             table.insert(roles, role)
             data = roles
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'roles', data)
+            client.editKey('roles', data)
             modules.server.DisplayDialogSuccess(client, string.format('%s Has Assigned You the Role: %s', executor.user:getName(), role))
             modules.server.DisplayDialogSuccess(executor, 'Successfully added role to user')
 
             --[[ Check if role is LEO, if so then increase the vehicle limit ]]--
             if modules.rp.IsLeo(client) then
-                modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'vehicleLimit', 11) --[[ 10 cones for example ]]--
+                client.editKey('vehicleLimit', 11)
             end
         else
             modules.server.DisplayDialogWarning(executor, 'This User has Already Been Assigned This Role')
@@ -119,7 +119,7 @@ M.commands["remove_role"] = {
         client = client.data
 
         if modules.rp.HasRole(client, role) then
-            local data = modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'roles')
+            local data = client.getKey('roles')
             local roles = {}
             local pos = 1
             for _, v in pairs(data) do
@@ -133,12 +133,12 @@ M.commands["remove_role"] = {
             end
 
             data = roles
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'roles', data)
+            client.editKey('roles', data)
             modules.server.DisplayDialog(client, string.format('%s Has Removed Your Role: %s', executor.user:getName(), role))
             modules.server.DisplayDialog(executor, 'Successfully Removed Role From User')
 
             if not modules.rp.IsLeo(client) then
-                modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'vehicleLimit', 2)
+                client.editKey('vehicleLimit', 2)
             end
         else 
             modules.server.DisplayDialog(executor, 'This User Has Not Been Assigned This Role')
@@ -296,7 +296,7 @@ M.commands["get_roles"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then client.data = executor end
         client = client.data
 
-        local roles = modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'roles')
+        local roles = client.getKey('roles')
         local count = 0
         for _, role in pairs(roles) do
             count = count + 1
@@ -324,7 +324,7 @@ M.commands["transfer"] = {
         client = client.data
 
         if amount and type(amount) == 'number' then
-            local myMoney = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money')
+            local myMoney = executor.getKey('money')
             if amount > myMoney then
                 modules.server.DisplayDialog(executor, 'You do not even have that much money, lmfao.')
                 return
@@ -332,8 +332,8 @@ M.commands["transfer"] = {
 
             modules.server.DisplayDialog(executor, string.format('You have successfully sent %s $%d', client.user:getName(), amount))
             modules.server.DisplayDialog(client, string.format('You have recieved $%d from %s', amount, client.user:getName()))
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'money') + amount)
-            modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money') - amount)
+            client.editKey('money', client.getKey('money') + amount)
+            executor.editKey('money', executor.getKey('money') - amount)
         else
             modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments)
         end
@@ -523,8 +523,8 @@ M.commands["onduty"] = {
     usage = '/onduty',
     roles = {'police'},
     exec = function(executor, args)
-        local onduty = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'onduty')
-        modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'onduty', not onduty)
+        local onduty = executor.getKey('onduty')
+        executor.editKey('onduty', not onduty)
 
         if not onduty then
             modules.server.DisplayDialog(executor, 'You are now on duty!')
@@ -643,7 +643,7 @@ M.commands["rob"] = {
                     vehicle:sendLua('controller.setFreeze(1)')
                     modules.timed_events.AddEvent(function()
                         vehicle:sendLua('controller.setFreeze(0)')
-                        modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money') + cash)
+                        executor.editKey('money', executor.getKey('money') + cash)
                         modules.server.DisplayDialog(executor)
                         executor.commandCooldown = false
                     end, 'rob_'..executor.user:getID(), time, true)
@@ -728,7 +728,7 @@ M.commands["repair"] = {
                 local x = vehicle:getTransform():getPosition()[1]
                 local y = vehicle:getTransform():getPosition()[2]
                 local total = 40
-                local client_money = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money')
+                local client_money = executor.getKey('money')
                 if total > client_money then modules.server.DisplayDialog(executor, 'You do not have enough money to afford this. Total is: '..total) return end
 
                 local isInRadius = modules.server.IsInRadius('repair_stations', 5, x, y)
@@ -742,7 +742,7 @@ M.commands["repair"] = {
                         vehicle:sendLua('recovery.saveHome() recovery.startRecovering() recovery.stopRecovering()')
 
                         modules.server.DisplayDialog(executor, 'Vehicle repaired! That has costed you $' .. total)
-                        modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money') - total)
+                        executor.editKey('money', executor.getKey('money') - total)
                         executor.commandCooldown = false
                     end, 'repair_'..executor.user:getID(), 5, true)
                 else
@@ -818,7 +818,7 @@ M.commands["refuel"] = {
                 local x = vehicle:getTransform():getPosition()[1]
                 local y = vehicle:getTransform():getPosition()[2]
                 local total = 20
-                local client_money = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money')
+                local client_money = executor.getKey('money')
                 if total > client_money then modules.server.DisplayDialog(executor, 'You do not have enough money to afford this. Total is: '..total) return end
 
                 local isInRadius = modules.server.IsInRadius('fuel_pumps', 2, x, y)
@@ -831,7 +831,7 @@ M.commands["refuel"] = {
                         vehicle:sendLua('controller.setFreeze(0)')
                         vehicle:sendLua('energyStorage.reset()')
                         modules.server.DisplayDialog(executor, 'Vehicle refueled! That has costed you $' .. total)
-                        modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money') - total)
+                        executor.editKey('money', executor.getKey('money') + total)
                         executor.commandCooldown = false
                     end, 'refuel_'..executor.user:getID(), 5, true)
                     return
@@ -854,8 +854,7 @@ M.commands["bank"] = {
     description = 'Displays your money',
     usage = '/bank',
     exec = function(executor, args)
-        local balance = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'money')
-        modules.server.DisplayDialog(executor, 'Current balance: $' .. balance)
+        modules.server.DisplayDialog(executor, 'Current balance: $' .. tostring(executor.getKey('money')))
     end
 }
 

@@ -22,10 +22,9 @@ local function HasRole(client, role)
     if client.user:getSecret() == 'secret_console' then return end
 
     local found = false
-    local data = modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'roles')
 
     local count = 0
-    for _, v in ipairs(data) do
+    for _, v in ipairs(client.getKey('roles')) do
         if tostring(role) == tostring(v) then
             found = true
             break
@@ -48,7 +47,7 @@ local function IsLeo(client)
 end
 
 local function IsOnDuty(client)
-    return modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'onduty')
+    return client.getKey('onduty')
 end
 
 local function ReloadModules()

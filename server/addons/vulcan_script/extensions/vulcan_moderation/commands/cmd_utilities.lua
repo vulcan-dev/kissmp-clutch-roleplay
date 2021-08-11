@@ -396,7 +396,7 @@ M.commands["playtime"] = {
             message = client.user:getName() .. '\'s playtime: '
         end
 
-        modules.server.SendChatMessage(executor.user:getID(), message .. modules.utilities.GetDateTime('%H:%M:%S', modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'playtime')), modules.server.ColourSuccess)
+        modules.server.SendChatMessage(executor.user:getID(), message .. modules.utilities.GetDateTime('%H:%M:%S', client.getKey('playtime')), modules.server.ColourSuccess)
     end
 }
 
@@ -471,7 +471,7 @@ M.commands["block"] = {
 
         if client.rank() <= modules.moderation.RankVIP then
             local blocked = false
-            for key, name in pairs(modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'blockList')) do
+            for key, name in pairs(client.getKey('blockList')) do
                 if name == client.user:getName() then
                     blocked = true
                 else
@@ -485,7 +485,7 @@ M.commands["block"] = {
             else
                 local data = {}
                 data[client.user:getSecret()] = client.user:getName()
-                modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'blockList', data)
+                executor.editKey('blockList', data)
                 modules.server.DisplayDialogSuccess(executor, 'Successfully blocked ' .. client.user:getName())
             end
         else
@@ -508,7 +508,7 @@ M.commands["unblock"] = {
         client = client.data
 
         local blocked = false
-        for key, name in pairs(modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'blockList')) do
+        for key, name in pairs(client.getKey('blockList')) do
             if name == client.user:getName() then
                 blocked = true
             else
@@ -522,7 +522,7 @@ M.commands["unblock"] = {
         else
             local data = {}
             data[client.user:getSecret()] = nil
-            modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'blockList', data)
+            executor.editKey('blockList', data)
             modules.server.DisplayDialogSuccess(executor, 'Successfully unblocked ' .. client.user:getName())
         end
     end

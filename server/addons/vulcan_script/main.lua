@@ -5,15 +5,8 @@
 require('addons.vulcan_script.globals')
 
 --[[ My TODO List
-    TODO Invalid command args return the args if it's easy to do
-    TODO add /arrest (freeze user for x time (15sec))
-
-    TODO Fix /help <cmd> displaying wrong error if command not found
-    TODO Fix the discord websockets, need to send the correct data
-    TODO Fix /help <cmd> not showing everything such as alias
-    TODO Fix module reloading, don't just look for the key, look for the actual path
-    TODO Use client side lua to handle vehicle things
-    TODO Create a template mod for client side lua to hook the callbacks
+    TODO Add a set_vehicle_limit command
+    TODO Add a command to enable/disable priority
 
     Moderation Menu
         Main Mod:
@@ -224,10 +217,10 @@ hooks.register('OnChat', 'VK_PLAYER_CHAT', function(client_id, message)
     local executor = G_Clients[client_id]
 
     --[[ Check if the Client is Muted ]]--
-    local mute_time = modules.utilities.GetKey(G_PlayersLocation, executor.user:getSecret(), 'mute_time')
+    local mute_time = G_Clients[client_id].getKey('mute_time')
     if mute_time ~= nil and mute_time > 0 then
         if mute_time <= os.time() then
-            modules.utilities.EditKey(G_PlayersLocation, executor.user:getSecret(), 'mute_time', 0)
+            executor.editKey('mute_time', 0)
         else
             modules.server.SendChatMessage(executor.user:getID(), 'You are muted', modules.server.ColourError)
             return ""

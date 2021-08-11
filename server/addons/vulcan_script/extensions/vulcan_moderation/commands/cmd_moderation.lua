@@ -291,12 +291,12 @@ M.commands["remove_warn"] = {
         if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
         
-        local warn_data = modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'warns')
+        local warn_data = client.getKey('warns')
         local count = 0
         for k, _ in pairs(warn_data) do
             if k == warn then
                 warn_data[k] = nil
-                modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'warns', warn_data)
+                client.editKey('warns', warn_data)
                 modules.server.DisplayDialogSuccess(executor, 'Successfully removed warn from user')
                 count = count + 1
 
@@ -413,7 +413,7 @@ M.commands["set_rank"] = {
 
         if G_Clients[client.user:getID()] then
             modules.server.SendChatMessage(client.user:getID(), string.format('[Moderation] %s has set your rank to %s', executor.user:getName(), outStr), modules.server.ColourSuccess)
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'rank', rank)
+            client.editKey('rank', rank)
         end
 
         modules.server.SendChatMessage(string.format('[Moderation] %s is now a %s', client.user:getName(), outStr), modules.server.ColourSuccess)
@@ -484,7 +484,7 @@ M.commands["mute"] = {
             
             local exp_sec = os.time{ year = date.year, month = date.month, day = date.day, hour = date.hour, min = date.min, sec = date.sec }
 
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'mute_time', exp_sec)
+            client.editKey('mute_time', exp_sec)
 
             if G_Clients[client.user:getID()] then
                 modules.server.SendChatMessage(client.user:getID(), string.format('You have been muted by %s. Unmute Date: %s', executor.user:getName(), os.date('%Y-%m-%d %H:%M:%S', exp_sec)))
@@ -526,7 +526,7 @@ M.commands["unmute"] = {
             return
         end
 
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'mute_time', 0)
+        client.editKey('mute_time', 0)
 
         if G_Clients[client.user:getID()] then
             modules.server.SendChatMessage(client.user:getID(), string.format('You have been unmuted by %s', executor.user:getName()))

@@ -37,36 +37,7 @@ local consolePlayer = {
     mid = 1337,
 }
 
-local function SetClientDefaults(client)
-    if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'rank', G_LevelError, true, true) then -- Rank
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'rank', 0)
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'alias', G_LevelError, true, true) then -- Alias
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'alias', {client:getName()})
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'warns', G_LevelError, true, true) then -- Warns
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'warns', {})
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'bans', G_LevelError, true, true) then -- bans
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'bans', {})
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'vehicleLimit', G_LevelError, true, true) then -- vehicleLimit
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'vehicleLimit', 2)
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'mute_time', G_LevelError, true, true) then -- mute_time
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'mute_time', 0)
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'playtime', G_LevelError, true, true) then -- playtime
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'playtime', 0)
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'blockList', G_LevelError, true, true) then -- blockList
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'blockList', {})
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'home', G_LevelError, true, true) then -- home
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'home', {x=0.9658128619194032, y=709.3377075195312, z=-0.006330838892608881, xr=-0.7625573873519897, yr=-0.00027202203636989, zr=52.24008560180664, w=-0.25916287302970886})
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'roles', G_LevelError, true, true) then -- roles
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'roles', {})
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'money', G_LevelError, true, true) then -- money
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'money', 240)
-    else if not modules.utilities.GetKey(G_PlayersLocation, client:getSecret(), 'onduty', G_LevelError, true, true) then -- onduty
-        modules.utilities.EditKey(G_PlayersLocation, client:getSecret(), 'onduty', false)
-    end end end end end end end end end end end end
-end
-
 local function AddClient(client_id)
-    SetClientDefaults(connections[client_id])
     G_CurrentPlayers = G_CurrentPlayers + 1
 
     G_Clients[client_id] = {}
@@ -74,16 +45,24 @@ local function AddClient(client_id)
     local client = G_Clients[client_id]
     client.user = connections[client_id]
 
-    client.rank = function() return tonumber(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank')) end
+    client.editKey = function(key, value)
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), key, value)
+    end
+
+    client.getKey = function(key)
+        return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), key)
+    end
+
+    client.rank = function() return tonumber(client.getKey('rank')) end
     client.roles = function()
         local roles = {}
-        for role, _ in pairs(modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles')) do
+        for role, _ in pairs(client.getKey('roles')) do
             table.insert( roles, string.lower(role) )
         end
         return roles
     end
 
-    client.blockList = function() return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList') end
+    client.blockList = function() return client.getKey('blockList') end
 
     client.mid = G_CurrentPlayers
 
@@ -91,20 +70,16 @@ local function AddClient(client_id)
     client.renderMenu = false
 
     client.setHome = function(x, y, z, xr, yr, zr, w)
-        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home', {x = x, y = y, z = z, xr = xr, yr = yr, zr = zr, w = w})
+        client.editKey('home', {x = x, y = y, z = z, xr = xr, yr = yr, zr = zr, w = w})
     end
 
     client.getHome = function()
-        return modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home')
+        return client.getKey('home')
     end
 
     --[[ Needed to update players ]]--
     if not client.getHome() then
         client.setHome(709.3377075195312, -0.7625573873519897, 52.24008560180664, -0.006330838892608881, -0.00027202203636989, -0.25916287302970886, 0.9658128619194032)
-    end
-
-    if not modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList', G_LevelDebug, true) then
-        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList', {})
     end
 
     --[[ Client Vehicles ]]--

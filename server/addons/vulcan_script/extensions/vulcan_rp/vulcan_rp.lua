@@ -24,7 +24,7 @@ local modules = {
 
 M.callbacks = {
     VK_PlayerDisconnect = function(client)
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'onduty', false)
+        client.editKey('onduty', false)
     end,
 
     VK_VehicleSpawn = function(vehicle_id, client_id)
@@ -64,7 +64,7 @@ M.callbacks = {
                     -- [[ Send Money ]]
                     if modules.rp.IsLeo(client) then money = math.random( 200, 400 )
                     else money = math.random( 60, 140 ) end
-                    modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'money') + money)
+                    client.editKey('money', client.getKey('money') + money)
                     modules.server.DisplayDialog(client, 'You have received a paycheck of $'..money..'!')
 
                     --[[ Show Discord ]]
@@ -155,6 +155,10 @@ M.callbacks = {
 
                             modules.server.DisplayDialog(client, '[CRP Navigation] You have arrived at your destination')
                         end
+                    else
+                        client.user:sendLua('core_groundMarkers.resetAll()')
+                        client.gps.enabled = false
+                        client.gps.position = { x = 0, y = 0, z = 0 }
                     end
                 end
 

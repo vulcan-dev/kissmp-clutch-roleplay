@@ -30,7 +30,7 @@ M.callbacks = {
         local alias_found = false
         local aliases = {}
 
-        for name, alias in pairs(modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'alias')) do
+        for name, alias in pairs(client.getKey('alias')) do
             aliases[name] = alias
             if alias == client.user:getName() then
                 alias_found = true
@@ -39,7 +39,7 @@ M.callbacks = {
 
         if not alias_found then
             table.insert( aliases, client.user:getName() )
-            modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'alias', aliases)
+            client.editKey('alias', aliases)
         end
 
         -- Check if banned
@@ -55,7 +55,7 @@ M.callbacks = {
         end
 
         --[[ Tell them to read the rules if they're new to the server ]]--
-        if modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'playtime') <= 0 then
+        if client.getKey('playtime') <= 0 then
             modules.server.SendChatMessage(client.user:getID(), 'Make sure to read the rules at /discord before continuing', modules.server.ColourSuccess)
         end
     end,
@@ -134,18 +134,13 @@ M.callbacks = {
                 if client.connected then
                     if client.user:getID() ~= 1337 then
                         --[[ Update Playtime ]]
-                        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'playtime', modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'playtime') + 5)
-                        if modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'playtime') >= 240 * 60 then
+                        client.editKey('playtime', client.getKey('playtime') + 5)
+                        if client.getKey('playtime') >= 240 * 60 then
                             if client.rank() == modules.moderation.RankUser then
-                                modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'rank', modules.moderation.RankTrusted)
+                                client.editKey('rank', modules.moderation.RankTrusted)
                                 modules.server.SendChatMessage(string.format('%s is now a trusted member, thanks for playing.', client.user:getName()), modules.server.ColourSuccess)
                             end
                         end
-
-                        --[[ Update Players ]]--
-                        -- if client.renderMenu and client.rank() >= modules.moderation.RankModerator then
-                        --     modules.cl_menu.UpdateClients(client)
-                        -- end
                     end
                 end
             end
