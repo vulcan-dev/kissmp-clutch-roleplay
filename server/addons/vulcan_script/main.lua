@@ -16,7 +16,6 @@ local modules = {
 
     cl_environment = require('addons.vulcan_script.client_lua.cl_environment'),
     cl_player_join = require('addons.vulcan_script.client_lua.cl_player_join'),
-    -- cl_menu = require('addons.vulcan_script.client_lua.cl_menu')
 }
 
 local extensions = {}

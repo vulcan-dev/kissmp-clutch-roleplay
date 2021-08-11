@@ -87,6 +87,23 @@ M.commands["time_stop"] = {
     end
 }
 
+--[[ DVA ]]--
+M.commands["cleanup"] = {
+    rank = modules.moderation.RankAdmin,
+    category = 'Moderation Utilities',
+    description = 'Cleans up everyone\'s car',
+    usage = '/cleanup',
+    exec = function(executor, args)
+        for _, client in pairs(G_Clients) do
+            if client.user:getID() ~= 1337 then
+                modules.server.DisplayDialog(client, 'Server has been cleaned up')
+                client.vehicles.clear(client)
+                client.user:sendLua('commands.setFreeCamera()')
+            end
+        end
+    end
+}
+
 --[[ Set Wind ]]--
 M.commands["set_wind"] = {
     rank = modules.moderation.RankAdmin,
@@ -118,6 +135,32 @@ M.commands["set_wind"] = {
 
             modules.server.DisplayDialog(client, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
         end
+    end
+}
+
+--[[ Enable Nametags ]]--
+M.commands["enable_tags"] = {
+    rank = modules.moderation.RankModerator,
+    category = 'Moderation Utilties',
+    description = 'Enable name tags (should only be used when moderating)',
+    usage = '/enable_tags',
+    alias = 'et',
+    exec = function(executor, args)
+        executor.user:sendLua('kissui.force_disable_nametags = false')
+        modules.server.DisplayDialog(executor, 'Successfully enabled nametags')
+    end
+}
+
+--[[ Disable Nametags ]]--
+M.commands["disable_tags"] = {
+    rank = modules.moderation.RankModerator,
+    category = 'Moderation Utilties',
+    description = 'Disable name tags',
+    usage = '/disable_tags',
+    alias = 'dt',
+    exec = function(executor, args)
+        executor.user:sendLua('kissui.force_disable_nametags = true')
+        modules.server.DisplayDialog(executor, 'Successfully disabled nametags')
     end
 }
 
@@ -183,25 +226,6 @@ M.commands["set_weather"] = {
     usage = '/set_weather (sunny, thunder, rain)',
     exec = function(executor, args)
 
-    end
-}
-
---[[ Force Recover ]]--
-M.commands["force_recover"] = {
-    rank = modules.moderation.RankUser,
-    category = 'Utilities',
-    alias = 'fr',
-    description = 'Recovers your vehicle but also notifies staff members',
-    usage = '/force_recover',
-    exec = function(executor, args)
-        local ply = connections[executor.user:getID()]
-        local vehicle = vehicles[ply:getCurrentVehicle()]
-        vehicle:sendLua('recovery.saveHome() recovery.startRecovering() recovery.stopRecovering()')
-        for _, client in pairs(G_Clients) do
-            if client.rank() >= modules.moderation.RankModerator then
-                modules.server.SendChatMessage(client.user:getID(), '[Recover] ' .. executor.user:getName() .. ' Used /force_recover', modules.server.ColourWarning)
-            end
-        end
     end
 }
 
@@ -456,6 +480,25 @@ M.commands["pm"] = {
     end
 }
 
+--[[ Force Recover ]]--
+M.commands["force_recover"] = {
+    rank = modules.moderation.RankUser,
+    category = 'Utilities',
+    alias = 'fr',
+    description = 'Recovers your vehicle but also notifies staff members',
+    usage = '/force_recover',
+    exec = function(executor, args)
+        local ply = connections[executor.user:getID()]
+        local vehicle = vehicles[ply:getCurrentVehicle()]
+        vehicle:sendLua('recovery.saveHome() recovery.startRecovering() recovery.stopRecovering()')
+        for _, client in pairs(G_Clients) do
+            if client.rank() >= modules.moderation.RankModerator then
+                modules.server.SendChatMessage(client.user:getID(), '[Recover] ' .. executor.user:getName() .. ' Used /force_recover', modules.server.ColourWarning)
+            end
+        end
+    end
+}
+
 --[[ Block ]]--
 M.commands["block"] = {
     rank = modules.moderation.RankUser,
@@ -623,49 +666,6 @@ M.commands["dva"] = {
             executor.vehicles.clear(executor)
             executor.user:sendLua('commands.setFreeCamera()')
         end
-    end
-}
-
---[[ DVA ]]--
-M.commands["cleanup"] = {
-    rank = modules.moderation.RankAdmin,
-    category = 'Moderation Utilities',
-    description = 'Cleans up everyone\'s car',
-    usage = '/cleanup',
-    exec = function(executor, args)
-        for _, client in pairs(G_Clients) do
-            if client.user:getID() ~= 1337 then
-                modules.server.DisplayDialog(client, 'Server has been cleaned up')
-                client.vehicles.clear(client)
-                client.user:sendLua('commands.setFreeCamera()')
-            end
-        end
-    end
-}
-
---[[ Enable Nametags ]]--
-M.commands["enable_tags"] = {
-    rank = modules.moderation.RankModerator,
-    category = 'Moderation Utilties',
-    description = 'Enable name tags (should only be used when moderating)',
-    usage = '/enable_tags',
-    alias = 'et',
-    exec = function(executor, args)
-        executor.user:sendLua('kissui.force_disable_nametags = false')
-        modules.server.DisplayDialog(executor, 'Successfully enabled nametags')
-    end
-}
-
---[[ Disable Nametags ]]--
-M.commands["disable_tags"] = {
-    rank = modules.moderation.RankModerator,
-    category = 'Moderation Utilties',
-    description = 'Disable name tags',
-    usage = '/disable_tags',
-    alias = 'dt',
-    exec = function(executor, args)
-        executor.user:sendLua('kissui.force_disable_nametags = true')
-        modules.server.DisplayDialog(executor, 'Successfully disabled nametags')
     end
 }
 
