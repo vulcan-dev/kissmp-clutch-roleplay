@@ -87,6 +87,29 @@ M.commands["time_stop"] = {
     end
 }
 
+--[[ Set Vehicle Limit ]]--
+M.commands["set_vl"] = {
+    rank = modules.moderation.RankAdmin,
+    category = 'Moderation Utilities',
+    description = 'Sets a vehicle limit for a user',
+    usage = '/set_vl <user> <limit> - min: 1, max: 21',
+    exec = function (executor, args)
+        local client = modules.server.GetUser(args[1])
+        local limit = tonumber(args[2])
+
+        -- Check if the client exists
+        if not client.success or not modules.server.GetUserKey(client.data, 'rank') then modules.server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
+        client = client.data
+
+        if not limit then modules.server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
+        if limit <= 0 or limit > 21 then modules.server.DisplayDialogError(executor, 'Invalid vehicle limit') return end
+
+        client.editKey('vehicleLimit', limit)
+        modules.server.DisplayDialogSuccess(executor, 'Set ' .. client.user:getName() .. '\'s vehicle limit to ' .. limit)
+        modules.server.DisplayDialogSuccess(client, 'New vehicle limit: ' .. limit)
+    end
+}
+
 --[[ DVA ]]--
 M.commands["cleanup"] = {
     rank = modules.moderation.RankAdmin,
