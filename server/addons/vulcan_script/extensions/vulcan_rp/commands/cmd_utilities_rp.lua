@@ -17,6 +17,33 @@ local modules = {
 local cooldownTime = 0
 M.commands = {}
 
+--[[ Toggle Priority Cooldown ]]--
+M.commands["prio"] = {
+    rank = modules.moderation.RankModerator,
+    category = 'Moderation',
+    description = 'Toggles Priority Cooldown',
+    usage = '/prio',
+    exec = function(executor, args)
+        local year, month, day, hour, min, sec = os.date('%Y-%m-%d %H:%M:%S'):match('(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)')
+
+        local date = {
+            year = year,
+            month = month,
+            day = day,
+            hour = hour,
+            min = min,
+            sec = sec
+        }
+
+        date.min = date.min + 20
+        local exp_sec = os.time{ year = date.year, month = date.month, day = date.day, hour = date.hour, min = date.min, sec = date.sec }
+
+        cooldownTime = exp_sec
+
+        modules.server.DisplayDialogWarning('Priority Cooldown has been enabled')
+    end
+}
+
 --[[ View Bal ]]--
 M.commands["view_bal"] = {
     rank = modules.moderation.RankModerator,

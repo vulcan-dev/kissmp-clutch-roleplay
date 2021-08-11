@@ -7,25 +7,6 @@ require('addons.vulcan_script.globals')
 --[[ My TODO List
     TODO Add a set_vehicle_limit command
     TODO Add a command to enable/disable priority
-
-    Moderation Menu
-        Main Mod:
-            Simple template with draw functions
-            There will be an executor
-
-        Client Side Lua:
-            It will hook the draw function and that's where everything will be
-
-        Addon:
-            It will set that executor in cl_player_join
-
-        Notes:
-            I need to get all players in order to call userdata functions on them
-
-    local inputActionFilter = extensions.core_input_actionFilter
-    inputActionFilter.setGroup('default_blacklist_exploration', {"switch_next_vehicle", "switch_previous_vehicle", "loadHome", "saveHome", "reload_vehicle", "reload_all_vehicles", "vehicle_selector", "parts_selector", "dropPlayerAtCamera", "toggleWalkingMode"} )  
-
-    kissui.force_disable_nametags = true
 ]]
 
 local modules = {
@@ -191,7 +172,6 @@ hooks.register('OnVehicleRemoved', 'VK_PLAYER_VEHICLE_REMOVED', function(vehicle
         -- end, function() GWLog("Failed to get clientName in hook \"SendAPI\"") end )
 
         G_Try(function()
-            --[[ If I call vehicles.remove(...) then obviously no client_id is passed through so I just see if that was called or if the user manually deleted it via the ig menu ]]--
             G_Clients[client_id].vehicles.count = G_Clients[client_id].vehicles.count - 1
         end)
     end

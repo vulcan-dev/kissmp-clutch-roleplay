@@ -395,30 +395,33 @@ local function DisplayDialog(error, client, message, time)
     end
 end
 
-local function DisplayDialogError(client, error)
-    if G_Errors[error] then
-        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='error', title='%s', config = {timeOut = 3000}})", G_Errors[error]))
-        --DisplayDialog(error, client, G_Errors[error], time)
+local function DisplayDialogError(client, message)
+    if client and G_Errors[message] then
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='error', title='%s', config = {timeOut = 3000}})", G_Errors[message]))
     else
-        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='error', title='%s', config = {timeOut = 3000}})", tostring(error)))
+        for _, client in pairs(G_Clients) do
+            client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", tostring(message)))
+        end
     end
 end
 
-local function DisplayDialogWarning(client, error)
-    if G_Errors[error] then
-        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='warning', title='%s', config = {timeOut = 3000}})", G_Errors[error]))
-        --DisplayDialog(error, client, G_Errors[error], time)
+local function DisplayDialogWarning(client, message)
+    if client and G_Errors[message] then
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='warning', title='%s', config = {timeOut = 3000}})", G_Errors[message]))
     else
-        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='warning', title='%s', config = {timeOut = 3000}})", tostring(error)))
+        for _, client in pairs(G_Clients) do
+            client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", tostring(message)))
+        end
     end
 end
 
-local function DisplayDialogSuccess(client, error)
-    if G_Errors[error] then
-        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", G_Errors[error]))
-        --DisplayDialog(error, client, G_Errors[error], time)
+local function DisplayDialogSuccess(client, message)
+    if client and G_Errors[message] then
+        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", G_Errors[message]))
     else
-        client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", tostring(error)))
+        for _, client in pairs(G_Clients) do
+            client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", tostring(message)))
+        end
     end
 end
 
