@@ -18,11 +18,11 @@ local cooldownTime = 0
 M.commands = {}
 
 --[[ Toggle Priority Cooldown ]]--
-M.commands["prio"] = {
+M.commands["tprio"] = {
     rank = modules.moderation.RankModerator,
     category = 'Moderation',
     description = 'Toggles Priority Cooldown',
-    usage = '/prio',
+    usage = '/tprio',
     exec = function(executor, args)
         if cooldownTime <= 0 then
             local year, month, day, hour, min, sec = os.date('%Y-%m-%d %H:%M:%S'):match('(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)')
