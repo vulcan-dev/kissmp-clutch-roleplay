@@ -4,11 +4,6 @@
 
 require('addons.vulcan_script.globals')
 
---[[ My TODO List
-    TODO Add a set_vehicle_limit command
-    TODO Add a command to enable/disable priority
-]]
-
 local modules = {
     utilities = require('addons.vulcan_script.utilities'),
     timed_events = require('addons.vulcan_script.timed_events'),
