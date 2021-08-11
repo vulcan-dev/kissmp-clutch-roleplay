@@ -81,7 +81,7 @@ M.commands["time_stop"] = {
         G_Environment.time.play = false
 
         for _, client in pairs(G_Clients) do
-            client.user:sendLua('extensions.core_environment.setTimeOfDay({time=extensions.core_environment.getTimeOfDay(), play=false})')
+            client.user:sendLua('extensions.core_environment.setTimeOfDay({time=extensions.core_environment.getTimeOfDay().time, play=false})')
             modules.server.DisplayDialog(client, '[Enviroment] Time is not playing')
         end
     end

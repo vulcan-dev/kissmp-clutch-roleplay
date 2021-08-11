@@ -147,6 +147,7 @@ M.callbacks = {
                         local x = my_vehicle:getTransform():getPosition()[1]
                         local y = my_vehicle:getTransform():getPosition()[2]
 
+                        -- FIXME error here
                         if (x > client.gps.position.x - 20 and x < client.gps.position.x + 20) and (y > client.gps.position.y - 20 and y < client.gps.position.y + 20) then
                             client.user:sendLua('core_groundMarkers.resetAll()')
                             client.gps.enabled = false

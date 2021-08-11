@@ -1,8 +1,7 @@
 {
   "6376d4494bd9bcc21a7793c205fe3937e850eca9": {
     "alias": [
-      "Daniel W",
-      "Console2"
+      "Daniel W"
     ],
     "bans": [],
     "blockList": [],
@@ -15,15 +14,13 @@
       "z": 52.24008560180664,
       "zr": -0.25916287302970886
     },
-    "money": 197302.0,
+    "money": 240.0,
     "mute_time": 0.0,
     "onduty": false,
-    "playtime": 88085.0,
-    "rank": 6.0,
-    "roles": [
-      "ems"
-    ],
-    "vehicleLimit": 11.0,
+    "playtime": 365.0,
+    "rank": "6",
+    "roles": [],
+    "vehicleLimit": 2.0,
     "warns": []
   },
   "secret_console": {
