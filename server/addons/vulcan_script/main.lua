@@ -51,30 +51,30 @@ local prefix = '/'
 
 -- [[ ==================== Hooking Start ==================== ]] --
 hooks.register('OnPlayerConnected', 'VK_PLAYER_CONNECT', function(client_id)
+    --[[ Create new User Object if it doesn't exist ]]--
+    if not modules.utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank', G_LevelError, true, true) then
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'rank', 0)
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'warns', {})
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'alias', {connections[client_id]:getName()})
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'bans', {})
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'vehicleLimit', 2)
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'mute_time', 0)
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'playtime', 0)
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList', {})
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home', {x=709.3377075195312, y=-0.7625573873519897, z=52.24008560180664, xr=-0.006330838892608881, yr=-0.00027202203636989, zr=-0.25916287302970886, w=0.9658128619194032})
+
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles', {})
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'money', 240)
+        modules.utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'onduty', false)
+
+        GILog('Creating new user object for %s', connections[client_id]:getName())
+    end
+
     --[[ Add Client to Table ]]--
     modules.server.AddClient(client_id)
     local client = G_Clients[client_id]
 
-    GILog('%s is connecting [ %s ]', client.user:getName(), client.user:getSecret())
-
-    --[[ Create new User Object if it doesn't exist ]]--
-    if not modules.utilities.GetKey(G_PlayersLocation, client.user:getSecret(), 'rank', G_LevelError, true, true) then
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'rank', 0)
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'alias', {G_Clients[client_id].user:getName()})
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'warns', {})
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'bans', {})
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'vehicleLimit', 2)
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'mute_time', 0)
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'playtime', 0)
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'blockList', {})
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'home', {x=709.3377075195312, y=-0.7625573873519897, z=52.24008560180664, xr=-0.006330838892608881, yr=-0.00027202203636989, zr=-0.25916287302970886, w=0.9658128619194032})
-
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'roles', {})
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'money', 240)
-        modules.utilities.EditKey(G_PlayersLocation, client.user:getSecret(), 'onduty', false)
-
-        GILog('Creating new user object for %s', client.user:getName())
-    end
+    GILog('%s is connecting [ %s ]', client.user:getName(), connections[client_id]:getSecret())
 
     modules.server.IsConnected(client, client.user:getName(), function()
         --[[ Connected ]]--
