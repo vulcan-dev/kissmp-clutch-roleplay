@@ -11,7 +11,7 @@ local function Draw(dt)
         command.imgui.SetColumnWidth(0, 140)
 
         --[[ Environment ]]--
-        command.imgui.BeginChild1('user', command.imgui.ImVec2(140, 440), true)
+        command.imgui.BeginChild1('user', command.imgui.ImVec2(140, 440), false)
         command.imgui.Separator()
         command.imgui.SetCursorPosX((140 - command.imgui.CalcTextSize('User').x) * 0.5)
         command.imgui.Text('User')

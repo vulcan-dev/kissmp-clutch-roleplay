@@ -280,6 +280,31 @@ M.commands['unban'] = function()
     M.imgui.PopItemWidth()
 end
 
+M.commands['set_vl'] = function()
+    M.imgui.Columns(4, 'set_vl_column', false)
+
+    for id, client in pairs(network.players) do
+        M.imgui.SetCursorPosX((M.imgui.GetCursorPosX() + M.imgui.GetColumnWidth() - M.buttonSize.x) - M.buttonSize.x / 2)
+        if M.imgui.Button(client.name, M.buttonSize) then
+            client1 = id -- will need to rework all this because client1 will stay
+            showOther = not showOther
+        end
+
+        M.imgui.NextColumn()
+    end
+
+    if showOther then
+        M.imgui.Columns(1)
+        M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
+        M.imgui.SetCursorPosY(M.drawData.window.size.y - 30)
+        if M.imgui.InputText('##vlimit', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
+            Execute('/set_vl ' .. client1 .. ' ' .. ffi.string(buffer))
+            buffer = M.imgui.ArrayChar(512)
+        end
+        M.imgui.PopItemWidth()
+    end
+end
+
 M.commands['kick'] = function()
     M.imgui.Columns(4, 'player_kick_column', false)
 

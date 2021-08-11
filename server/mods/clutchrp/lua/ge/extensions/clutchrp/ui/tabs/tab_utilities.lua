@@ -12,7 +12,7 @@ local function Draw(dt)
         command.imgui.SetColumnWidth(0, 180)
 
         --[[ Environment ]]--
-        command.imgui.BeginChild1('time', command.imgui.ImVec2(140, 270), true)
+        command.imgui.BeginChild1('time', command.imgui.ImVec2(140, 270), false)
         command.imgui.Separator()
         command.imgui.SetCursorPosX((140 - command.imgui.CalcTextSize('Environment').x) * 0.5)
         command.imgui.Text('Environment')
@@ -149,7 +149,7 @@ local function Draw(dt)
         command.imgui.SetCursorPosY(37)
 
         --[[ Unnamed ]]--
-        command.imgui.BeginChild1('unnamed', command.imgui.ImVec2(120, 180))
+        command.imgui.BeginChild1('unnamed', command.imgui.ImVec2(120, 240))
         command.imgui.Separator()
         command.imgui.SetCursorPosX((120 - command.imgui.CalcTextSize('Unnamed').x) * 0.5)
         command.imgui.Text('Unnamed')
@@ -186,7 +186,20 @@ local function Draw(dt)
             })
         else if command.imgui.Button('Toggle Priority', buttonSize) then
             command.Execute('/tprio')
-        end end end end end
+        else if command.imgui.Button('Set Vehicle Limit', buttonSize) then
+            command.shouldDrawCommand = not command.shouldDrawCommand
+            command.Set({
+                shouldDraw = command.shouldDrawCommand,
+                window = {
+                    title = 'Set Vehicle Limit',
+                    size = command.imgui.ImVec2(480, 110),
+                    style = command.windowStyles,
+                    posTitle = command.imgui.ImVec2(M.viewport.Size.x / 2 - command.windowSize.x / 2, 20),
+                    sizeTitle = command.imgui.ImVec2(command.windowSize.x, 30)
+                },
+                drawFunction = command.commands['set_vl']
+            })
+        end end end end end end
 
         -- need a get_roles
 
