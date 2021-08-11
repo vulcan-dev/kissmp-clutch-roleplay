@@ -24,23 +24,28 @@ M.commands["prio"] = {
     description = 'Toggles Priority Cooldown',
     usage = '/prio',
     exec = function(executor, args)
-        local year, month, day, hour, min, sec = os.date('%Y-%m-%d %H:%M:%S'):match('(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)')
+        if cooldownTime <= 0 then
+            local year, month, day, hour, min, sec = os.date('%Y-%m-%d %H:%M:%S'):match('(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)')
 
-        local date = {
-            year = year,
-            month = month,
-            day = day,
-            hour = hour,
-            min = min,
-            sec = sec
-        }
+            local date = {
+                year = year,
+                month = month,
+                day = day,
+                hour = hour,
+                min = min,
+                sec = sec
+            }
 
-        date.min = date.min + 20
-        local exp_sec = os.time{ year = date.year, month = date.month, day = date.day, hour = date.hour, min = date.min, sec = date.sec }
+            date.min = date.min + 20
+            local exp_sec = os.time{ year = date.year, month = date.month, day = date.day, hour = date.hour, min = date.min, sec = date.sec }
 
-        cooldownTime = exp_sec
+            cooldownTime = exp_sec
 
-        modules.server.DisplayDialogWarning('Priority Cooldown has been enabled')
+            modules.server.DisplayDialogWarning('Priority Cooldown has been enabled')
+        else
+            cooldownTime = 0
+            modules.server.DisplayDialogSuccess('Priority Cooldown has been disabled')
+        end
     end
 }
 

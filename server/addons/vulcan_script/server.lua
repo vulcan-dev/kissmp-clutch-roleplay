@@ -399,8 +399,9 @@ local function DisplayDialogError(client, message)
     if client and G_Errors[message] then
         client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='error', title='%s', config = {timeOut = 3000}})", G_Errors[message]))
     else
+        if type(client) ~= 'table' then message = client end
         for _, client in pairs(G_Clients) do
-            client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", tostring(message)))
+            client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='error', title='%s', config = {timeOut = 3000}})", tostring(message)))
         end
     end
 end
@@ -409,8 +410,9 @@ local function DisplayDialogWarning(client, message)
     if client and G_Errors[message] then
         client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='warning', title='%s', config = {timeOut = 3000}})", G_Errors[message]))
     else
+        if type(client) ~= 'table' then message = client end
         for _, client in pairs(G_Clients) do
-            client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", tostring(message)))
+            client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='warning', title='%s', config = {timeOut = 3000}})", tostring(message)))
         end
     end
 end
@@ -419,6 +421,7 @@ local function DisplayDialogSuccess(client, message)
     if client and G_Errors[message] then
         client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", G_Errors[message]))
     else
+        if type(client) ~= 'table' then message = client end
         for _, client in pairs(G_Clients) do
             client.user:sendLua(string.format("guihooks.trigger('toastrMsg', {type='success', title='%s', config = {timeOut = 3000}})", tostring(message)))
         end
@@ -426,16 +429,9 @@ local function DisplayDialogSuccess(client, message)
 end
 
 local function SendChatMessage(client_id, message, colour)
-    --if G_CurrentPlayers == 1 then return end --[[ Don't Send Anything to Prevent Spam ]]--
-    --GDLog('Sending Message (client_id, msg, colour): %s %s %s', client_id or nil, message or nil, colour or nil)
-    --[[ Check if Client is Valid ]]--
     if not G_Clients[client_id] then
         colour = message
         message = client_id
-    end
-
-    if G_CommandExecuted then
-        --modules.utilities.LogReturn(message)
     end
 
     --[[ Check if Colour is Valid ]]--
