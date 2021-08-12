@@ -7,7 +7,7 @@
 local M = {}
 
 local interface_roleplay = require('clutchrp.ui.interface_roleplay')
-local interface_moderation = require('clutchrp.ui.interface_moderation')
+local interface_Moderation = require('clutchrp.ui.interface_moderation')
 local interface_phone = require('clutchrp.ui.interface_phone')
 local tooltip = require('clutchrp.ui.tooltip')
 local command = require('clutchrp.command')
@@ -26,11 +26,11 @@ local function ToggleInterfacePhone()
 end
 
 local function ToggleInterfaceModeration()
-    interface_moderation.shouldDraw = not interface_moderation.shouldDraw
-    interface_moderation.shouldDrawCommand = false
+    interface_Moderation.shouldDraw = not interface_Moderation.shouldDraw
+    interface_Moderation.shouldDrawCommand = false
     command.drawData.shouldDraw = false
 
-    log('I', 'interface', 'interface_moderation: ' .. tostring(interface_moderation.shouldDraw))
+    log('I', 'interface', 'interface_moderation: ' .. tostring(interface_Moderation.shouldDraw))
 end
 
 local function Update(dt)
@@ -38,8 +38,8 @@ local function Update(dt)
         interface_roleplay.Draw(dt)
     end
 
-    if interface_moderation.shouldDraw then
-        interface_moderation.Draw(dt)
+    if interface_Moderation.shouldDraw then
+        interface_Moderation.Draw(dt)
     end
 
     if interface_phone.shouldDraw then
@@ -50,7 +50,7 @@ local function Update(dt)
         tooltip.Draw(dt)
     end
 
-    if interface_moderation.shouldDraw or interface_roleplay.shouldDraw then
+    if interface_Moderation.shouldDraw or interface_roleplay.shouldDraw then
         command.Draw(dt)
     end
 end

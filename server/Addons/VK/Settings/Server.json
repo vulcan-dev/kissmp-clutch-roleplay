@@ -1,0 +1,16 @@
+{
+    "log": {
+        "verbose": false,
+        "file": false
+    },
+
+    "options": {
+        "kick_unknown": true,
+        "whitelist_all": true,
+        "command_prefix": "/",
+        "player_location": "./Addons/VK/Settings/",
+        "colour_location": "./Addons/VK/Settings/",
+        "discord_link": "https://discord.gg/xwKu8prVtz",
+        "patreon_link": "https://www.patreon.com/clutch_roleplay"
+    }
+}
