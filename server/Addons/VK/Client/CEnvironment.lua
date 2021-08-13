@@ -21,6 +21,27 @@ local function setPrecipitation(rain)
     ]], rain)
 end
 
+local function createSFXRain(volume)
+    return string.format([[
+        deleteObject('SFX_CRPRain')
+        SFX_CRPRain = createObject('SFXEmitter')
+        SFX_CRPRain.name = 'SFX_CRPRain'
+        SFX_CRPRain.scale = Point3F(100, 100, 100)
+        SFX_CRPRain.fileName = String('/art/sound/environment/amb_rain_medium.ogg')
+        SFX_CRPRain.playOnAdd = true
+        SFX_CRPRain.isLooping = true
+        SFX_CRPRain.volume = %.2f
+        SFX_CRPRain.is3D = false
+        SFX_CRPRain:registerObject('SFX_CRPRain')
+    ]], volume)
+end
+
+local function stopSFXRain()
+    return [[
+        deleteObject('SFX_CRPRain')
+    ]]
+end
+
 local function setTime(time)
     return string.format('extensions.core_environment.setTimeOfDay({time = '..time..'})')
 end
@@ -33,6 +54,9 @@ local function setWind(wind)
 end
 
 M.setPrecipitation = setPrecipitation
+M.setPrecipitation = setPrecipitation
+M.createSFXRain = createSFXRain
+M.stopSFXRain = stopSFXRain
 M.setTime = setTime
 M.setWind = setWind
 

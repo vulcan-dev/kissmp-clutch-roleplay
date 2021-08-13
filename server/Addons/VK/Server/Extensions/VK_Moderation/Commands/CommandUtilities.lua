@@ -188,12 +188,17 @@ M.Commands["set_rain"] = {
     description = 'Sets the rain amount',
     usage = '/set_rain (amount_of_rain)',
     exec = function(executor, args)
-        local rainAmount = args[1] or 40
+        local rainAmount = tonumber(args[1]) or 40
 
         G_Environment.weather.rain = rainAmount
 
         for _, client in pairs(G_Clients) do
             client.user:sendLua(Modules.CEnvironment.setPrecipitation(rainAmount))
+            if rainAmount <= 0 then
+                client.user:sendLua(Modules.CEnvironment.stopSFXRain())
+            else
+                client.user:sendLua(Modules.CEnvironment.createSFXRain(rainAmount / 100))
+            end
         end
     end
 }
