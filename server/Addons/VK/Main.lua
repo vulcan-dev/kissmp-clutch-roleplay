@@ -37,8 +37,6 @@ local function Initialize()
 
     Hooks.Register('[Main] Initialize', 'Initialize', Initialize)
     Hooks.Reload()
-
-    GFLog('test')
 end
 
 Initialize()

@@ -14,7 +14,6 @@ G_Clients = {}
 G_CurrentPlayers = 0
 
 --[[ Logging Levels ]]--
-G_Level = 0
 G_LevelInfo = 1
 G_LevelDebug = 2
 G_LevelError = 3
