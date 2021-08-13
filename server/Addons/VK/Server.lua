@@ -324,7 +324,7 @@ local function IsConnected(client, name, exec)
 end
 
 local function IsInRadius(location, radius, x, y)
-    local data = Modules.Utilities.GetKey(G_Locations, location)
+    local data = Modules.Utilities.GetKey(G_Locations, location) or location
     for _, v in pairs(data) do
         if type(v.x) == 'number' and type(v.y) == 'number' and type(v.z) == 'number' then
             if (x > v.x - radius and x < v.x + radius) and (y > v.y - radius and y < v.y + radius) then
@@ -502,10 +502,6 @@ end
 local function ReloadModules()
     Modules = G_ReloadModules(Modules, 'Server.lua')
 end
-
-M.Callbacks = {
-    ['[Server] ReloadModules'] = ReloadModules
-}
 
 --[[ Colour Variables ]]--
 M.ColourSuccess = ColourSuccess

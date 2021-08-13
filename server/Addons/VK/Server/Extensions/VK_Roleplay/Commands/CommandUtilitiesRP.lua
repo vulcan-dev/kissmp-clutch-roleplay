@@ -11,7 +11,9 @@ local Modules = {
     Utilities = require('Addons.VK.Utilities'),
     TimedEvents = require('Addons.VK.TimedEvents'),
     Roleplay = require('Addons.VK.Server.Extensions.VK_Roleplay.Roleplay'),
-    Server = require('Addons.VK.Server')
+    Server = require('Addons.VK.Server'),
+
+    CFire = require('Addons.VK.Client.CFire')
 }
 
 local cooldownTime = 0
@@ -83,6 +85,46 @@ M.Commands["set_bal"] = {
         client.editKey('money', balance)
         Modules.Server.SendChatMessage(executor.user:getID(), string.format('You set %s balance to $%s', client.user:getName(), balance), Modules.Server.ColourSuccess)
         Modules.Server.SendChatMessage(client.user:getID(), string.format('%s set your balance to $%s', executor.user:getName(), balance), Modules.Server.ColourSuccess)
+    end
+}
+
+--[[ Start Fire ]]--
+M.Commands["start_fire"] = {
+    rank = Modules.Moderation.RankModerator,
+    category = 'Roleplay Utilities',
+    usage = '/start_fire',
+    exec = function(executor, args)
+        local player = connections[executor.user:getID()]
+        local vehicle = vehicles[player:getCurrentVehicle()]
+
+        if vehicle then
+            Modules.CFire.StartFire(executor, vehicle:getTransform():getPosition())
+        end
+    end
+}
+
+--[[ Extinguish Fire ]]--
+M.Commands["ext_fire"] = {
+    rank = Modules.Moderation.RankModerator,
+    category = 'Roleplay Utilities',
+    usage = '/ext_fire',
+    exec = function(executor, args)
+        local player = connections[executor.user:getID()]
+        local vehicle = vehicles[player:getCurrentVehicle()]
+        
+        if vehicle then
+            local position = vehicle:getTransform():getPosition()
+            local currentFires = Modules.CFire.GetFires()
+            for _, tbl in pairs(currentFires) do
+                for fireName, fire in pairs(tbl) do
+                    if type(fire) == 'table' then
+                        if (position[1] > fire.x - 10 and position[1] < fire.x + 10) and (position[2] > fire.y - 10 and position[2] < fire.y + 10) then
+                            Modules.CFire.Extinguish(fireName)
+                        end
+                    end
+                end
+            end
+        end
     end
 }
 

@@ -20,6 +20,14 @@ require('Addons.VK.Server.Hooks')
     soundObject.is3D = false
     soundObject:registerObject('')
 
+    @Particle
+    P_CRPFire = createObject('ParticleEmitterNode')
+    P_CRPFire.name = 'P_CRPFire'
+    P_CRPFire:setField('emitter', 0, "BNGP_31")
+    P_CRPFire:setField('position', 0, "100 100 100")
+    P_CRPFire:registerObject('P_CRPFire')
+    P_CRPFire:setField('dataBlock', 0, 'lightExampleEmitterNodeData1')
+
     @Particle Black Smoke
     ClassName: ParticleEmitterNode
     Emitter: BNGP_32

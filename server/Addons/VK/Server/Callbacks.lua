@@ -18,6 +18,7 @@ local nextUpdate = 0
 
 M.Callbacks = {
     ['Initialize'] = function()
+        G_Level = G_LevelDebug
         prefix = Modules.Utilities.GetKey(G_ServerLocation, 'options', 'command_prefix')
 
         G_Verbose = Modules.Utilities.GetKey(G_ServerLocation, 'log', 'verbose')
