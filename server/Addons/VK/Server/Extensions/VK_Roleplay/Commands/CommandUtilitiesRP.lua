@@ -7,10 +7,10 @@ require('Addons.VK.globals')
 local M = {}
 
 local Modules = {
-    Moderation = require('Addons.VK.Extensions.VK_Moderation.Moderation'),
+    Moderation = require('Addons.VK.Server.Extensions.VK_Moderation.Moderation'),
     Utilities = require('Addons.VK.Utilities'),
     TimedEvents = require('Addons.VK.TimedEvents'),
-    Roleplay = require('Addons.VK.Extensions.VK_Roleplay.Roleplay'),
+    Roleplay = require('Addons.VK.Server.Extensions.VK_Roleplay.Roleplay'),
     Server = require('Addons.VK.Server')
 }
 

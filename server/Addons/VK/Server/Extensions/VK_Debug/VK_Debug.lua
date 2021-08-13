@@ -3,7 +3,7 @@ require('Addons.VK.globals')
 local M = {}
 
 local Modules = {
-    Moderation = require('Addons.VK.Extensions.VK_Moderation.Moderation'),
+    Moderation = require('Addons.VK.Server.Extensions.VK_Moderation.Moderation'),
     Utilities = require('Addons.VK.Utilities')
 }
 

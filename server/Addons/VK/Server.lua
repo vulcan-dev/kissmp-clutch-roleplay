@@ -483,9 +483,12 @@ end
 
 --[[ Utility Functions ]]--
 local function ReloadModules()
-    local Modules = G_ReloadModules(Modules, 'Server.lua')
-    return modules
+    Modules = G_ReloadModules(Modules, 'Server.lua')
 end
+
+M.Callbacks = {
+    ['[Server] ReloadModules'] = ReloadModules
+}
 
 --[[ Colour Variables ]]--
 M.ColourSuccess = ColourSuccess
@@ -496,10 +499,7 @@ M.ColourTwitter = ColourTwitter
 M.ColourDarkweb = ColourDarkweb
 M.ColourPoliceRadio = ColourPoliceRadio
 
-M.ColourMention = ColourMention
-
---[[ Enviroment Variables ]]--
-M.environment = environment
+M.ColourMention = ColourMention 
 
 --[[ Player Functions & Variables ]]--
 M.consolePlayer = consolePlayer

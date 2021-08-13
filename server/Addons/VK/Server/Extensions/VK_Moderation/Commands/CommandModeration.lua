@@ -8,12 +8,11 @@ local M = {}
 
 local Modules = {
     Utilities = require('Addons.VK.Utilities'),
-    Moderation = require('Addons.VK.Extensions.VK_Moderation.Moderation'),
+    Moderation = require('Addons.VK.Server.Extensions.VK_Moderation.Moderation'),
     TimedEvents = require('Addons.VK.TimedEvents'),
     Server = require('Addons.VK.Server'),
 
     cl_vehicle = require('Addons.VK.ClientLua.cl_vehicle'),
-    -- cl_menu = require('Addons.VK.ClientLua.cl_menu')
 }
 
 M.Commands = {}
@@ -662,20 +661,8 @@ M.Commands["get_ids"] = {
     end
 }
 
--- M.Commands["tmenu"] = {
---     rank = Modules.Moderation.RankDeveloper,
---     category = 'Development Testing',
---     description = 'Toggle Menu',
---     usage = '/tmenu',
---     exec = function(executor, args)
---         executor.renderMenu = not executor.renderMenu
---         executor.user:sendLua(Modules.cl_menu.ToggleMenu(executor))
---     end
--- }
-
 local function ReloadModules()
     Modules = G_ReloadModules(Modules, 'CommandModeration.lua')
-    -- Modules.cl_menu.ReloadModules()
 end
 
 M.ReloadModules = ReloadModules

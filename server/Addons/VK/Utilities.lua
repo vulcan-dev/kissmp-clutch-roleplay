@@ -24,6 +24,10 @@ local function GetDateTime(format, time)
     return os.date(format, time)
 end
 
+local function FileToJSON(path)
+    return decode_json(io.open(path, 'r'):read('*a'))
+end
+
 local function LuaStrEscape(str, q)
     local escapeMap = {
         ["\n"] = [[\n]],
@@ -211,11 +215,16 @@ local function ToTitle(str)
     if str then return (str:gsub("^%l", string.upper)) else return "" end
 end
 
+local function LoadExtension(name)
+    return require(string.format('Addons.VK.Server.Extensions.%s.%s', name, name))
+end
+
 local function ReloadModules()
     Modules = G_ReloadModules(Modules, 'Utilities.lua')
 end
 
 M.GetDateTime = GetDateTime
+M.FileToJSON = FileToJSON
 M.LuaStrEscape = LuaStrEscape
 M.GetMessage = GetMessage
 M.IsNumber = IsNumber
@@ -228,6 +237,7 @@ M.EditKey = EditKey
 M.GetColour = GetColour
 M.StartsWith = StartsWith
 M.ToTitle = ToTitle
+M.LoadExtension = LoadExtension
 M.ReloadModules = ReloadModules
 
 return M

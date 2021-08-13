@@ -12,22 +12,22 @@ local money = 60
 local canDrawTooltip = false
 
 local Modules = {
-    CommandUtilitiesRP = require('Addons.VK.Extensions.VK_Roleplay.Commands.CommandUtilitiesRP'),
+    CommandUtilitiesRP = require('Addons.VK.Server.Extensions.VK_Roleplay.Commands.CommandUtilitiesRP'),
     Utilities = require('Addons.VK.Utilities'),
     TimedEvents = require('Addons.VK.TimedEvents'),
-    Moderation = require('Addons.VK.Extensions.VK_Moderation.Moderation'),
-    Roleplay = require('Addons.VK.Extensions.VK_Roleplay.Roleplay'),
+    Moderation = require('Addons.VK.Server.Extensions.VK_Moderation.Moderation'),
+    Roleplay = require('Addons.VK.Server.Extensions.VK_Roleplay.Roleplay'),
     Server = require('Addons.VK.Server'),
 
     cl_tooltip = require('Addons.VK.ClientLua.cl_tooltip')
 }
 
-M.callbacks = {
-    VK_PlayerDisconnect = function(client)
+M.Callbacks = {
+    ['VK_PlayerDisconnect'] = function(client)
         client.editKey('onduty', false)
     end,
 
-    VK_VehicleSpawn = function(vehicle_id, client_id)
+    ['VK_VehicleSpawn'] = function(vehicle_id, client_id)
         local client = G_Clients[client_id]
 
         --[[ Check if vehicle config is allowed ]]
@@ -55,7 +55,7 @@ M.callbacks = {
         end
     end,
 
-    VK_Tick = function()
+    ['VK_Tick'] = function()
         if os.time() >= nextUpdatePaycheckRules then
             nextUpdatePaycheckRules = os.time() + 1200
 
@@ -165,21 +165,18 @@ M.callbacks = {
                 Modules.cl_tooltip.Update(client)
             end
         end
+    end,
+
+    ['[VK_Roleplay] ReloadModules'] = function()
+        Modules = G_ReloadModules(Modules, 'VK_Roleplay.lua')
+        for _, module in pairs(Modules) do
+            if module.ReloadModules then
+                module.ReloadModules()
+            end
+        end
+
+        G_AddCommandTable(Modules.CommandUtilitiesRP.Commands)
     end
 }
-
-local function ReloadModules()
-    Modules = G_ReloadModules(Modules, 'VK_Roleplay.lua')
-    for _, module in pairs(Modules) do
-        if module.ReloadModules then
-            module.ReloadModules()
-        end
-    end
-
-    G_AddCommandTable(Modules.CommandUtilitiesRP.Commands)
-end
-
-M.callbacks = M.callbacks
-M.ReloadModules = ReloadModules
 
 return M

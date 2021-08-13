@@ -1,7 +1,3 @@
---[[
-    Created by Daniel W (Vitex#1248)
-]]--
-
 require('Addons.VK.globals')
 
 -- Local Variables --
@@ -10,20 +6,20 @@ local nextUpdate = 0
 
 local Modules = {
     Utilities = require('Addons.VK.Utilities'),
-    Moderation = require('Addons.VK.Extensions.VK_Moderation.Moderation'),
+    Moderation = require('Addons.VK.Server.Extensions.VK_Moderation.Moderation'),
     TimedEvents = require('Addons.VK.TimedEvents'),
     Server = require('Addons.VK.Server'),
 
-    CommandModeration = require('Addons.VK.Extensions.VK_Moderation.Commands.CommandModeration'),
-    CommandUtilities = require('Addons.VK.Extensions.VK_Moderation.Commands.CommandUtilities'),
-    CommandFun = require('Addons.VK.Extensions.VK_Moderation.Commands.CommandFun'),
+    CommandModeration = require('Addons.VK.Server.Extensions.VK_Moderation.Commands.CommandModeration'),
+    CommandUtilities = require('Addons.VK.Server.Extensions.VK_Moderation.Commands.CommandUtilities'),
+    CommandFun = require('Addons.VK.Server.Extensions.VK_Moderation.Commands.CommandFun'),
 
     cl_environment = require('Addons.VK.ClientLua.cl_environment')
     -- cl_menu = require('Addons.VK.ClientLua.cl_menu')
 }
 
-M.callbacks = {
-    VK_PlayerConnect = function(client_id)
+M.Callbacks = {
+    ['VK_PlayerConnect'] = function(client_id)
         local client = G_Clients[client_id]
 
         -- Check for new alias
@@ -60,11 +56,11 @@ M.callbacks = {
         end
     end,
 
-    VK_PlayerDisconnect = function(client)
+    ['VK_PlayerDisconnect'] = function(client)
         GILog('[Player] %s has Disconnected', client.user:getName())
     end,
 
-    VK_VehicleSpawn = function(vehicle_id, client_id)
+    ['VK_VehicleSpawn'] = function(vehicle_id, client_id)
         local vehicle = vehicles[vehicle_id]
 
         local can_drive = true
@@ -105,12 +101,12 @@ M.callbacks = {
         end
     end,
 
-    VK_VehicleReset = function(vehicle_id, client_id)
+    ['VK_VehicleReset'] = function(vehicle_id, client_id)
         G_Clients[client_id].user:sendLua(Modules.cl_environment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
         return ""
     end,
 
-    VK_OnStdIn = function(message)
+    ['VK_OnStdIn'] = function(message)
         if string.sub(message, 1, 1) == '/' then
             G_CommandExecuted = true
             local args = Modules.Utilities.ParseCommand(message, ' ')
@@ -125,11 +121,11 @@ M.callbacks = {
             G_CommandExecuted = false
         end
     end,
-    
-    VK_Tick = function()
+
+    ['VK_Tick'] = function()
         if os.time() >= nextUpdate then
             nextUpdate = os.time() + 5
-            
+
             for _, client in pairs(G_Clients) do
                 if client.connected then
                     if client.user:getID() ~= 1337 then
@@ -145,24 +141,20 @@ M.callbacks = {
                 end
             end
         end
+    end,
+
+    ['[VK_Moderation] ReloadModules'] = function()
+        Modules = G_ReloadModules(Modules, 'VK_Moderation.lua')
+        for _, module in pairs(Modules) do
+            if module.ReloadModules then
+                module.ReloadModules()
+            end
+        end
+
+        G_AddCommandTable(Modules.CommandModeration.Commands)
+        G_AddCommandTable(Modules.CommandUtilities.Commands)
+        G_AddCommandTable(Modules.CommandFun.Commands)
     end
 }
-
-local function ReloadModules()
-    Modules = G_ReloadModules(Modules, 'VK_Moderation.lua')
-    for _, module in pairs(Modules) do
-        if module.ReloadModules then
-            module.ReloadModules()
-        end
-    end
-
-    G_AddCommandTable(Modules.CommandModeration.Commands)
-    G_AddCommandTable(Modules.CommandUtilities.Commands)
-    G_AddCommandTable(Modules.CommandFun.Commands)
-
-end
-
-M.callbacks = M.callbacks
-M.ReloadModules = ReloadModules
 
 return M

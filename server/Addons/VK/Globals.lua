@@ -2,11 +2,12 @@
     Created by Daniel W (Vitex#1248)
 ]]--
 
-package.path = ';?.lua;./addons/VK/?.lua;' .. package.path
-package.path = './Addons/VK/Extensions/VK_Moderation/?.lua;./Addons/VK/Extensions/VK_Moderation/Commands/?.lua;' .. package.path
+package.path = ';?.lua;./Addons/VK/?.lua;' .. package.path
+package.path = ';?.lua;./Addons/VK/Server/?.lua;' .. package.path
+package.path = './Addons/VK/Server/Extensions/VK_Moderation/?.lua;./Addons/VK/Server/Extensions/VK_Moderation/Commands/?.lua;' .. package.path
 package.path = './Addons/VK/ClientLua/?.lua;' .. package.path
-package.path = './Addons/VK/Extensions/VK_Roleplay/?.lua;./Addons/VK/Extensions/VK_Roleplay/Commands/?.lua;' .. package.path
-package.path = './Addons/VK/Extensions/VK_Debug/?.lua;' .. package.path
+package.path = './Addons/VK/Server/Extensions/VK_Roleplay/?.lua;./Addons/VK/Server/Extensions/VK_Roleplay/Commands/?.lua;' .. package.path
+package.path = './Addons/VK/Server/Extensions/VK_Debug/?.lua;' .. package.path
 
 --[[ Clients and Player Count ]]--
 G_Clients = {}
@@ -37,6 +38,8 @@ G_Commands = {}
 G_CommandExecuted = false
 
 G_FirstLoad = true
+
+_Extensions = {}
 
 G_Environment = {
     time = {
@@ -97,15 +100,14 @@ function G_ReloadExtensions(extensions, filename)
     filename = filename or ''
 
     for _, ext in pairs(Utilities.GetKey('Addons\\VK\\Settings\\Extensions.json', 'Extensions')) do
-        GDLog(ext)
-        if package.loaded[string.format('Addons.VK.Extensions.%s.%s', ext, ext)] then
-            package.loaded[string.format('Addons.VK.Extensions.%s.%s', ext, ext)] = nil
+        if package.loaded[string.format('Addons.VK.Server.Extensions.%s.%s', ext, ext)] then
+            package.loaded[string.format('Addons.VK.Server.Extensions.%s.%s', ext, ext)] = nil
             GDLog('[Extension] [%s] Reloaded %s', filename, ext)
         else
             GDLog('[Extension] [%s] Loaded %s', filename, ext)
         end
 
-        extensions[string.format('Addons.VK.Extensions.%s.%s', ext, ext)] = require(string.format('Addons.VK.Extensions.%s.%s', ext, ext))
+        extensions[string.format('Addons.VK.Server.Extensions.%s.%s', ext, ext)] = require(string.format('Addons.VK.Server.Extensions.%s.%s', ext, ext))
     end
 
     return extensions
