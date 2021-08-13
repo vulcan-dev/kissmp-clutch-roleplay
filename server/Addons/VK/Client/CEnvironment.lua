@@ -7,6 +7,12 @@ local function setPrecipitation(rain)
         rainObj = getObject("Precipitation", "rain_coverage") or getObject("Precipitation")
         if rainObj then
             rainObj.numDrops = %d
+            rainObj.useWind = true
+            rainObj.followCam = true
+            rainObj.rotateWithCamVel = false
+            rainObj.doCollision = true
+            rainObj.boxWidth = 2
+            rainObj.boxHeight = 10
             rainObj.dataBlock = scenetree.findObject("rain_medium")
             rainObj.useLighting = true
             rainObj.hitPlayers = true

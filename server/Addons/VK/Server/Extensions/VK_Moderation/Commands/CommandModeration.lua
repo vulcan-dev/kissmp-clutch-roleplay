@@ -12,7 +12,7 @@ local Modules = {
     TimedEvents = require('Addons.VK.TimedEvents'),
     Server = require('Addons.VK.Server'),
 
-    cl_vehicle = require('Addons.VK.ClientLua.cl_vehicle'),
+    CVehicle = require('Addons.VK.Client.CVehicle'),
 }
 
 M.Commands = {}
@@ -559,7 +559,7 @@ M.Commands["freeze"] = {
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        client.user:sendLua(Modules.cl_vehicle.setFreeze(1))
+        client.user:sendLua(Modules.CVehicle.setFreeze(1))
         Modules.Server.DisplayDialogWarning(client, 'You have been frozen')
     end
 }
@@ -577,7 +577,7 @@ M.Commands["unfreeze"] = {
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        client.user:sendLua(Modules.cl_vehicle.setFreeze(0))
+        client.user:sendLua(Modules.CVehicle.setFreeze(0))
         Modules.Server.DisplayDialogSuccess(client, 'You have been unfrozen')
     end
 }

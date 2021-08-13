@@ -11,7 +11,7 @@ local Modules = {
     Moderation = require('Addons.VK.Server.Extensions.VK_Moderation.Moderation'),
     Server = require('Addons.VK.Server'),
 
-    cl_environment = require('Addons.VK.ClientLua.cl_environment')
+    CEnvironment = require('Addons.VK.Client.CEnvironment')
 }
 
 M.Commands = {}
@@ -140,7 +140,7 @@ M.Commands["set_wind"] = {
         if not client.success then
             for _, c in pairs(G_Clients) do
                 if connections[c.user:getID()] then
-                    c.user:sendLua(Modules.cl_environment.setWind({x = speed_x, y = speed_y, z = speed_z}))
+                    c.user:sendLua(Modules.CEnvironment.setWind({x = speed_x, y = speed_y, z = speed_z}))
                     Modules.Server.DisplayDialog(c, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
                     return
                 end
@@ -148,7 +148,7 @@ M.Commands["set_wind"] = {
         else
             client = client.data
 
-            client.user:sendLua(Modules.cl_environment.setWind({x = speed_x, y = speed_y, z = speed_z}))
+            client.user:sendLua(Modules.CEnvironment.setWind({x = speed_x, y = speed_y, z = speed_z}))
 
             Modules.Server.DisplayDialog(client, string.format('[Enviroment] Set wind speed to %s, %s, %s', speed_x, speed_y, speed_z))
         end
@@ -193,7 +193,7 @@ M.Commands["set_rain"] = {
         G_Environment.weather.rain = rainAmount
 
         for _, client in pairs(G_Clients) do
-            client.user:sendLua(Modules.cl_environment.setPrecipitation(rainAmount))
+            client.user:sendLua(Modules.CEnvironment.setPrecipitation(rainAmount))
         end
     end
 }
@@ -229,7 +229,7 @@ M.Commands["set_time"] = {
         G_Environment.time.time = time
 
         for _, client in pairs(G_Clients) do
-            client.user:sendLua(Modules.cl_environment.setTime(time))
+            client.user:sendLua(Modules.CEnvironment.setTime(time))
             Modules.Server.DisplayDialog(client, string.format('[Enviroment] Set time to %s', args[1]))
         end
     end

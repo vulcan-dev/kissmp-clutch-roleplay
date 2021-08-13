@@ -12,7 +12,7 @@ local function Update(client)
             extensions.clutchrp.interface.tooltip.shouldDraw = true
         ]], M.message)))
     else
-        client.user:sendLua([[
+        client.user:sendLua(G_LuaFormat[[
             extensions.clutchrp.interface.tooltip.drawData.message = ''
             extensions.clutchrp.interface.tooltip.shouldDraw = false
         ]])

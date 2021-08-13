@@ -9,8 +9,8 @@ local Modules = {
     Moderation = require('Addons.VK.Server.Extensions.VK_Moderation.Moderation'),
     Server = require('Addons.VK.Server'),
 
-    cl_environment = require('Addons.VK.ClientLua.cl_environment'),
-    cl_player_join = require('Addons.VK.ClientLua.cl_player_join'),
+    CEnvironment = require('Addons.VK.Client.CEnvironment'),
+    CPlayerJoin = require('Addons.VK.Client.CPlayerJoin'),
 }
 
 local prefix = ''
@@ -76,7 +76,7 @@ M.Callbacks = {
             end
 
             --[[ Set Client Global Variables ]]--
-            client.user:sendLua(Modules.cl_player_join.SetGlobals())
+            client.user:sendLua(Modules.CPlayerJoin.SetGlobals())
 
             --[[ Set Time of Day ]]--
             client.user:sendLua(string.format('extensions.core_environment.setTimeOfDay({dayscale=%s,nightScale=%s,azimuthOverride=%s,dayLength=%s,time=%s,play=%s})',
@@ -90,7 +90,7 @@ M.Callbacks = {
 
             GDLog('rainAmount = ' .. tostring(G_Environment.weather.rain))
             if G_Environment.weather.rain ~= 0 then
-                client.user:sendLua(Modules.cl_environment.setPrecipitation(G_Environment.weather.rain))
+                client.user:sendLua(Modules.CEnvironment.setPrecipitation(G_Environment.weather.rain))
             end
 
             --[[ Create Waypoints ]]--

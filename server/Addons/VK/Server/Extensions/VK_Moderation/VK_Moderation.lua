@@ -14,8 +14,7 @@ local Modules = {
     CommandUtilities = require('Addons.VK.Server.Extensions.VK_Moderation.Commands.CommandUtilities'),
     CommandFun = require('Addons.VK.Server.Extensions.VK_Moderation.Commands.CommandFun'),
 
-    cl_environment = require('Addons.VK.ClientLua.cl_environment')
-    -- cl_menu = require('Addons.VK.ClientLua.cl_menu')
+    CEnvironment = require('Addons.VK.Client.CEnvironment')
 }
 
 M.Callbacks = {
@@ -87,7 +86,7 @@ M.Callbacks = {
         end
 
         if can_drive then
-            G_Clients[client_id].user:sendLua(Modules.cl_environment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
+            G_Clients[client_id].user:sendLua(Modules.CEnvironment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
 
             if (vehicle:getData():getName() ~= 'unicycle') then
                 Modules.Server.SendChatMessage(string.format('[Vulcan-Moderation] %s has spawned a %s', G_Clients[client_id].user:getName(), vehicle:getData():getName()), Modules.Server.ColourWarning)
@@ -102,7 +101,7 @@ M.Callbacks = {
     end,
 
     ['VK_VehicleReset'] = function(vehicle_id, client_id)
-        G_Clients[client_id].user:sendLua(Modules.cl_environment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
+        G_Clients[client_id].user:sendLua(Modules.CEnvironment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
         return ""
     end,
 

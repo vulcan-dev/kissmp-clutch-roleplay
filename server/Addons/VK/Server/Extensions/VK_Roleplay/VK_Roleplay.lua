@@ -19,7 +19,7 @@ local Modules = {
     Roleplay = require('Addons.VK.Server.Extensions.VK_Roleplay.Roleplay'),
     Server = require('Addons.VK.Server'),
 
-    cl_tooltip = require('Addons.VK.ClientLua.cl_tooltip')
+    CTooltip = require('Addons.VK.Client.CTooltip')
 }
 
 M.Callbacks = {
@@ -86,31 +86,31 @@ M.Callbacks = {
                             local inRadiusPump = Modules.Server.IsInRadius('fuel_pumps', 2, mx, my)
                             local inInRadiusRepair = Modules.Server.IsInRadius('repair_stations', 2, mx, my)
                             if inRadiusPump[1] then
-                                Modules.cl_tooltip.canDraw = true
-                                Modules.cl_tooltip.message = 'Open the Roleplay Menu or do /refuel to refuel'
+                                Modules.CTooltip.canDraw = true
+                                Modules.CTooltip.message = 'Open the Roleplay Menu or do /refuel to refuel'
                             else if inInRadiusRepair[1] then
-                                Modules.cl_tooltip.canDraw = true
-                                Modules.cl_tooltip.message = 'Open the Roleplay Menu or do /repair to repair'
+                                Modules.CTooltip.canDraw = true
+                                Modules.CTooltip.message = 'Open the Roleplay Menu or do /repair to repair'
                             else
-                                Modules.cl_tooltip.canDraw = false
+                                Modules.CTooltip.canDraw = false
                             end end
                         end
 
                         local inInRadiusRob = Modules.Server.IsInRadius('robbable_shops', 2, mx, my)
                         if inInRadiusRob[1] then
                             canDrawTooltip = true
-                            Modules.cl_tooltip.canDraw = true
-                            Modules.cl_tooltip.message = 'Open the Roleplay Menu or do /rob to rob this place'
+                            Modules.CTooltip.canDraw = true
+                            Modules.CTooltip.message = 'Open the Roleplay Menu or do /rob to rob this place'
                         else
                             -- Otherwise this will override everything else and stop it from drawing
-                            if not Modules.cl_tooltip.canDraw then
-                                Modules.cl_tooltip.canDraw = false
+                            if not Modules.CTooltip.canDraw then
+                                Modules.CTooltip.canDraw = false
                             end
                         end
                     else
                         -- KissMP doesn't like it when you get out and in a car so if you were already drawing a tooltip then it will stay forever
-                        if not Modules.cl_tooltip.canDraw then
-                            Modules.cl_tooltip.canDraw = false
+                        if not Modules.CTooltip.canDraw then
+                            Modules.CTooltip.canDraw = false
                         end
                     end
                 end
@@ -162,7 +162,7 @@ M.Callbacks = {
                     end
                 end
 
-                Modules.cl_tooltip.Update(client)
+                Modules.CTooltip.Update(client)
             end
         end
     end,

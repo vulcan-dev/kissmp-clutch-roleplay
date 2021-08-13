@@ -5,7 +5,7 @@
 package.path = ';?.lua;./Addons/VK/?.lua;' .. package.path
 package.path = ';?.lua;./Addons/VK/Server/?.lua;' .. package.path
 package.path = './Addons/VK/Server/Extensions/VK_Moderation/?.lua;./Addons/VK/Server/Extensions/VK_Moderation/Commands/?.lua;' .. package.path
-package.path = './Addons/VK/ClientLua/?.lua;' .. package.path
+package.path = './Addons/VK/Client/?.lua;' .. package.path
 package.path = './Addons/VK/Server/Extensions/VK_Roleplay/?.lua;./Addons/VK/Server/Extensions/VK_Roleplay/Commands/?.lua;' .. package.path
 package.path = './Addons/VK/Server/Extensions/VK_Debug/?.lua;' .. package.path
 
@@ -14,6 +14,7 @@ G_Clients = {}
 G_CurrentPlayers = 0
 
 --[[ Logging Levels ]]--
+G_Level = 0
 G_LevelInfo = 1
 G_LevelDebug = 2
 G_LevelError = 3

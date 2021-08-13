@@ -18,6 +18,12 @@ local function SetGlobals()
                         return obj
                     end
                 end
+            else
+                local obj = scenetree.findObject(className)
+                if obj then
+                    envObjectIdCache[className] = obj:getID()
+                    return obj
+                end
             end
         
             return nil
