@@ -14,53 +14,19 @@ G_Clients = {}
 G_CurrentPlayers = 0
 
 --[[ Logging Levels ]]--
+G_Level = 0
 G_LevelInfo = 1
 G_LevelDebug = 2
 G_LevelError = 3
 G_LevelFatal = 4
 
-G_Level = G_LevelDebug
-
---[[ Verbose & Log File ]]--
-G_Verbose = nil
-G_LogFile = nil
-
---[[ Links ]]--
-G_DiscordLink = 'https://discord.gg/mrsxbNFSRp'
-G_PatreonLink = ''
-
 G_Uptime = 0
 G_Cooldown = 0
-G_API = true
 
 G_TimedEvents = {}
 G_Commands = {}
-G_CommandExecuted = false
-
-G_FirstLoad = true
 
 _Extensions = {}
-
-G_Environment = {
-    time = {
-        dayscale = 0.5,
-        nightScale = 0.5,
-        azimuthOverride = 0,
-        dayLength = 1800,
-        time = 0.80599999427795,
-        play = false
-    },
-
-    wind = {
-        x = 0,
-        y = 0,
-        z = 0
-    },
-
-    weather = {
-        rain = 0
-    }
-}
 
 function G_LuaFormat(str)
     local lua = string.gsub(str, '    ', ' ')
@@ -95,24 +61,6 @@ function G_ReloadModules(modules, filename)
     return modules
 end
 
-function G_ReloadExtensions(extensions, filename)
-    local Utilities = require('Addons.VK.Utilities')
-    filename = filename or ''
-
-    for _, ext in pairs(Utilities.GetKey('Addons\\VK\\Settings\\Extensions.json', 'Extensions')) do
-        if package.loaded[string.format('Addons.VK.Server.Extensions.%s.%s', ext, ext)] then
-            package.loaded[string.format('Addons.VK.Server.Extensions.%s.%s', ext, ext)] = nil
-            GDLog('[Extension] [%s] Reloaded %s', filename, ext)
-        else
-            GDLog('[Extension] [%s] Loaded %s', filename, ext)
-        end
-
-        extensions[string.format('Addons.VK.Server.Extensions.%s.%s', ext, ext)] = require(string.format('Addons.VK.Server.Extensions.%s.%s', ext, ext))
-    end
-
-    return extensions
-end
-
 --[[ G_DisplayDialog Errors ]]--
 G_ErrorInvalidUser = 0
 G_ErrorInvalidArguments = 1
@@ -141,28 +89,34 @@ function G_AddCommandTable(table)
     end
 end
 
-function G_RemoveCommandTable(table)
-    for key, _ in pairs(table) do
-        G_Commands[key] = nil
-    end
-end
-
 --[[ Logging Utilities ]]--
-function GLog(message, ...)
-    local Utilities = require('Addons.VK.Utilities')
+-- function GLog(message, ...)
+--     local Utilities = require('Addons.VK.Utilities')
 
-    if type(message) == 'string' then
-        print('['..Utilities.GetDateTime()..'] ' .. tostring(string.format(message, ...)))
-    else
-        print('['..Utilities.GetDateTime()..'] [Error] Invalid Message {type: ' .. tostring(type(message)) .. ', data: ' .. tostring(message) .. '}')
-        for k, v in pairs(message) do
-            print('-> ' .. k .. ' : ' .. tostring(v))
-        end
-    end
+--     if type(message) == 'string' then
+--         print('['..Utilities.GetDateTime()..'] ' .. tostring(string.format(message, ...)))
+--     else
+--         print('['..Utilities.GetDateTime()..'] [Error] Invalid Message {type: ' .. tostring(type(message)) .. ', data: ' .. tostring(message) .. '}')
+--         for k, v in pairs(message) do
+--             print('-> ' .. k .. ' : ' .. tostring(v))
+--         end
+--     end
+-- end
+
+-- function GDLog(debug, ...) if G_Level == G_LevelDebug then GLog('[DEBUG]: ' .. tostring(debug), ...) end end -- Debug Log
+-- function GILog(info, ...) GLog('[INFO]: ' .. tostring(info), ...) end -- Information Log
+-- function GELog(error, ...) GLog('[ERRO]: ' .. tostring(error), ...) end -- Error Log
+-- function GWLog(warning, ...) GLog('[WARN]: ' .. tostring(warning), ...) end -- Warning Log
+-- function GFLog(fatal, ...) GLog('[FATAL]: ' .. tostring(fatal), ...) os.execute('pause') os.exit(1) end -- Fatal Log
+
+function DateTime(format, time)
+    format = format or '%Y-%m-%d %H:%M:%S'
+    return os.date(format, time)
 end
 
-function GDLog(debug, ...) if G_Level == G_LevelDebug then GLog('[DEBUG]: ' .. tostring(debug), ...) end end -- Debug Log
-function GILog(info, ...) GLog('[INFO]: ' .. tostring(info), ...) end -- Information Log
-function GELog(error, ...) GLog('[ERRO]: ' .. tostring(error), ...) end -- Error Log
-function GWLog(warning, ...) GLog('[WARN]: ' .. tostring(warning), ...) end -- Warning Log
-function GFLog(fatal, ...) GLog('[FATAL]: ' .. tostring(fatal), ...) os.execute('pause') os.exit(1) end -- Fatal Log
+function GLog(message, ...) print(string.format('[%s]  [kissmp_server:vk] %s', DateTime('%H:%M:%S'), string.format(message, ...))) end
+function GDLog(message, ...) message = tostring(string.format('[ DEBUG]: %s', message)) if G_Level == G_LevelDebug then GLog(message, ...) end end
+function GILog(message, ...) message = tostring(string.format('[ INFO]: %s', message)) GLog(message, ...) end
+function GWLog(message, ...) message = tostring(string.format('[ WARN]: %s', message)) GLog(message, ...) end
+function GELog(message, ...) message = tostring(string.format('[ ERROR]: %s', message)) GLog(message, ...) end
+function GFLog(message, ...) message = tostring(string.format('[ FATAL]: %s', message)) GLog(message, ...) os.execute('pause') os.exit(1) end

@@ -108,7 +108,6 @@ M.Callbacks = {
 
     ['VK_OnStdIn'] = function(message)
         if string.sub(message, 1, 1) == '/' then
-            G_CommandExecuted = true
             local args = Modules.Utilities.ParseCommand(message, ' ')
             args[1] = args[1]:sub(2)
 
@@ -118,7 +117,6 @@ M.Callbacks = {
                 table.remove(args, 1)
                 command.exec(Modules.Server.GetUser(1337).data, args)
             end
-            G_CommandExecuted = false
         end
     end,
 

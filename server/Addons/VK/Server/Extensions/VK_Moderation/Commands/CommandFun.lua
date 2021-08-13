@@ -22,7 +22,6 @@ M.Commands["imitate"] = {
     usage = '/imitate <user> <message>',
     exec = function(executor, args)
         local client = Modules.Server.GetUser(args[1])
-
         -- Check if the client exists
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data

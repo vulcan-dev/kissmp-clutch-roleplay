@@ -416,7 +416,7 @@ M.Commands["uptime"] = {
     description = 'Displays server uptime',
     usage = '/uptime',
     exec = function(executor, args)
-        Modules.Server.SendChatMessage(executor.user:getID(), 'Server Uptime: ' .. Modules.Utilities.GetDateTime('%H:%M:%S', G_Uptime), Modules.Server.ColourSuccess)
+        Modules.Server.SendChatMessage(executor.user:getID(), 'Server Uptime: ' .. DateTime('%H:%M:%S', G_Uptime), Modules.Server.ColourSuccess)
     end
 }
 
@@ -437,7 +437,7 @@ M.Commands["playtime"] = {
             message = client.user:getName() .. '\'s playtime: '
         end
 
-        Modules.Server.SendChatMessage(executor.user:getID(), message .. Modules.Utilities.GetDateTime('%H:%M:%S', client.getKey('playtime')), Modules.Server.ColourSuccess)
+        Modules.Server.SendChatMessage(executor.user:getID(), message .. DateTime('%H:%M:%S', client.getKey('playtime')), Modules.Server.ColourSuccess)
     end
 }
 

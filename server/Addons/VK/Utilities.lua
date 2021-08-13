@@ -18,12 +18,6 @@ G_BlacklistLocation = './addons/VK/Settings/Blacklist.json'
 G_Locations = './addons/VK/Settings/Locations.json'
 
 --[[ Utility Functions ]]--
-local function GetDateTime(format, time)
-    format = format or '%Y-%m-%d %H:%M:%S'
-
-    return os.date(format, time)
-end
-
 local function FileToJSON(path)
     return decode_json(io.open(path, 'r'):read('*a'))
 end
@@ -223,7 +217,6 @@ local function ReloadModules()
     Modules = G_ReloadModules(Modules, 'Utilities.lua')
 end
 
-M.GetDateTime = GetDateTime
 M.FileToJSON = FileToJSON
 M.LuaStrEscape = LuaStrEscape
 M.GetMessage = GetMessage

@@ -18,7 +18,6 @@ local nextUpdate = 0
 
 M.Callbacks = {
     ['Initialize'] = function()
-        G_Level = G_LevelDebug
         prefix = Modules.Utilities.GetKey(G_ServerLocation, 'options', 'command_prefix')
 
         G_Verbose = Modules.Utilities.GetKey(G_ServerLocation, 'log', 'verbose')
@@ -182,7 +181,6 @@ M.Callbacks = {
 
             Modules.Server.SendChatMessage(string.format('%s @%s: %s', executor.user:getName(), client.user:getName(), message), Modules.Server.ColourMention)
         else if string.sub(message, 1, 1) == prefix then
-            G_CommandExecuted = true
             local args = Modules.Utilities.ParseCommand(message, ' ')
             args[1] = string.lower(args[1]:sub(2))
 
@@ -214,7 +212,6 @@ M.Callbacks = {
                     end, function(err)
                         Modules.Server.SendChatMessage(executor.user:getID(), string.format('[ %s Failed. Please post it in bug-reports in /discord ] Message: %s', message, err), Modules.Server.ColourError)
                         GELog('Command failed! User: %s\n  Message: %s', executor.user:getName(), err)
-                        G_CommandExecuted = false
                         return ""
                     end)
                 end

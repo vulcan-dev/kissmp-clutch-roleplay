@@ -14,6 +14,28 @@ local ColourTwitter = Modules.Utilities.GetColour(Modules.Utilities.GetKey(G_Col
 local ColourPoliceRadio = Modules.Utilities.GetColour(Modules.Utilities.GetKey(G_ColoursLocation, 'police_radio'))
 local ColourMention = Modules.Utilities.GetColour(Modules.Utilities.GetKey(G_ColoursLocation, 'mention'))
 
+--[[ Globals ]]--
+G_Environment = {
+    time = {
+        dayscale = 0.5,
+        nightScale = 0.5,
+        azimuthOverride = 0,
+        dayLength = 1800,
+        time = 0.80599999427795,
+        play = false
+    },
+
+    wind = {
+        x = 0,
+        y = 0,
+        z = 0
+    },
+
+    weather = {
+        rain = 0
+    }
+}
+
 --[[ Player Tables ]]
 local consolePlayer = {
     --[[ User Table ]]--
@@ -379,10 +401,6 @@ local function DisplayDialog(error, client, message, time)
     end
 
     time = time or 3
-
-    if G_CommandExecuted then
-        --Modules.Utilities.LogReturn(message)
-    end
 
     if client.user then
         --[[ Send to One Client ]]--
