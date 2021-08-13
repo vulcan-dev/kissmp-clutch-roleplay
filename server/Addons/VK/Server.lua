@@ -31,9 +31,8 @@ G_Environment = {
         z = 0
     },
 
-    weather = {
-        rain = 0
-    }
+    rain = 0,
+    weather = 'extrasunny'
 }
 
 --[[ Player Tables ]]

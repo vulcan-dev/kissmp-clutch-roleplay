@@ -933,7 +933,7 @@ M.Commands["gps"] = {
         local y = tonumber(args[2]) or nil
         local z = tonumber(args[3]) or nil
 
-        if not x or not y or not z then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidArguments) end
+        if not x or not y or not z then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidArguments) return end
 
         executor.gps.enabled = true
         executor.gps.position.x = x

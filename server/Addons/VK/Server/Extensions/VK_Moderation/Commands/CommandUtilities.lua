@@ -190,7 +190,7 @@ M.Commands["set_rain"] = {
     exec = function(executor, args)
         local rainAmount = tonumber(args[1]) or 40
 
-        G_Environment.weather.rain = rainAmount
+        G_Environment.rain = rainAmount
 
         for _, client in pairs(G_Clients) do
             client.user:sendLua(Modules.CEnvironment.setPrecipitation(rainAmount))
@@ -245,9 +245,28 @@ M.Commands["set_weather"] = {
     rank = Modules.Moderation.RankModerator,
     category = 'Moderation Utilities',
     description = 'Sets the weather',
-    usage = '/set_weather (sunny, thunder, rain)',
+    usage = '/set_weather (sunny, extrasunny, cloudy, rainy)',
     exec = function(executor, args)
+        for _, client in pairs(G_Clients) do
+            local weather = string.lower(args[1])
 
+            if not weather then
+                G_Environment.weather = nil
+                for _, client in pairs(G_Clients) do
+                    client.user:sendLua(Modules.CEnvironment.setCloudColour())
+                    client.user:sendLua(Modules.CEnvironment.setCloudCoverage())
+                    client.user:sendLua(Modules.CEnvironment.setCloudExposure())
+                    client.user:sendLua(Modules.CEnvironment.setPrecipitation(0))
+                    client.user:sendLua(Modules.CEnvironment.stopSFXRain())
+                end
+            else
+                G_Environment.weather = weather
+                for _, client in pairs(G_Clients) do
+                    Modules.Server.DisplayDialog(client, '[Environment] Weather: ' .. Modules.Utilities.ToTitle(weather))
+                    Modules.CEnvironment.setWeather(client, weather)
+                end
+            end
+        end
     end
 }
 

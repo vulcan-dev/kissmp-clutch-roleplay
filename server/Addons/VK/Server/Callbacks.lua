@@ -88,9 +88,13 @@ M.Callbacks = {
                 G_Environment.time.play
             ))
 
-            GDLog('rainAmount = ' .. tostring(G_Environment.weather.rain))
-            if G_Environment.weather.rain ~= 0 then
-                client.user:sendLua(Modules.CEnvironment.setPrecipitation(G_Environment.weather.rain))
+            if G_Environment.rain ~= 0 then
+                client.user:sendLua(Modules.CEnvironment.setPrecipitation(G_Environment.rain))
+                client.user:sendLua(Modules.CEnvironment.createSFXRain(G_Environment.rain / 100))
+            end
+
+            if G_Environment.weather then
+                Modules.CEnvironment.setWeather(client, G_Environment.weather)
             end
 
             --[[ Create Waypoints ]]--
