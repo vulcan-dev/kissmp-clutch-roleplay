@@ -114,7 +114,7 @@ function DateTime(format, time)
     return os.date(format, time)
 end
 
-function GLog(message, ...) print(string.format('[%s]  [kissmp_server:vk] %s', DateTime('%H:%M:%S'), string.format(message, ...))) end
+function GLog(message, ...)  if type(message) == 'table' then for k, v in pairs(message) do print(k .. ' ' .. tostring(v)) end end print(string.format('[%s]  [kissmp_server:vk] %s', DateTime('%H:%M:%S'), string.format(message, ...))) end
 function GDLog(message, ...) message = tostring(string.format('[ DEBUG]: %s', message)) if G_Level == G_LevelDebug then GLog(message, ...) end end
 function GILog(message, ...) message = tostring(string.format('[ INFO]: %s', message)) GLog(message, ...) end
 function GWLog(message, ...) message = tostring(string.format('[ WARN]: %s', message)) GLog(message, ...) end

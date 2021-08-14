@@ -2,7 +2,8 @@ local M = {}
 
 local Modules = {
     Utilities = require('Addons.VK.Utilities'),
-    TimedEvents = require('Addons.VK.TimedEvents')
+    TimedEvents = require('Addons.VK.TimedEvents'),
+    CVehicle = require('Addons.VK.Client.CVehicle')
 }
 
 --[[ Colours ]]--
@@ -67,17 +68,59 @@ local function AddClient(client_id)
     client.user = connections[client_id]
 
     client.editKey = function(key, value)
-        Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), key, value)
+        Modules.Utilities.EditKey(G_PlayersLocation, G_Clients[client_id].user:getSecret(), key, value)
     end
 
     client.getKey = function(key)
-        return Modules.Utilities.GetKey(G_PlayersLocation, connections[client_id]:getSecret(), key)
+        return Modules.Utilities.GetKey(G_PlayersLocation, G_Clients[client_id].user:getSecret(), key)
+    end
+
+    client.getActiveCharacter = function()
+        for _, character in pairs(client.getKey('characters')) do
+            if character.active then return character end
+        end
+
+        return false
+    end
+
+    client.editCharacter = function(key, value)
+        local data = {}
+        for k, v in pairs(client.getKey('characters')) do
+            data[k] = v
+        end
+
+        data[client.getActiveCharacter().full_name][string.format('%s', key)] = value
+        client.editKey('characters', data)
+    end
+
+    client.deleteCharacter = function(name)
+        local data = {}
+        local found = false
+        for k, v in pairs(client.getKey('characters')) do
+            if k ~= name then
+                data[k] = v
+            else found = true end
+        end
+
+        if not found then
+            return false
+        else
+            data[name] = nil
+            if client.getActiveCharacter().full_name == name then
+                client.user:sendLua(G_LuaFormat("_Characters = jsonDecode('" .. encode_json(data) .. "')"))
+                client.user:sendLua('extensions.clutchrpui.interface.character_selector.shouldDraw = true')
+                client.user:sendLua(Modules.CVehicle.setFreeze(1))
+            end
+
+            client.editKey('characters', data)
+            return true
+        end
     end
 
     client.rank = function() return tonumber(client.getKey('rank')) end
     client.roles = function()
         local roles = {}
-        for role, _ in pairs(client.getKey('roles')) do
+        for role, _ in pairs(client.getActiveCharacter().roles) do
             table.insert( roles, string.lower(role) )
         end
         return roles

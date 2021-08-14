@@ -506,7 +506,7 @@ M.Commands["pm"] = {
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        local message = Modules.Utilities.GetMessage(args)
+        local message = Modules.Utilities.GetMessage(args, true)
 
         -- Check if message is valid
         if not message or not args[1] then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
@@ -526,7 +526,7 @@ M.Commands["force_recover"] = {
     exec = function(executor, args)
         local ply = connections[executor.user:getID()]
         local vehicle = vehicles[ply:getCurrentVehicle()]
-        vehicle:sendLua('recovery.saveHome() recovery.startRecovering() recovery.stopRecovering()')
+        vehicle:sendLua('recovery.saveHome() recovery.startRecovering() recovery.stopRecovering()') -- TODO 
         for _, client in pairs(G_Clients) do
             if client.rank() >= Modules.Moderation.RankModerator then
                 Modules.Server.SendChatMessage(client.user:getID(), '[Recover] ' .. executor.user:getName() .. ' Used /force_recover', Modules.Server.ColourWarning)

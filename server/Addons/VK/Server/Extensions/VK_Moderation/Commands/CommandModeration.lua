@@ -25,7 +25,7 @@ M.Commands["ban"] = {
     usage = '/ban <user> (reason) (time - prefix: y, mo, d, h, m)',
     exec = function(executor, args)
         local client = Modules.Server.GetUser(args[1])
-        local reason = Modules.Utilities.GetMessage(args) or 'No Reason Specified'
+        local reason = Modules.Utilities.GetMessage(args, true) or 'No Reason Specified'
         local time = args[3] or '1y'
 
         --[[ Check if Client Exists ]]--
@@ -140,7 +140,7 @@ M.Commands["warn"] = {
     usage = '/warn <user> (reason)',
     exec = function(executor, args)
         local client = Modules.Server.GetUser(args[1])
-        local reason = Modules.Utilities.GetMessage(args) or 'No Reason Specified'
+        local reason = Modules.Utilities.GetMessage(args, true) or 'No Reason Specified'
 
         --[[ Check if the Client Exists ]]--
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
@@ -327,7 +327,7 @@ M.Commands["kick"] = {
     usage = '/kick <user> (reason)',
     exec = function(executor, args)
         local client = Modules.Server.GetUser(args[1])
-        local reason = Modules.Utilities.GetMessage(args) or 'No Reason Specified'
+        local reason = Modules.Utilities.GetMessage(args, true) or 'No Reason Specified'
 
         -- Check if the client exists
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
@@ -595,7 +595,7 @@ M.Commands["send_message"] = {
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        local message = Modules.Utilities.GetMessage(args)
+        local message = Modules.Utilities.GetMessage(args, true)
 
         -- Check if message is valid
         if not message or not args[1] then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
@@ -620,7 +620,7 @@ M.Commands["report"] = {
     usage = '/report <user> <message>',
     exec = function(executor, args)
         local client = Modules.Server.GetUser(args[1])
-        local reason = Modules.Utilities.GetMessage(args)
+        local reason = Modules.Utilities.GetMessage(args, true)
 
         -- Check if the client exists
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end

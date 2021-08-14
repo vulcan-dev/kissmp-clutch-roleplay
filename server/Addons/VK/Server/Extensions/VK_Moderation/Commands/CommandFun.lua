@@ -28,7 +28,7 @@ M.Commands["imitate"] = {
 
         if not args[2] then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
-        local message = Modules.Utilities.GetMessage(args)
+        local message = Modules.Utilities.GetMessage(args, true)
 
         Modules.Moderation.SendUserMessage(client, nil, message)
     end

@@ -193,12 +193,17 @@ end
 local function GetMessage(args, remove)
     if remove then table.remove(args, 1) end
 
+    local count = 0
+
     local message = ''
     for _, v in pairs(args) do
+        count = count + 1
         message = message .. v .. ' '
     end
 
-    return message
+    if count == 0 then return false end
+
+    return message:sub(1, #message - 1)
 end
 
 local function IsNumber(sIn)

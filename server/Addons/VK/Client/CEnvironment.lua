@@ -81,6 +81,7 @@ local function setWeather(client, weather)
     if weather == 'sunny' then
         for _, client in pairs(G_Clients) do
             stopSFXRain()
+            client.user:sendLua(stopSFXRain())
             client.user:sendLua(setCloudExposure())
             client.user:sendLua(setPrecipitation(0))
             client.user:sendLua(setCloudCoverage(0.2))

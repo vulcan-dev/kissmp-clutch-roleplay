@@ -24,16 +24,16 @@ local function StartFire(client, position)
         ]], currentFires[client.user:getName()].count, position[1], position[2], position[3], currentFires[client.user:getName()].count)))
     end
 
-    for _, c in pairs(G_Clients) do
-        c.user:sendLua(G_LuaFormat(string.format([[
-            P_CRPSmoke = createObject('ParticleEmitterNode')
-            P_CRPSmoke.name = 'P_CRPSmoke%s'
-            P_CRPSmoke:setField('emitter', 0, "BNGP_32")
-            P_CRPSmoke:setField('position', 0, "%.6f %.6f %.6f")
-            P_CRPSmoke:registerObject('P_CRPSmoke%s')
-            P_CRPSmoke:setField('dataBlock', 0, 'lightExampleEmitterNodeData1')
-        ]], currentFires[client.user:getName()].count, position[1], position[2], position[3], currentFires[client.user:getName()].count)))
-    end
+    -- for _, c in pairs(G_Clients) do
+    --     c.user:sendLua(G_LuaFormat(string.format([[
+    --         P_CRPSmoke = createObject('ParticleEmitterNode')
+    --         P_CRPSmoke.name = 'P_CRPSmoke%s'
+    --         P_CRPSmoke:setField('emitter', 0, "BNGP_32")
+    --         P_CRPSmoke:setField('position', 0, "%.6f %.6f %.6f")
+    --         P_CRPSmoke:registerObject('P_CRPSmoke%s')
+    --         P_CRPSmoke:setField('dataBlock', 0, 'lightExampleEmitterNodeData1')
+    --     ]], currentFires[client.user:getName()].count, position[1], position[2], position[3], currentFires[client.user:getName()].count)))
+    -- end
 end
 
 local function GetFires(client)
@@ -62,7 +62,7 @@ local function Extinguish(name)
 
     for _, client in pairs(G_Clients) do
         client.user:sendLua(string.format('deleteObject("%s")', name))
-        client.user:sendLua(string.format('deleteObject("%s")', 'P_CRPSmoke'..string.sub(name, -1)))
+        -- client.user:sendLua(string.format('deleteObject("%s")', 'P_CRPSmoke'..string.sub(name, -1)))
     end
 end
 

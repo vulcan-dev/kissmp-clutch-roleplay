@@ -24,7 +24,7 @@ local function HasRole(client, role)
     local found = false
 
     local count = 0
-    for _, v in ipairs(client.getKey('roles')) do
+    for _, v in ipairs(client.getActiveCharacter().roles) do
         if tostring(role) == tostring(v) then
             found = true
             break
@@ -47,7 +47,7 @@ local function IsLeo(client)
 end
 
 local function IsOnDuty(client)
-    return client.getKey('onduty')
+    return client.getActiveCharacter().onduty
 end
 
 local function ReloadModules()

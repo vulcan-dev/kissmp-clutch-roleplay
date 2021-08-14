@@ -12,7 +12,7 @@ local function Draw(dt)
         command.imgui.SetColumnWidth(0, 180)
 
         --[[ Environment ]]--
-        command.imgui.BeginChild1('time', command.imgui.ImVec2(140, 270), false)
+        command.imgui.BeginChild1('time', command.imgui.ImVec2(140, 290), false)
         command.imgui.Separator()
         command.imgui.SetCursorPosX((140 - command.imgui.CalcTextSize('Environment').x) * 0.5)
         command.imgui.Text('Environment')
@@ -90,7 +90,20 @@ local function Draw(dt)
                 drawFunction = command.commands['ui_same'],
                 command = 'set_gravity'
             })
-        end end end end end end end
+        else if command.imgui.Button('Set Weather', buttonSize) then
+            command.shouldDrawCommand = not command.shouldDrawCommand
+            command.Set({
+                shouldDraw = command.shouldDrawCommand,
+                window = {
+                    title = 'Set Weather',
+                    size = command.imgui.ImVec2(480, 80),
+                    style = command.windowStyles,
+                    posTitle = command.imgui.ImVec2(M.viewport.Size.x / 2 - command.windowSize.x / 2, 20),
+                    sizeTitle = command.imgui.ImVec2(command.windowSize.x, 30)
+                },
+                drawFunction = command.commands['set_weather'],
+            })
+        end end end end end end end end
 
         command.imgui.EndChild()
 

@@ -7,7 +7,7 @@ local M = {}
 
 M.imgui = ui_imgui
 
-M.Commands = {}
+M.commands = {}
 M.buttonSize = M.imgui.ImVec2(100, 30)
 M.windowSize = {
     x = 700,
@@ -93,7 +93,7 @@ end
 
 local buffer = M.imgui.ArrayChar(512)
 
-M.Commands['911'] = function()
+M.commands['911'] = function()
     M.imgui.PushItemWidth(M.drawData.window.size.x - 2)
     M.imgui.SetCursorPosY(M.drawData.window.size.y / 2 - 10)
     if M.imgui.InputText('##crp_police', messageToSend, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
@@ -103,7 +103,7 @@ M.Commands['911'] = function()
     M.imgui.PopItemWidth()
 end
 
-M.Commands['get_roles'] = function()
+M.commands['get_roles'] = function()
     M.imgui.Columns(4, 'player_column', false)
 
     for id, client in pairs(network.players) do
@@ -116,7 +116,7 @@ M.Commands['get_roles'] = function()
     end
 end
 
-M.Commands['ui_same'] = function()
+M.commands['ui_same'] = function()
     M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
     M.imgui.SetCursorPosY(M.drawData.window.size.y / 2 - 10)
     if M.imgui.InputText('##ui_same', buffer, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
@@ -174,7 +174,7 @@ if not network then
     network.players = testPlayers
 end
 
-M.Commands['teleport_to'] = function()
+M.commands['teleport_to'] = function()
     M.imgui.Columns(4, 'player_column_tp_to', false)
 
     for id, client in pairs(network.players) do
@@ -189,7 +189,7 @@ end
 
 local client1
 local client2
-M.Commands['teleport_user_to'] = function()
+M.commands['teleport_user_to'] = function()
     M.imgui.Columns(4, 'player_column_tp_user_to', false)
 
     for id, client in pairs(network.players) do
@@ -211,7 +211,7 @@ M.Commands['teleport_user_to'] = function()
     end
 end
 
-M.Commands['delete_vehicle'] = function()
+M.commands['delete_vehicle'] = function()
     M.imgui.Columns(4, 'player_column_dv', false)
 
     for id, client in pairs(network.players) do
@@ -224,7 +224,7 @@ M.Commands['delete_vehicle'] = function()
     end
 end
 
-M.Commands['delete_all_user_vehicles'] = function()
+M.commands['delete_all_user_vehicles'] = function()
     M.imgui.Columns(4, 'player_column_dva', false)
 
     for id, client in pairs(network.players) do
@@ -237,7 +237,27 @@ M.Commands['delete_all_user_vehicles'] = function()
     end
 end
 
-M.Commands['ban'] = function()
+M.commands['set_weather'] = function()
+    M.imgui.Columns(4, 'set_weather_column', false)
+
+    if M.imgui.Button('Extra Sunny', M.buttonSize) then
+        Execute('/set_weather extrasunny')
+    end
+    M.imgui.NextColumn()
+    if M.imgui.Button('Sunny', M.buttonSize) then
+        Execute('/set_weather sunny')
+    end
+    M.imgui.NextColumn()
+    if M.imgui.Button('Cloudy', M.buttonSize) then
+        Execute('/set_weather cloudy')
+    end
+    M.imgui.NextColumn()
+    if M.imgui.Button('Rainy', M.buttonSize) then
+        Execute('/set_weather rainy')
+    end
+end
+
+M.commands['ban'] = function()
     M.imgui.Columns(4, 'player_ban_column', false)
 
     for id, client in pairs(network.players) do
@@ -270,7 +290,7 @@ M.Commands['ban'] = function()
     end
 end
 
-M.Commands['unban'] = function()
+M.commands['unban'] = function()
     M.imgui.PushItemWidth(M.drawData.window.sizeTitle.x - 2)
     M.imgui.SetCursorPosY(M.drawData.window.size.y / 2 - 10)
     if M.imgui.InputText('##client_secret', clientSecret, nil, M.imgui.InputTextFlags_EnterReturnsTrue) then
@@ -280,7 +300,7 @@ M.Commands['unban'] = function()
     M.imgui.PopItemWidth()
 end
 
-M.Commands['set_vl'] = function()
+M.commands['set_vl'] = function()
     M.imgui.Columns(4, 'set_vl_column', false)
 
     for id, client in pairs(network.players) do
@@ -305,7 +325,7 @@ M.Commands['set_vl'] = function()
     end
 end
 
-M.Commands['kick'] = function()
+M.commands['kick'] = function()
     M.imgui.Columns(4, 'player_kick_column', false)
 
     for id, client in pairs(network.players) do
@@ -330,7 +350,7 @@ M.Commands['kick'] = function()
     end
 end
 
-M.Commands['freeze'] = function()
+M.commands['freeze'] = function()
     M.imgui.Columns(4, 'player_freeze_column', false)
 
     for id, client in pairs(network.players) do
@@ -343,7 +363,7 @@ M.Commands['freeze'] = function()
     end
 end
 
-M.Commands['unfreeze'] = function()
+M.commands['unfreeze'] = function()
     M.imgui.Columns(4, 'player_unfreeze_column', false)
 
     for id, client in pairs(network.players) do
@@ -356,7 +376,7 @@ M.Commands['unfreeze'] = function()
     end
 end
 
-M.Commands['warn'] = function()
+M.commands['warn'] = function()
     M.imgui.Columns(4, 'player_warn_column', false)
 
     for id, client in pairs(network.players) do
@@ -381,7 +401,7 @@ M.Commands['warn'] = function()
     end
 end
 
-M.Commands['remove_warn'] = function()
+M.commands['remove_warn'] = function()
     M.imgui.Columns(4, 'player_remove_warn_column', false)
 
     for id, client in pairs(network.players) do
@@ -406,7 +426,7 @@ M.Commands['remove_warn'] = function()
     end
 end
 
-M.Commands['send_gps'] = function()
+M.commands['send_gps'] = function()
     M.imgui.Columns(4, 'player_get_roles_column', false)
 
     for id, client in pairs(network.players) do
@@ -421,7 +441,7 @@ M.Commands['send_gps'] = function()
     end
 end
 
-M.Commands['get_roles'] = function()
+M.commands['get_roles'] = function()
     M.imgui.Columns(4, 'player_get_roles_column', false)
 
     for id, client in pairs(network.players) do
@@ -434,7 +454,7 @@ M.Commands['get_roles'] = function()
     end
 end
 
-M.Commands['add_role'] = function()
+M.commands['add_role'] = function()
     M.imgui.Columns(4, 'player_add_role_player_column', true)
 
     for id, client in pairs(network.players) do
@@ -472,7 +492,7 @@ M.Commands['add_role'] = function()
     end
 end
 
-M.Commands['remove_role'] = function()
+M.commands['remove_role'] = function()
     M.imgui.Columns(4, 'player_remove_role_player_column', true)
 
     for id, client in pairs(network.players) do
@@ -510,7 +530,7 @@ M.Commands['remove_role'] = function()
     end
 end
 
-M.Commands['set_rank'] = function()
+M.commands['set_rank'] = function()
     M.imgui.Columns(4, 'player_set_rank_player_column', false)
 
     for id, client in pairs(network.players) do
@@ -551,7 +571,7 @@ M.Commands['set_rank'] = function()
     end
 end
 
-M.Commands['mute'] = function()
+M.commands['mute'] = function()
     M.imgui.Columns(4, 'player_mute_column', false)
 
     for id, client in pairs(network.players) do
@@ -584,7 +604,7 @@ M.Commands['mute'] = function()
     end
 end
 
-M.Commands['unmute'] = function()
+M.commands['unmute'] = function()
     M.imgui.Columns(4, 'player_unmute_column', false)
 
     for id, client in pairs(network.players) do
@@ -597,7 +617,7 @@ M.Commands['unmute'] = function()
     end
 end
 
-M.Commands['display_message'] = function()
+M.commands['display_message'] = function()
     M.imgui.Columns(4, 'player_send_message_column', false)
 
     for id, client in pairs(network.players) do
@@ -622,7 +642,7 @@ M.Commands['display_message'] = function()
     end
 end
 
-M.Commands['imitate'] = function()
+M.commands['imitate'] = function()
     M.imgui.Columns(4, 'player_imitate_column', false)
 
     for id, client in pairs(network.players) do
@@ -647,7 +667,7 @@ M.Commands['imitate'] = function()
     end
 end
 
-M.Commands['transfer'] = function()
+M.commands['transfer'] = function()
     M.imgui.Columns(4, 'player_column', false)
 
     for id, client in pairs(network.players) do
@@ -679,7 +699,7 @@ end
 
 local hour = 12
 local minute = 30
-M.Commands['set_time'] = function()
+M.commands['set_time'] = function()
     -- Hour Decrease
     M.imgui.SetCursorPosX(M.windowSize.x / 4 - 50 / 2)
     if M.imgui.Button('<##hour_decrease', M.imgui.ImVec2(50, 30)) then

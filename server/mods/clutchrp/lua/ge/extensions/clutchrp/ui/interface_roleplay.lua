@@ -53,7 +53,7 @@ local function Draw(dt)
         imgui.PushStyleVar1(imgui.StyleVar_WindowRounding, 0) -- this is for both windows
         imgui.SetNextWindowSize(imgui.ImVec2(windowSize.x, 30))
         imgui.SetNextWindowPos(imgui.ImVec2(viewport.Size.x - windowSize.x, viewport.Size.y / 2 - windowSize.y / 2 - 30))
-        if imgui.Begin('ClutchRP Interface Title', imgui.BoolPtr(true), windowStyles) then
+        if imgui.Begin('ClutchRP Roleplay Title', imgui.BoolPtr(true), windowStyles) then
             imgui.SetCursorPosX((windowSize.x - imgui.CalcTextSize('Roleplay Menu').x) * 0.5)
             imgui.Text('Roleplay Menu')
             imgui.End()
@@ -65,7 +65,7 @@ local function Draw(dt)
         SetupStyle()
 
         --[[ Roleplay Window ]]--
-        if imgui.Begin('ClutchRP Interface', imgui.BoolPtr(true), windowStyles) then
+        if imgui.Begin('ClutchRP Roleplay', imgui.BoolPtr(true), windowStyles) then
             imgui.Columns(2, 'button_column', false)
             if imgui.Button('Refuel', buttonSize) then
                 command.Execute('/refuel')

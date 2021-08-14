@@ -2,8 +2,9 @@ local M = {}
 
 M.gui = {setupEditorGuiTheme = nop}
 
+local gui_module = require("ge/extensions/editor/api/gui")
 M.interface = require('clutchrp.interface')
-M.phone = require('clutchrp.phone')
+local imgui = ui_imgui
 
 local function Update(dt)
     M.interface.Update(dt)

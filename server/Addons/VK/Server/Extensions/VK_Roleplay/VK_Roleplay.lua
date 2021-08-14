@@ -23,10 +23,6 @@ local Modules = {
 }
 
 M.Callbacks = {
-    ['VK_PlayerDisconnect'] = function(client)
-        client.editKey('onduty', false)
-    end,
-
     ['VK_VehicleSpawn'] = function(vehicle_id, client_id)
         local client = G_Clients[client_id]
 
@@ -64,7 +60,7 @@ M.Callbacks = {
                     -- [[ Send Money ]]
                     if Modules.Roleplay.IsLeo(client) then money = math.random( 200, 400 )
                     else money = math.random( 60, 140 ) end
-                    client.editKey('money', client.getKey('money') + money)
+                    client.editCharacter('money', client.getActiveCharacter().money + money)
                     Modules.Server.DisplayDialog(client, 'You have received a paycheck of $'..money..'!')
 
                     --[[ Show Discord ]]

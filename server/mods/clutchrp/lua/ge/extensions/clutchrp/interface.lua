@@ -7,8 +7,9 @@
 local M = {}
 
 local interface_roleplay = require('clutchrp.ui.interface_roleplay')
-local interface_Moderation = require('clutchrp.ui.interface_moderation')
+local interface_moderation = require('clutchrp.ui.interface_moderation')
 local interface_phone = require('clutchrp.ui.interface_phone')
+local character_selector = require('clutchrp.ui.character_selector')
 local tooltip = require('clutchrp.ui.tooltip')
 local command = require('clutchrp.command')
 
@@ -26,32 +27,55 @@ local function ToggleInterfacePhone()
 end
 
 local function ToggleInterfaceModeration()
-    interface_Moderation.shouldDraw = not interface_Moderation.shouldDraw
-    interface_Moderation.shouldDrawCommand = false
+    interface_moderation.shouldDraw = not interface_moderation.shouldDraw
+    interface_moderation.shouldDrawCommand = false
     command.drawData.shouldDraw = false
 
-    log('I', 'interface', 'interface_moderation: ' .. tostring(interface_Moderation.shouldDraw))
+    log('I', 'interface', 'interface_moderation: ' .. tostring(interface_moderation.shouldDraw))
 end
 
+local wasOnServer = false
+
 local function Update(dt)
-    if interface_roleplay.shouldDraw then
-        interface_roleplay.Draw(dt)
-    end
+    if network and network.connection and network.connection.connected and string.find(network.connection.server_info.name, 'Clutch') then
+        if not wasOnServer then
+            wasOnServer = true
 
-    if interface_Moderation.shouldDraw then
-        interface_Moderation.Draw(dt)
-    end
+            -- fix ui not showing
+            FS:unmount('/kissmp_mods/clutchrp')
+            FS:mount('/kissmp_mods/clutchrp')
+            core_vehicles.clearCache()
+        end
+        if character_selector.shouldDraw then
+            character_selector.Draw(dt)
+        end
 
-    if interface_phone.shouldDraw then
-        interface_phone.Draw(dt)
-    end
+        if interface_roleplay.shouldDraw then
+            interface_roleplay.Draw(dt)
+        end
 
-    if tooltip.shouldDraw then
-        tooltip.Draw(dt)
-    end
+        if interface_moderation.shouldDraw then
+            interface_moderation.Draw(dt)
+        end
 
-    if interface_Moderation.shouldDraw or interface_roleplay.shouldDraw then
-        command.Draw(dt)
+        if interface_phone.shouldDraw then
+            interface_phone.Draw(dt)
+        end
+
+        if tooltip.shouldDraw then
+            tooltip.Draw(dt)
+        end
+
+        if interface_moderation.shouldDraw or interface_roleplay.shouldDraw then
+            command.Draw(dt)
+        end
+    else
+        if wasOnServer then
+            M.character_selector.shouldDraw = false
+            kissui.force_disable_nametags = false
+
+
+        end
     end
 end
 
@@ -61,6 +85,7 @@ end
 
 M.tooltip = tooltip
 M.interface_phone = interface_phone
+M.character_selector = character_selector
 M.ToggleInterfaceRP = ToggleInterfaceRP
 M.ToggleInterfaceModeration = ToggleInterfaceModeration
 M.ToggleInterfacePhone = ToggleInterfacePhone

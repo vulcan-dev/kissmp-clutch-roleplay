@@ -1,5 +1,5 @@
 {
-    "clutchrp_interface_roleplay":{"cat":"general", "order":  0, "ctx": "tlua", "onUp": "clutchrp.interface.ToggleInterfaceRP()", "isBasic":true, "title": "ClutchRP Roleplay Menu", "desc": "ClutchRP Roleplay Menu" },
-    "clutchrp_interface_moderation":{"cat":"general", "order":  0, "ctx": "tlua", "onUp": "clutchrp.interface.ToggleInterfaceModeration()", "isBasic":true, "title": "ClutchRP Moderation Menu", "desc": "ClutchRP Moderation Menu" },
-    "clutchrp_interface_phone":{"cat":"general", "order":  0, "ctx": "tlua", "onUp": "clutchrp.interface.ToggleInterfacePhone()", "isBasic":true, "title": "ClutchRP Phone", "desc": "ClutchRP Phone" }
+    "clutchrp_interface_roleplay":{"cat":"general", "order":  0, "ctx": "tlua", "onUp": "clutchrpui.interface.ToggleInterfaceRP()", "isBasic":true, "title": "ClutchRP Roleplay Menu", "desc": "ClutchRP Roleplay Menu" },
+    "clutchrp_interface_moderation":{"cat":"general", "order":  0, "ctx": "tlua", "onUp": "clutchrpui.interface.ToggleInterfaceModeration()", "isBasic":true, "title": "ClutchRP Moderation Menu", "desc": "ClutchRP Moderation Menu" },
+    "clutchrp_interface_phone":{"cat":"general", "order":  0, "ctx": "tlua", "onUp": "clutchrpui.interface.ToggleInterfacePhone()", "isBasic":true, "title": "ClutchRP Phone", "desc": "ClutchRP Phone" }
 }

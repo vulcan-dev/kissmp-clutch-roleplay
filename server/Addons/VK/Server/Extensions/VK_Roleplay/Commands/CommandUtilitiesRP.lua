@@ -13,7 +13,8 @@ local Modules = {
     Roleplay = require('Addons.VK.Server.Extensions.VK_Roleplay.Roleplay'),
     Server = require('Addons.VK.Server'),
 
-    CFire = require('Addons.VK.Client.CFire')
+    CFire = require('Addons.VK.Client.CFire'),
+    CVehicle = require('Addons.VK.Client.CVehicle')
 }
 
 local cooldownTime = 0
@@ -64,7 +65,7 @@ M.Commands["view_bal"] = {
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        Modules.Server.SendChatMessage(executor.user:getID(), string.format("%s's balance: $%d", client.user:getName(), client.getKey('money')), Modules.Server.ColourSuccess)
+        Modules.Server.SendChatMessage(executor.user:getID(), string.format("%s's balance: $%d", client.user:getName(), client.getActiveCharacter().money), Modules.Server.ColourSuccess)
     end
 }
 
@@ -82,7 +83,7 @@ M.Commands["set_bal"] = {
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
         client = client.data
 
-        client.editKey('money', balance)
+        client.editCharacter('money', balance)
         Modules.Server.SendChatMessage(executor.user:getID(), string.format('You set %s balance to $%s', client.user:getName(), balance), Modules.Server.ColourSuccess)
         Modules.Server.SendChatMessage(client.user:getID(), string.format('%s set your balance to $%s', executor.user:getName(), balance), Modules.Server.ColourSuccess)
     end
@@ -90,7 +91,7 @@ M.Commands["set_bal"] = {
 
 --[[ Start Fire ]]--
 M.Commands["start_fire"] = {
-    rank = Modules.Moderation.RankModerator,
+    rank = Modules.Moderation.RankTrusted,
     category = 'Roleplay Utilities',
     usage = '/start_fire',
     exec = function(executor, args)
@@ -105,8 +106,9 @@ M.Commands["start_fire"] = {
 
 --[[ Extinguish Fire ]]--
 M.Commands["ext_fire"] = {
-    rank = Modules.Moderation.RankModerator,
+    rank = Modules.Moderation.RankUser,
     category = 'Roleplay Utilities',
+    roles = {'fire'},
     usage = '/ext_fire',
     exec = function(executor, args)
         local player = connections[executor.user:getID()]
@@ -156,7 +158,7 @@ M.Commands["add_role"] = {
         end
 
         if not Modules.Roleplay.HasRole(client, role) then
-            local data = client.getKey('roles')
+            local data = client.getActiveCharacter().roles
             local roles = {}
             for _, v in pairs(data) do
                 table.insert( roles, v )
@@ -164,7 +166,7 @@ M.Commands["add_role"] = {
 
             table.insert(roles, role)
             data = roles
-            client.editKey('roles', data)
+            client.editCharacter('roles', data)
             Modules.Server.DisplayDialogSuccess(client, string.format('%s Has Assigned You the Role: %s', executor.user:getName(), role))
             Modules.Server.DisplayDialogSuccess(executor, 'Successfully added role to user')
 
@@ -193,7 +195,7 @@ M.Commands["remove_role"] = {
         client = client.data
 
         if Modules.Roleplay.HasRole(client, role) then
-            local data = client.getKey('roles')
+            local data = client.getActiveCharacter().roles
             local roles = {}
             local pos = 1
             for _, v in pairs(data) do
@@ -207,7 +209,7 @@ M.Commands["remove_role"] = {
             end
 
             data = roles
-            client.editKey('roles', data)
+            client.editCharacter('roles', data)
             Modules.Server.DisplayDialog(client, string.format('%s Has Removed Your Role: %s', executor.user:getName(), role))
             Modules.Server.DisplayDialog(executor, 'Successfully Removed Role From User')
 
@@ -254,7 +256,7 @@ M.Commands["cuff"] = {
                         if (x > theirX - radius and x < theirX + radius) and (y > theirY - radius and y < theirY + radius) then
                             if not client.cuffed.isCuffed then
                                 their_vehicle:sendLua('controller.setFreeze(1)')
-                                Modules.Server.SendChatMessage(executor.user:getID(), 'Successfully cuffed '..client.user:getName(), Modules.Server.ColourError)
+                                Modules.Server.SendChatMessage(executor.user:getID(), 'Successfully cuffed '..client.getActiveCharacter().full_name, Modules.Server.ColourError)
                                 Modules.Server.SendChatMessage(client.user:getID(), 'You have been cuffed', Modules.Server.ColourError)
                                 client.cuffed.isCuffed = true
 
@@ -262,7 +264,7 @@ M.Commands["cuff"] = {
                                 return
                             else
                                 their_vehicle:sendLua('controller.setFreeze(0)')
-                                Modules.Server.SendChatMessage(executor.user:getID(), 'Successfully uncuffed '..client.user:getName(), Modules.Server.ColourSuccess)
+                                Modules.Server.SendChatMessage(executor.user:getID(), 'Successfully uncuffed '..client.getActiveCharacter().full_name, Modules.Server.ColourSuccess)
                                 Modules.Server.SendChatMessage(client.user:getID(), 'You have been uncuffed', Modules.Server.ColourSuccess)
                                 client.cuffed.isCuffed = false
 
@@ -314,7 +316,7 @@ M.Commands["drag"] = {
 
                         if (x > theirX - radius and x < theirX + radius) and (y > theirY - radius and y < theirY + radius) then
                             if client.cuffed.isCuffed and not client.cuffed.isBeingDragged then
-                                Modules.Server.SendChatMessage(executor.user:getID(), 'Dragging '..client.user:getName(), Modules.Server.ColourError)
+                                Modules.Server.SendChatMessage(executor.user:getID(), 'Dragging '..client.getActiveCharacter().full_name, Modules.Server.ColourError)
                                 client.cuffed.isBeingDragged = true
 
                                 client.cuffed.executor = executor
@@ -323,7 +325,7 @@ M.Commands["drag"] = {
                                 for _, c in pairs(G_Clients) do
                                     if c.user:getID() ~= 1337 then
                                         if c.cuffed.isCuffed and c.cuffed.executor.user == executor.user then
-                                            Modules.Server.SendChatMessage(executor.user:getID(), 'Undragging '..client.user:getName(), Modules.Server.ColourSuccess)
+                                            Modules.Server.SendChatMessage(executor.user:getID(), 'Undragging '..client.getActiveCharacter().full_name, Modules.Server.ColourSuccess)
                                             client.cuffed.isBeingDragged = false
 
                                             return
@@ -335,7 +337,7 @@ M.Commands["drag"] = {
                             for _, c in pairs(G_Clients) do
                                 if c.user:getID() ~= 1337 then
                                     if c.cuffed.isCuffed and c.cuffed.executor.user == executor.user then
-                                        Modules.Server.SendChatMessage(executor.user:getID(), 'Undragging '..client.user:getName(), Modules.Server.ColourSuccess)
+                                        Modules.Server.SendChatMessage(executor.user:getID(), 'Undragging '..client.getActiveCharacter().full_name, Modules.Server.ColourSuccess)
                                         client.cuffed.isBeingDragged = false
 
                                         return
@@ -370,7 +372,7 @@ M.Commands["get_roles"] = {
         if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then client.data = executor end
         client = client.data
 
-        local roles = client.getKey('roles')
+        local roles = client.getActiveCharacter().roles
         local count = 0
         for _, role in pairs(roles) do
             count = count + 1
@@ -398,7 +400,7 @@ M.Commands["transfer"] = {
         client = client.data
 
         if amount and type(amount) == 'number' then
-            local myMoney = executor.getKey('money')
+            local myMoney = executor.getKey(client.getActiveCharacter().money)
             if amount > myMoney then
                 Modules.Server.DisplayDialog(executor, 'You do not even have that much money, lmfao.')
                 return
@@ -406,8 +408,8 @@ M.Commands["transfer"] = {
 
             Modules.Server.DisplayDialog(executor, string.format('You have successfully sent %s $%d', client.user:getName(), amount))
             Modules.Server.DisplayDialog(client, string.format('You have recieved $%d from %s', amount, client.user:getName()))
-            client.editKey('money', client.getKey('money') + amount)
-            executor.editKey('money', executor.getKey('money') - amount)
+            client.editCharacter('money', client.getActiveCharacter().money + amount)
+            executor.editCharacter('money', executor.getActiveCharacter().money - amount)
         else
             Modules.Server.DisplayDialogError(executor, G_ErrorInvalidArguments)
         end
@@ -428,7 +430,7 @@ M.Commands["911"] = {
 
         for _, client in pairs(G_Clients) do
             if Modules.Roleplay.HasRole(client, 'police') and Modules.Roleplay.IsOnDuty(client) then
-                Modules.Server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.user:getName(), message))
+                Modules.Server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.getActiveCharacter().full_name, message))
             end
         end
 
@@ -450,7 +452,7 @@ M.Commands["ems"] = {
 
         for _, client in pairs(G_Clients) do
             if Modules.Roleplay.HasRole(client, 'EMS') then
-                Modules.Server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.user:getName(), message))
+                Modules.Server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.getActiveCharacter().full_name, message))
             end
         end
     end
@@ -470,7 +472,7 @@ M.Commands["fire"] = {
 
         for _, client in pairs(G_Clients) do
             if Modules.Roleplay.HasRole(client, 'Fire') then
-                Modules.Server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.user:getName(), message))
+                Modules.Server.SendChatMessage(client.user:getID(), string.format('Call from %s: %s', executor.getActiveCharacter().full_name, message))
             end
         end
 
@@ -567,7 +569,7 @@ M.Commands["twitter"] = {
         if not message or not args[1] then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
 
         for _, client in pairs(G_Clients) do
-            Modules.Server.SendChatMessage(client.user:getID(), string.format('[Twitter @%s]: %s', executor.user:getName(), message), Modules.Server.ColourTwitter)
+            Modules.Server.SendChatMessage(client.user:getID(), string.format('[Twitter @%s]: %s', executor.getActiveCharacter().full_name, message), Modules.Server.ColourTwitter)
         end
     end
 }
@@ -580,14 +582,14 @@ M.Commands["onduty"] = {
     usage = '/onduty',
     roles = {'police'},
     exec = function(executor, args)
-        local onduty = executor.getKey('onduty')
-        executor.editKey('onduty', not onduty)
+        local onduty = executor.getActiveCharacter().onduty
+        executor.editCharacter('onduty', not onduty)
 
         if not onduty then
             Modules.Server.DisplayDialog(executor, 'You are now on duty!')
             for _, client in pairs(G_Clients) do
                 if Modules.Roleplay.HasRole(client, 'Dispatch') and Modules.Roleplay.HasRole(client, 'police') then
-                    Modules.Server.SendChatMessage(client.user:getID(), string.format('Dispatch: %s is now on duty', executor.user:getName()), Modules.Server.ColourSuccess)
+                    Modules.Server.SendChatMessage(client.user:getID(), string.format('Dispatch: %s is now on duty', executor.getActiveCharacter().full_name), Modules.Server.ColourSuccess)
                     return
                 end
             end
@@ -595,7 +597,7 @@ M.Commands["onduty"] = {
             Modules.Server.DisplayDialog(executor, 'You are now off duty!')
             for _, client in pairs(G_Clients) do
                 if Modules.Roleplay.HasRole(client, 'Dispatch') and Modules.Roleplay.HasRole(client, 'police') then
-                    Modules.Server.SendChatMessage(client.user:getID(), string.format('Dispatch: %s is now off duty', executor.user:getName()), Modules.Server.ColourWarning)
+                    Modules.Server.SendChatMessage(client.user:getID(), string.format('Dispatch: %s is now off duty', executor.getActiveCharacter().full_name), Modules.Server.ColourWarning)
                     return
                 end
             end
@@ -700,7 +702,7 @@ M.Commands["rob"] = {
                     vehicle:sendLua('controller.setFreeze(1)')
                     Modules.TimedEvents.AddEvent(function()
                         vehicle:sendLua('controller.setFreeze(0)')
-                        executor.editKey('money', executor.getKey('money') + cash)
+                        executor.editKey('money', executor.getActiveCharacter().money + cash)
                         Modules.Server.DisplayDialog(executor)
                         executor.commandCooldown = false
                     end, 'rob_'..executor.user:getID(), time, true)
@@ -756,7 +758,7 @@ M.Commands["pr"] = {
 
         for _, client in pairs(G_Clients) do
             if Modules.Roleplay.IsLeo(client) then
-                Modules.Server.SendChatMessage(client.user:getID(), string.format('[Police Radio] %s: %s', executor.user:getName(), message), Modules.Server.ColourPoliceRadio)
+                Modules.Server.SendChatMessage(client.user:getID(), string.format('[Police Radio] %s: %s', executor.getActiveCharacter().full_name, message), Modules.Server.ColourPoliceRadio)
             end
         end
     end
@@ -779,7 +781,7 @@ M.Commands["repair"] = {
                 local x = vehicle:getTransform():getPosition()[1]
                 local y = vehicle:getTransform():getPosition()[2]
                 local total = 40
-                local client_money = executor.getKey('money')
+                local client_money = executor.getActiveCharacter().money
                 if total > client_money then Modules.Server.DisplayDialog(executor, 'You do not have enough money to afford this. Total is: '..total) return end
 
                 local isInRadius = Modules.Server.IsInRadius('repair_stations', 5, x, y)
@@ -793,7 +795,7 @@ M.Commands["repair"] = {
                         vehicle:sendLua('recovery.saveHome() recovery.startRecovering() recovery.stopRecovering()')
 
                         Modules.Server.DisplayDialog(executor, 'Vehicle repaired! That has costed you $' .. total)
-                        executor.editKey('money', executor.getKey('money') - total)
+                        executor.editCharacter('money', executor.getActiveCharacter().money - total)
                         executor.commandCooldown = false
                     end, 'repair_'..executor.user:getID(), 5, true)
                 else
@@ -869,7 +871,7 @@ M.Commands["refuel"] = {
                 local x = vehicle:getTransform():getPosition()[1]
                 local y = vehicle:getTransform():getPosition()[2]
                 local total = 20
-                local client_money = executor.getKey('money')
+                local client_money = executor.getActiveCharacter().money
                 if total > client_money then Modules.Server.DisplayDialog(executor, 'You do not have enough money to afford this. Total is: '..total) return end
 
                 local isInRadius = Modules.Server.IsInRadius('fuel_pumps', 2, x, y)
@@ -882,7 +884,7 @@ M.Commands["refuel"] = {
                         vehicle:sendLua('controller.setFreeze(0)')
                         vehicle:sendLua('energyStorage.reset()')
                         Modules.Server.DisplayDialog(executor, 'Vehicle refueled! That has costed you $' .. total)
-                        executor.editKey('money', executor.getKey('money') + total)
+                        executor.editCharacter('money', executor.getActiveCharacter().money + total)
                         executor.commandCooldown = false
                     end, 'refuel_'..executor.user:getID(), 5, true)
                     return
@@ -905,7 +907,7 @@ M.Commands["bank"] = {
     description = 'Displays your money',
     usage = '/bank',
     exec = function(executor, args)
-        Modules.Server.DisplayDialog(executor, 'Current balance: $' .. tostring(executor.getKey('money')))
+        Modules.Server.DisplayDialog(executor, 'Current balance: $' .. tostring(executor.getActiveCharacter().money))
     end
 }
 
@@ -919,7 +921,7 @@ M.Commands["do"] = {
         local message = Modules.Utilities.GetMessage(args, false)
 
         for _, client in pairs(G_Clients) do
-            Modules.Server.SendChatMessage(client.user:getID(), string.format('%s: %s', executor.user:getName(), message))
+            Modules.Server.SendChatMessage(client.user:getID(), string.format('%s: %s', executor.getActiveCharacter().full_name, message))
         end
     end
 }
@@ -956,7 +958,7 @@ M.Commands["me"] = {
                     local theirY = their_vehicle:getTransform():getPosition()[2]
 
                     if (x > theirX - radius and x < theirX + radius) and (y > theirY - radius and y < theirY + radius) then
-                        Modules.Server.SendChatMessage(client.user:getID(), string.format('(%s): %s', executor.user:getName(), message))
+                        Modules.Server.SendChatMessage(client.user:getID(), string.format('(%s): %s', executor.getActiveCharacter().full_name, message))
                     end
                 end
             end
@@ -1022,7 +1024,7 @@ M.Commands["send_gps"] = {
             local z = vehicle:getTransform():getPosition()[3]
 
             Modules.Server.DisplayDialog(executor, 'Successfully Send Your Location to '..client.user:getName())
-            Modules.Server.SendChatMessage(client.user:getID(), string.format('%s send to their GPS coords: %s, %s, %s', executor.user:getName(), math.floor(x), math.floor(y), math.floor(z)))
+            Modules.Server.SendChatMessage(client.user:getID(), string.format('%s send to their GPS coords: %s, %s, %s', executor.getActiveCharacter().full_name, math.floor(x), math.floor(y), math.floor(z)))
         end
     end
 }
@@ -1042,6 +1044,130 @@ M.Commands["addtm"] = {
                     extensions.clutchrp.phone.addMessage('%s')
                 ]], message)))
             end
+        end
+    end
+}
+
+M.Commands['character_menu'] = {
+    rank = Modules.Moderation.RankUser,
+    category = 'Roleplay Utilities',
+    description = 'Open the character creation screen',
+    usage = '/character_menu',
+    exec = function(executor, args)
+        executor.user:sendLua(G_LuaFormat("_Characters = jsonDecode('" .. encode_json(executor.getKey('characters')) .. "')"))
+        executor.user:sendLua('extensions.clutchrpui.interface.character_selector.shouldDraw = true')
+    end
+}
+
+M.Commands['create_character'] = {
+    rank = Modules.Moderation.RankUser,
+    exec = function(executor, args)
+        local firstName = args[1]
+        local secondName = args[2]
+        local age = args[3]
+
+        if not tonumber(age) then Modules.Server.DisplayDialogError(executor, 'Invalid Age') return end
+
+        if not firstName or firstName == 'Name' or not secondName then Modules.Server.DisplayDialogError(executor, 'Invalid Name') return end
+
+        local characters = executor.getKey('characters') or nil
+        if not characters then characters = {} end
+        if #characters >= 4 then Modules.Server.DisplayDialogError(executor, 'You have reached your character limit!') return end
+
+        local fullName = firstName .. ' ' .. secondName
+
+        if characters[fullName] then Modules.Server.DisplayDialogError(executor, 'This character already exists!') return end
+
+        characters[fullName] = {
+            age = age,
+            full_name = fullName,
+            first_name = firstName,
+            second_name = secondName,
+            roles = {},
+            money = 241,
+            onduty = false,
+            active = false
+        }
+
+        executor.editKey('characters', characters)
+        executor.user:sendLua(G_LuaFormat("_Characters = jsonDecode('" .. encode_json(executor.getKey('characters')) .. "')"))
+    end
+}
+
+M.Commands['get_characters'] = {
+    rank = Modules.Moderation.RankModerator,
+    category = 'Roleplay Utilities',
+    description = 'Get someones characters',
+    usage = '/get_character <client>',
+    exec = function(executor, args)
+        local client = Modules.Server.GetUser(args[1])
+
+        -- Check if the client exists
+        if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
+        client = client.data
+
+        for name, _ in pairs(client.getKey('characters')) do
+            Modules.Server.SendChatMessage(executor.user:getID(), name, Modules.Server.ColourWarning)
+        end
+    end
+}
+
+M.Commands['delete_character'] = {
+    rank = Modules.Moderation.RankModerator,
+    exec = function(executor, args)
+        local client = Modules.Server.GetUser(args[1])
+
+        -- Check if the client exists
+        if client.success then
+            local name = Modules.Utilities.GetMessage(args, true)
+            if not args[2] then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidArguments) end
+
+            client = client.data
+
+            if not client.deleteCharacter(name) then
+                Modules.Server.DisplayDialogError(executor, 'Character does not exist')
+            else
+                Modules.Server.DisplayDialogSuccess(executor, 'Character Successfully Deleted')
+                Modules.Server.DisplayDialogWarning(client, string.format('Your character "%s" has been deleted', name))
+            end
+        else
+            local name = Modules.Utilities.GetMessage(args)
+            if not executor.deleteCharacter(name) then
+                Modules.Server.DisplayDialogError(executor, 'Character does not exist')
+            else
+                Modules.Server.DisplayDialogSuccess(executor, 'Character Successfully Deleted')
+            end
+        end
+    end
+}
+
+M.Commands['select_character'] = {
+    rank = Modules.Moderation.RankUser,
+    exec = function(executor, args)
+        local character = Modules.Utilities.GetMessage(args, false)
+
+        if executor.getKey('characters')[character] then
+            local data = {}
+            for k, v in pairs(executor.getKey('characters')) do
+                data[k] = v
+            end
+
+            for _, character in pairs(executor.getKey('characters')) do
+                if character.active then
+                    data[character.full_name].active = false
+                    executor.editKey('characters', data)
+                end
+            end
+
+            local characters = executor.getKey('characters')
+            characters[character].active = true
+            Modules.Server.DisplayDialog(executor, 'You are now playing as ' .. character)
+            
+            executor.editKey('characters', characters)
+            executor.user:sendLua(Modules.CVehicle.setFreeze(0))
+            executor.user:sendLua('extensions.clutchrpui.interface.character_selector.shouldDraw = false')
+        else
+            Modules.Server.DisplayDialog(executor, 'Character does not exist')
         end
     end
 }

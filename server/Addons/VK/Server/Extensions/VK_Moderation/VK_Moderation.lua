@@ -18,7 +18,7 @@ local Modules = {
 }
 
 M.Callbacks = {
-    ['VK_PlayerConnect'] = function(client_id)
+    ['PlayerConnect'] = function(client_id)
         local client = G_Clients[client_id]
 
         -- Check for new alias
@@ -41,7 +41,6 @@ M.Callbacks = {
         local ban = Modules.Moderation.IsBanned(client.user:getSecret())
         if ban.time ~= nil and ban.time > 0 then -- User is banned
             if ban.time <= os.time() then -- Unban the mf
-                GDLog('You have been unbanned')
                 Modules.Moderation.removeBan(client.user:getSecret(), ban.name)
             else
                 client.user:kick(string.format('You are banned from this Server. Unban date: %s', os.date('%Y-%m-%d %H:%M:%S', ban.time)))
@@ -55,11 +54,11 @@ M.Callbacks = {
         end
     end,
 
-    ['VK_PlayerDisconnect'] = function(client)
+    ['PlayerDisconnect'] = function(client)
         GILog('[Player] %s has Disconnected', client.user:getName())
     end,
 
-    ['VK_VehicleSpawn'] = function(vehicle_id, client_id)
+    ['VehicleSpawn'] = function(vehicle_id, client_id)
         local vehicle = vehicles[vehicle_id]
 
         local can_drive = true
@@ -100,12 +99,12 @@ M.Callbacks = {
         end
     end,
 
-    ['VK_VehicleReset'] = function(vehicle_id, client_id)
+    ['VehicleReset'] = function(vehicle_id, client_id)
         G_Clients[client_id].user:sendLua(Modules.CEnvironment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
         return ""
     end,
 
-    ['VK_OnStdIn'] = function(message)
+    ['OnStdIn'] = function(message)
         if string.sub(message, 1, 1) == '/' then
             local args = Modules.Utilities.ParseCommand(message, ' ')
             args[1] = args[1]:sub(2)
@@ -119,7 +118,7 @@ M.Callbacks = {
         end
     end,
 
-    ['VK_Tick'] = function()
+    ['Tick'] = function()
         if os.time() >= nextUpdate then
             nextUpdate = os.time() + 5
 
@@ -140,7 +139,7 @@ M.Callbacks = {
         end
     end,
 
-    ['[VK_Moderation] ReloadModules'] = function()
+    ['[Moderation] ReloadModules'] = function()
         Modules = G_ReloadModules(Modules, 'VK_Moderation.lua')
         for _, module in pairs(Modules) do
             if module.ReloadModules then

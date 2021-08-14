@@ -8,9 +8,11 @@ local Modules = {
     TimedEvents = require('Addons.VK.TimedEvents'),
     Moderation = require('Addons.VK.Server.Extensions.VK_Moderation.Moderation'),
     Server = require('Addons.VK.Server'),
+    Roleplay = require('Addons.VK.Server.Extensions.VK_Roleplay.Roleplay'),
 
     CEnvironment = require('Addons.VK.Client.CEnvironment'),
     CPlayerJoin = require('Addons.VK.Client.CPlayerJoin'),
+    CVehicle = require('Addons.VK.Client.CVehicle')
 }
 
 local prefix = ''
@@ -37,15 +39,12 @@ M.Callbacks = {
             Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'warns', {})
             Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'alias', {connections[client_id]:getName()})
             Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'bans', {})
+            Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'characters', {})
             Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'vehicleLimit', 2)
             Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'mute_time', 0)
             Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'playtime', 0)
             Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'blockList', {})
             Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'home', {x=709.3377075195312, y=-0.7625573873519897, z=52.24008560180664, xr=-0.006330838892608881, yr=-0.00027202203636989, zr=-0.25916287302970886, w=0.9658128619194032})
-
-            Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'roles', {})
-            Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'money', 240)
-            Modules.Utilities.EditKey(G_PlayersLocation, connections[client_id]:getSecret(), 'onduty', false)
 
             GILog('Creating new user object for %s', connections[client_id]:getName())
         end
@@ -60,16 +59,6 @@ M.Callbacks = {
             --[[ Connected ]]--
             GILog("%s has connected", client.user:getName())
             Modules.Server.DisplayDialog(client, string.format('%s has joined!', client.user:getName()), 3)
-
-            --[[ Send Webhook ]]--
-            Modules.Utilities.SendAPI({
-                client = {
-                    name = client.user:getName()
-                },
-
-                data = 'Connected',
-                type = 'user_join_leave'
-            })
 
             --[[ Kick if Unknown (Specified in Server.json) ]]
             if Modules.Utilities.GetKey(G_ServerLocation, 'options', 'kick_unknown') and client.user:getName() == 'Unknown' then
@@ -101,16 +90,37 @@ M.Callbacks = {
             --[[ Create Waypoints ]]--
             Modules.Server.InitializeMarkers(client)
 
+            client.user:sendLua(G_LuaFormat("_Characters = jsonDecode('" .. encode_json(client.getKey('characters')) .. "')"))
+            client.user:sendLua('extensions.clutchrpui.interface.character_selector.shouldDraw = true')
+            client.user:sendLua(Modules.CVehicle.setFreeze(1))
+
             client.user:sendLua('kissui.force_disable_nametags = true')
 
             --[[ User Help ]]--
             Modules.Server.SendChatMessage(client.user:getID(), 'Use /help for a list of commands (only show for your rank)', Modules.Server.ColourSuccess)
             Modules.Server.SendChatMessage(client.user:getID(), 'KissMP 0.4.5 is currently buggy, please download the fixed version from /discord or KissMP\'s Github', Modules.Server.ColourSuccess)
+
+            --[[ Send Webhook ]]--
+            Modules.Utilities.SendAPI({
+                client = {
+                    name = client.user:getName()
+                },
+
+                data = 'Connected',
+                type = 'user_join_leave'
+            })
+
+            -- TODO add custom onConnect even for Moderation & RP and then call it here once player has connected
         end)
     end,
 
     ['OnPlayerDisconnected'] = function(client_id)
         local oldClient = G_Clients[client_id]
+        if oldClient.getActiveCharacter() then
+            oldClient.editCharacter('onduty', false)
+            oldClient.editCharacter('active', false)
+        end
+
         G_Clients[client_id].connected = false
         Modules.Server.RemoveClient(client_id)
 
@@ -132,6 +142,18 @@ M.Callbacks = {
         local client = G_Clients[client_id]
         if vehicles[vehicle_id]:getData():getName() ~= 'unicycle' then
             client.vehicles.count = client.vehicles.count + 1
+
+            if not client.getActiveCharacter() then
+                for _, c in pairs(G_Clients) do
+                    if c.rank() >= Modules.Moderation.RankModerator then
+                        Modules.Server.SendChatMessage(c.user:getID(), client.user:getName() .. ' spawned a vehicle with no character selected', Modules.Server.ColourError)
+                    end
+                end
+
+                client.vehicles.remove(client, vehicle_id)
+                return
+            end
+
             Modules.Utilities.SendAPI({
                 client = {
                     name = G_Clients[client_id].user:getName()
@@ -188,6 +210,14 @@ M.Callbacks = {
         else if string.sub(message, 1, 1) == prefix then
             local args = Modules.Utilities.ParseCommand(message, ' ')
             args[1] = string.lower(args[1]:sub(2))
+
+            if not executor.getActiveCharacter() then
+                GDLog(args[1])
+                if args[1] ~= 'help' and args[1] ~= 'create_character' and args[1] ~= 'select_character' then
+                    Modules.Server.SendChatMessage(executor.user:getID(), 'You cannot run any commands without selecting a character', Modules.Server.ColourError)
+                    return ''
+                end
+            end
 
             local command = G_Commands[args[1]]
             if not command then

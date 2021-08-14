@@ -2,7 +2,7 @@ local M = {}
 
 local imgui = ui_imgui
 
-M.shouldDraw = true
+M.shouldDraw = false
 M.shouldDrawCommand = false
 
 local viewport = imgui.GetMainViewport()
@@ -27,8 +27,8 @@ local function SetupStyle()
 end
 
 local tabs = {
-    tab_Utilities = require('clutchrp.ui.tabs.tab_utilities'),
-    tab_Moderation = require('clutchrp.ui.tabs.tab_moderation'),
+    tab_utilities = require('clutchrp.ui.tabs.tab_utilities'),
+    tab_moderation = require('clutchrp.ui.tabs.tab_moderation'),
     tab_fun = require('clutchrp.ui.tabs.tab_fun')
 }
 
@@ -52,8 +52,8 @@ local function Draw(dt)
     if imgui.Begin('Moderation Menu', imgui.BoolPtr(true), windowStyles) then
         imgui.PushStyleVar1(imgui.StyleVar_TabRounding, 0)
         if imgui.BeginTabBar('tab_moderation##') then
-            tabs.tab_Moderation.Draw(dt)
-            tabs.tab_Utilities.Draw(dt)
+            tabs.tab_moderation.Draw(dt)
+            tabs.tab_utilities.Draw(dt)
             tabs.tab_fun.Draw(dt)
         end
         imgui.PopStyleVar(1)

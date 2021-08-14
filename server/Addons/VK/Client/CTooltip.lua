@@ -8,13 +8,13 @@ M.message = ''
 local function Update(client)
     if M.canDraw then
         client.user:sendLua(G_LuaFormat(string.format([[
-            extensions.clutchrp.interface.tooltip.drawData.message = '%s'
-            extensions.clutchrp.interface.tooltip.shouldDraw = true
+            extensions.clutchrpui.interface.tooltip.drawData.message = '%s'
+            extensions.clutchrpui.interface.tooltip.shouldDraw = true
         ]], M.message)))
     else
         client.user:sendLua(G_LuaFormat[[
-            extensions.clutchrp.interface.tooltip.drawData.message = ''
-            extensions.clutchrp.interface.tooltip.shouldDraw = false
+            extensions.clutchrpui.interface.tooltip.drawData.message = ''
+            extensions.clutchrpui.interface.tooltip.shouldDraw = false
         ]])
     end
 end
