@@ -921,7 +921,7 @@ M.Commands["do"] = {
         local message = Modules.Utilities.GetMessage(args, false)
 
         for _, client in pairs(G_Clients) do
-            Modules.Server.SendChatMessage(client.user:getID(), string.format('%s: %s', executor.getActiveCharacter().full_name, message))
+            Modules.Server.SendChatMessage(client.user:getID(), string.format('%s %s', executor.getActiveCharacter().full_name, message))
         end
     end
 }
