@@ -1,0 +1,30 @@
+{
+    "clutchrp_toggleModeration": {
+        "cat":"general",
+        "order":  0,
+        "ctx": "tlua",
+        "onUp": "Clutch.ToggleModerationMenu()",
+        "isBasic": true,
+        "title": "ClutchRP Moderation Menu",
+        "desc": "ClutchRP Moderation Menu"
+    },
+    "clutchrp_toggleInterface": {
+        "cat":"general",
+        "order":  0,
+        "ctx": "tlua",
+        "onUp": "Clutch.ToggleRoleplayMenu()",
+        "isBasic": true,
+        "title": "ClutchRP Roleplay Menu",
+        "desc": "ClutchRP Roleplay Menu"
+    },
+    "clutchrp_showPlayerList": {
+        "cat": "general",
+        "order": 0,
+        "ctx": "tlua",
+        "onDown": "Clutch.ShowPlayerlist()",
+        "onUp": "Clutch.HidePlayerlist()",
+        "isBasic": true,
+        "title": "ClutchRP Playerlist",
+        "desc": "ClutchRP Playerlist"
+    }
+}

@@ -6,5 +6,7 @@ players.json
 KissMP
 discord_bot
 
+*.woff*
+
 *.log
 *.exe
