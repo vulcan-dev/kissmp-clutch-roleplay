@@ -2,7 +2,7 @@ Hooks = {}
 
 require('Addons.VK.Globals')
 
-local validHooks = {
+Hooks.ValidHooks = {
     ['OnPlayerConnected']=0,
     ['OnPlayerDisconnected']=0,
     ['OnVehicleSpawned']=0,
@@ -16,16 +16,12 @@ local validHooks = {
 Hooks.CustomHooks = {}
 
 Hooks.Register = function(hook, subname, callback)
-    if validHooks[hook] then
+    if Hooks.ValidHooks[hook] then
         hooks.register(hook, subname, callback)
-        GILog('Registered Callback { ' .. hook .. ' } : Extension { ' .. subname .. ' }')
+        GILog('Registered Callback { ' .. hook .. ' } : -> { ' .. subname .. ' }')
     else
         Hooks.CustomHooks[hook] = callback
-        GILog('Registered Custom Callback { ' .. hook .. ' } : Extension { ' .. subname .. ' }')
-    end
-
-    if hook == 'Initialize' then
-        Hooks.Call(hook)
+        GILog('Registered Custom Callback { ' .. hook .. ' } -> { ' .. subname..' }')
     end
 end
 
@@ -37,9 +33,9 @@ Hooks.Reload = function()
     end
 end
 
-Hooks.Call = function(hook)
+Hooks.Call = function(hook, ...)
     if Hooks.CustomHooks[hook] then
-        Hooks.CustomHooks[hook]()
+        Hooks.CustomHooks[hook](...)
     else
         GELog('No hook named: %s', hook)
     end

@@ -75,6 +75,8 @@ local function AddClient(client_id)
         return Modules.Utilities.GetKey(G_PlayersLocation, G_Clients[client_id].user:getSecret(), key)
     end
 
+    client.firstConnect = true
+
     client.getActiveCharacter = function()
         for _, character in pairs(client.getKey('characters')) do
             if character.active then return character end

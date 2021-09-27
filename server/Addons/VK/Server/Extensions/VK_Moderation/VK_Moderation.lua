@@ -18,7 +18,7 @@ local Modules = {
 }
 
 M.Callbacks = {
-    ['PlayerConnect'] = function(client_id)
+    ['F_OnPlayerConnected'] = function(client_id)
         local client = G_Clients[client_id]
 
         -- Check for new alias
@@ -54,11 +54,11 @@ M.Callbacks = {
         end
     end,
 
-    ['PlayerDisconnect'] = function(client)
+    ['F_OnPlayerDisconnected'] = function(client)
         GILog('[Player] %s has Disconnected', client.user:getName())
     end,
 
-    ['VehicleSpawn'] = function(vehicle_id, client_id)
+    ['OnVehicleSpawned'] = function(vehicle_id, client_id)
         local vehicle = vehicles[vehicle_id]
 
         local can_drive = true
@@ -99,12 +99,13 @@ M.Callbacks = {
         end
     end,
 
-    ['VehicleReset'] = function(vehicle_id, client_id)
+    ['OnVehicleResetted'] = function(vehicle_id, client_id)
         G_Clients[client_id].user:sendLua(Modules.CEnvironment.setWind({x = G_Environment.wind.x, y = G_Environment.wind.y, z = G_Environment.wind.z}))
         return ""
     end,
 
     ['OnStdIn'] = function(message)
+        GDLog('test')
         if string.sub(message, 1, 1) == '/' then
             local args = Modules.Utilities.ParseCommand(message, ' ')
             args[1] = args[1]:sub(2)
@@ -139,7 +140,7 @@ M.Callbacks = {
         end
     end,
 
-    ['[Moderation] ReloadModules'] = function()
+    ['ReloadModules'] = function()
         Modules = G_ReloadModules(Modules, 'VK_Moderation.lua')
         for _, module in pairs(Modules) do
             if module.ReloadModules then

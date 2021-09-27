@@ -24,7 +24,7 @@ local function HasRole(client, role)
     local found = false
 
     local count = 0
-    for _, v in ipairs(client.getActiveCharacter().roles) do
+    for _, v in ipairs(client.roles()) do
         if tostring(role) == tostring(v) then
             found = true
             break

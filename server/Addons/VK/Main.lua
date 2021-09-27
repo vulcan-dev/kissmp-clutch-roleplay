@@ -51,6 +51,7 @@ local Modules = {
 }
 
 local function Initialize()
+    G_Level = G_LevelDebug
     Modules = G_ReloadModules(Modules, 'Main.lua')
 
     --[[ Load Extensions ]]--
@@ -76,6 +77,7 @@ local function Initialize()
     end
 
     Hooks.Register('[Main] Initialize', 'Initialize', Initialize)
+    Hooks.Call('Initialize', Initialize, Modules.Callbacks.Initialize)
     Hooks.Reload()
 end
 

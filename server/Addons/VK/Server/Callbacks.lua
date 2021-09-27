@@ -20,7 +20,6 @@ local nextUpdate = 0
 
 M.Callbacks = {
     ['Initialize'] = function()
-        G_Level = G_LevelDebug
         prefix = Modules.Utilities.GetKey(G_ServerLocation, 'options', 'command_prefix')
 
         G_Verbose = Modules.Utilities.GetKey(G_ServerLocation, 'log', 'verbose')
@@ -53,9 +52,13 @@ M.Callbacks = {
         Modules.Server.AddClient(client_id)
         local client = G_Clients[client_id]
 
+        if client.firstConnect then client.firstConnect = false end
+
         GILog('%s is connecting [ %s ]', client.user:getName(), connections[client_id]:getSecret())
 
         Modules.Server.IsConnected(client, client.user:getName(), function()
+            Hooks.Call('[Moderation] F_OnPlayerConnected', client_id)
+
             --[[ Connected ]]--
             GILog("%s has connected", client.user:getName())
             Modules.Server.DisplayDialog(client, string.format('%s has joined!', client.user:getName()), 3)
@@ -116,6 +119,7 @@ M.Callbacks = {
 
     ['OnPlayerDisconnected'] = function(client_id)
         local oldClient = G_Clients[client_id]
+        Hooks.Call('[Moderation] F_OnPlayerDisconnected', oldClient)
         if oldClient.getActiveCharacter() then
             oldClient.editCharacter('onduty', false)
             oldClient.editCharacter('active', false)
@@ -145,7 +149,7 @@ M.Callbacks = {
 
             if not client.getActiveCharacter() then
                 for _, c in pairs(G_Clients) do
-                    if c.rank() >= Modules.Moderation.RankModerator then
+                    if c.rank() >= Modules.Moderation.RankModerator and not c.firstConnect then
                         Modules.Server.SendChatMessage(c.user:getID(), client.user:getName() .. ' spawned a vehicle with no character selected', Modules.Server.ColourError)
                     end
                 end
@@ -176,7 +180,7 @@ M.Callbacks = {
     end,
 
     ['OnChat'] = function(client_id, message)
-        local executor = G_Clients[client_id]
+        local executor = G_Clients[client_id] 
 
         --[[ Check if the Client is Muted ]]--
         local mute_time = G_Clients[client_id].getKey('mute_time')
@@ -188,31 +192,30 @@ M.Callbacks = {
                 return ""
             end
         end
-
+        
         --[[ Check if Command ]]
         if string.sub(message, 1, 1) == '@' then
             local args = Modules.Utilities.ParseCommand(message, ' ')
             args[1] = string.lower(args[1]:sub(2))
             string.gsub(args[1], '@', '')
-
+            
             local client = Modules.Server.GetUser(args[1])
-
+            
             -- Check if the client exists
             if not client.success or not Modules.Server.GetUserKey(client.data, 'rank') then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidUser) return end
             client = client.data
-
+            
             local message = Modules.Utilities.GetMessage(args)
-
+            
             -- Check if message is valid
             if not message or not args[1] then Modules.Server.DisplayDialogError(executor, G_ErrorInvalidMessage) return end
-
+            
             Modules.Server.SendChatMessage(string.format('%s @%s: %s', executor.user:getName(), client.user:getName(), message), Modules.Server.ColourMention)
         else if string.sub(message, 1, 1) == prefix then
             local args = Modules.Utilities.ParseCommand(message, ' ')
             args[1] = string.lower(args[1]:sub(2))
 
             if not executor.getActiveCharacter() then
-                GDLog(args[1])
                 if args[1] ~= 'help' and args[1] ~= 'create_character' and args[1] ~= 'select_character' then
                     Modules.Server.SendChatMessage(executor.user:getID(), 'You cannot run any commands without selecting a character', Modules.Server.ColourError)
                     return ''

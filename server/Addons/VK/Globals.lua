@@ -50,9 +50,9 @@ function G_ReloadModules(modules, filename)
     for module_name, _ in pairs(modules) do
         if package.loaded[module_name] then
             package.loaded[module_name] = nil
-            GDLog('[Module] [%s] Reloaded %s', filename, module_name)
+            -- GDLog('[Module] [%s] Reloaded %s', filename, module_name)
         else
-            GDLog('[Module] [%s] Loaded %s', filename, module_name)
+            -- GDLog('[Module] [%s] Loaded %s', filename, module_name)
         end
 
         modules[module_name] = require(module_name)

@@ -23,7 +23,7 @@ local Modules = {
 }
 
 M.Callbacks = {
-    ['VK_VehicleSpawn'] = function(vehicle_id, client_id)
+    ['OnVehicleSpawned'] = function(vehicle_id, client_id)
         local client = G_Clients[client_id]
 
         --[[ Check if vehicle config is allowed ]]
@@ -51,7 +51,7 @@ M.Callbacks = {
         end
     end,
 
-    ['VK_Tick'] = function()
+    ['Tick'] = function()
         if os.time() >= nextUpdatePaycheckRules then
             nextUpdatePaycheckRules = os.time() + 1200
 
@@ -163,7 +163,7 @@ M.Callbacks = {
         end
     end,
 
-    ['[VK_Roleplay] ReloadModules'] = function()
+    ['ReloadModules'] = function()
         Modules = G_ReloadModules(Modules, 'VK_Roleplay.lua')
         for _, module in pairs(Modules) do
             if module.ReloadModules then
